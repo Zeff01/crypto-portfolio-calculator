@@ -37,14 +37,10 @@ export default function App() {
     <PaperProvider theme={theme}>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <SafeAreaProvider>
-
-
           <RootNavigation />
-          {/* <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} /> */}
-
-
+          <StatusBar style={theme === 'dark' ? 'light' : 'dark'} />
         </SafeAreaProvider>
-      </GestureHandlerRootView >
+      </GestureHandlerRootView>
     </PaperProvider>
   );
 }
