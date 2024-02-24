@@ -8,7 +8,6 @@ import useAuthStore from '../store/useAuthStore';
 import BottomTabNavigator from './BottomTabNavigator';
 import LoginScreen from '../screens/LoginScreen';
 import SignUpScreen from '../screens/SignUpScreen';
-import SignInScreen from '../screens/SignInScreen';
 import AddCoinScreen from '../screens/AddCoinScreen';
 
 const Stack = createNativeStackNavigator();
@@ -34,7 +33,6 @@ const StackNavigator = () => {
             <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="SignUp" component={SignUpScreen} />
             <Stack.Screen name="SignIn" component={SignInScreen} />
-
             <Stack.Screen name="HomeBottomTab" component={BottomTabNavigator} options={{ headerShown: false }} />
 
             <Stack.Screen

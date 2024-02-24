@@ -42,7 +42,7 @@ const SignUpScreen = ({ navigation }) => {
             <Button title={loading ? 'Signing up...' : 'Sign Up'} onPress={handleSignUp} disabled={loading} />
             <Button
                 title="Already have an account? Login"
-                onPress={() => navigation.navigate('LoginScreen')}
+                onPress={() => navigation.navigate('Login')}
             />
         </View>
     );
