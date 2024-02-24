@@ -39,6 +39,10 @@ const LoginScreen = ({ navigation }) => {
                 secureTextEntry
             />
             <Button title={loading ? 'Logging in...' : 'Login'} onPress={handleLogin} disabled={loading} />
+            <Button
+                title="Don't have an account? Sign Up"
+                onPress={() => navigation.navigate('SignUpScreen')}
+            />
         </View>
     );
 };
