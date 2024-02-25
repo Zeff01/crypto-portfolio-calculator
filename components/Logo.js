@@ -3,7 +3,7 @@ import React from 'react'
 import LogoIcon from '../assets/svgs/logo-blue.svg';
 
 
-const Logo = ({size}) => {
+const Logo = ({ size }) => {
   return (
     <LogoIcon height={size} width={size} />
   )
