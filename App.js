@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider as PaperProvider } from 'react-native-paper';
@@ -14,6 +14,7 @@ import {
 import { CustomLightTheme, CustomDarkTheme } from './constants/Theme'
 import useThemeStore from './store/useThemeStore';
 import RootNavigation from './navigation/RootNavigation';
+import { supabase } from './services/supabase';
 
 export default function App() {
   const [fontsLoaded] = useFonts({
@@ -22,6 +23,19 @@ export default function App() {
     Poppins_600SemiBold,
     Poppins_700Bold,
   });
+  const [session, setSession] = useState()
+
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session)
+    })
+
+    supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session)
+    })
+  }, [])
+
 
 
   const scheme = useThemeStore((state) => state.theme) || 'light';
@@ -31,6 +45,7 @@ export default function App() {
   if (!fontsLoaded) {
     return null;
   }
+
 
 
   return (

@@ -6,24 +6,51 @@ const SignUpScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const [name, setName] = useState('');
 
     const handleSignUp = async () => {
         setLoading(true);
-        const { error } = await supabase.auth.signUp({ email, password });
+        const { data, error } = await supabase.auth.signUp({
+            email, password, options: {
+                data: {
+                    name: name,
+                    age: 27,
+                }
+            }
+        });
+        console.log("data: from sign up", data)
         setLoading(false);
+
+        if (data?.user) {
+            console.log('goes here')
+            const insertResponse = await supabase
+                .from('subscription')
+                .insert([
+                    { isPaid: false, userId: data.user.id }
+                ]);
+            console.log("insertResponse:", insertResponse)
+
+        }
 
         if (error) {
             Alert.alert('Signup Failed', error.message);
         } else {
-            Alert.alert('Signup Successful', 'Please check your email to verify your account.');
+            Alert.alert('Signup Successful', 'Login to continue');
             // Optionally navigate to Login Screen or Home Screen after signup
-            // navigation.navigate('LoginScreen');
+            navigation.navigate('Login');
         }
     };
 
     return (
         <View style={styles.container}>
             <Text style={styles.title}>SignUp Screen</Text>
+            <TextInput
+                style={styles.input}
+                placeholder="Name"
+                value={name}
+                onChangeText={setName}
+                autoCapitalize="words"
+            />
             <TextInput
                 style={styles.input}
                 placeholder="Email"

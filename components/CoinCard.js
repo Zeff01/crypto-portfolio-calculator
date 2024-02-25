@@ -26,7 +26,7 @@ const CoinCard = ({ data, usdToPhpRate, budgetPerCoin }) => {
 
 
 
-    const budgetPerCoinUsd = budgetPerCoin / usdToPhpRate;
+    const budgetPerCoinUsd = budgetPerCoin;
     const priceChangeIconName = data.priceChangePercentage >= 0 ? 'arrow-up' : 'arrow-down';
     const priceChangeColor = data.priceChangePercentage >= 0 ? 'green' : 'red';
     const athRoi = ((data.allTimeHigh / data.allTimeLow) - 1) * 100;
@@ -37,7 +37,7 @@ const CoinCard = ({ data, usdToPhpRate, budgetPerCoin }) => {
     const trueBudgetPerCoinPhp = trueBudgetPerCoinUsd * usdToPhpRate;
     const additionalBudgetUsd = (budgetPerCoinUsd - trueBudgetPerCoinUsd) > 0 ? (budgetPerCoinUsd - trueBudgetPerCoinUsd) : 0;
     const additionalBudgetPhp = additionalBudgetUsd * usdToPhpRate;
-    const projectedRoiUsd = budgetPerCoin * 70;
+    const projectedRoiUsd = trueBudgetPerCoinUsd * 70;
     const projectedRoiPhp = projectedRoiUsd * usdToPhpRate;
 
 
@@ -128,7 +128,7 @@ const CoinCard = ({ data, usdToPhpRate, budgetPerCoin }) => {
 
                 {/* True Budget per Coin */}
                 <View style={styles.tableRow}>
-                    <Text style={styles.tableCellTitle}>True Budget per Coin:</Text>
+                    <Text style={styles.tableCellTitle}>True Budget on this Coin:</Text>
                     <Text style={styles.tableCellValue}>${trueBudgetPerCoinUsd.toFixed(2)} | ₱{trueBudgetPerCoinPhp.toFixed(2)}</Text>
                 </View>
 
@@ -140,7 +140,7 @@ const CoinCard = ({ data, usdToPhpRate, budgetPerCoin }) => {
 
                 {/* Projected ROI */}
                 <View style={styles.tableRow}>
-                    <Text style={styles.tableCellTitle}>Projected ROI:</Text>
+                    <Text style={styles.tableCellTitle}>Projected ROI (70x):</Text>
                     <Text style={styles.tableCellValue}>${projectedRoiUsd.toFixed(2)} | ₱{projectedRoiPhp.toFixed(2)}</Text>
                 </View>
 

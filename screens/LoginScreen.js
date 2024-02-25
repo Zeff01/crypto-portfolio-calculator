@@ -9,7 +9,9 @@ const LoginScreen = ({ navigation }) => {
 
     const handleLogin = async () => {
         setLoading(true);
-        const { error } = await supabase.auth.signIn({ email, password });
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email, password
+        });
         setLoading(false);
 
         if (error) {
@@ -29,6 +31,7 @@ const LoginScreen = ({ navigation }) => {
                 value={email}
                 onChangeText={setEmail}
                 autoCapitalize="none"
+
                 keyboardType="email-address"
             />
             <TextInput

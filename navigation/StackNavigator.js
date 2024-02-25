@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { StyleSheet } from 'react-native';
 import useAuthStore from '../store/useAuthStore';
 
 // Import your screens
@@ -9,11 +8,34 @@ import BottomTabNavigator from './BottomTabNavigator';
 import LoginScreen from '../screens/LoginScreen';
 import SignUpScreen from '../screens/SignUpScreen';
 import AddCoinScreen from '../screens/AddCoinScreen';
-
+import { supabase } from '../services/supabase';
+import { useNavigation } from '@react-navigation/native';
 const Stack = createNativeStackNavigator();
 
 const StackNavigator = () => {
     const authToken = useAuthStore((state) => state.authToken);
+    const navigation = useNavigation()
+    useEffect(() => {
+
+        const getSession = async () => {
+            const { data, error } = await supabase.auth.getSession()
+
+            if (data.session) {
+                // If there's a session, navigate to the HomeBottomTab
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'HomeBottomTab' }],
+                });
+            } else {
+                // If there's no session, navigate to the Login screen
+                navigation.reset({
+                    index: 0,
+                    routes: [{ name: 'Login' }],
+                });
+            }
+        }
+        getSession()
+    }, [navigation]);
 
     return (
         <Stack.Navigator

@@ -37,22 +37,23 @@ export const fetchCoinData = async (coinId) => {
 export const fetchSearchResults = async (query) => {
     const url = `https://api.coingecko.com/api/v3/search?query=${query}`;
     const response = await fetch(url);
-    console.log("response:", response.data)
     const data = await response.json();
-    return data.coins; // Assuming the API returns a list of coins
+    return data.coins;
 };
 
 
-// utils/api.js
+
 export const fetchUsdToPhpRate = async () => {
-    // Example API endpoint, replace with your actual API
-    const apiUrl = 'https://api.exchangerate-api.com/v4/latest/USD';
+
+    // const apiUrl = 'https://api.exchangerate-api.com/v4/latest/USD';
+    const apiUrl = 'https://v6.exchangerate-api.com/v6/38e6ab442d1a0fc7a06bac3b/pair/USD/PHP';
     try {
         const response = await fetch(apiUrl);
         const data = await response.json();
-        return data.rates.PHP; // Assuming the API returns a rates object with PHP
+        // return data.rates.PHP;
+        return data.conversion_rate;
     } catch (error) {
         console.error('Failed to fetch exchange rate', error);
-        return null; // Handle error appropriately
+        return null;
     }
 };
