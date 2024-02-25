@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import { Button } from 'react-native-paper';
 import useCoinDataStore from '../store/useCoinDataStore';
 import { supabase } from '../services/supabase';
+import useGlobalStore from '../store/useGlobalStore';
 
 
 const AddCoinScreen = () => {
@@ -15,6 +16,8 @@ const AddCoinScreen = () => {
     const [numberOfShares, setNumberOfShares] = useState('');
     const navigation = useNavigation();
     const addCoinData = useCoinDataStore((state) => state.addCoinData);
+    const { usdToPhpRate, budgetPerCoin } = useGlobalStore();
+
 
     const debouncedSearch = debounce(async (query) => {
         if (!query) return setSearchResults([]);
@@ -50,43 +53,56 @@ const AddCoinScreen = () => {
 
     const handleConfirm = async () => {
         if (selectedCoin && numberOfShares) {
-            console.log("selectedCoin:", selectedCoin)
-            // Assuming `selectedCoin` object contains all the details you need to save
+
+
+            const coinDetails = await fetchCoinData(selectedCoin.id);
+
+            if (!coinDetails) {
+                console.error("Failed to fetch coin details.");
+                return;
+            }
+
+            // Calculations
+            const priceChangeIcon = coinDetails.priceChangePercentage >= 0 ? 'arrow-up' : 'arrow-down';
+            const priceChangeColor = coinDetails.priceChangePercentage >= 0 ? 'green' : 'red';
+            const athRoi = ((coinDetails.allTimeHigh / coinDetails.allTimeLow) - 1) * 100;
+            const percentIncreaseFromAtl = ((coinDetails.currentPrice / coinDetails.allTimeLow) - 1) * 100;
+            const totalHoldingsUsd = coinDetails.currentPrice * parseInt(numberOfShares);
+            const trueBudgetPerCoinUsd = totalHoldingsUsd / (coinDetails.currentPrice / coinDetails.allTimeLow);
+            const additionalBudgetUsd = Math.max(budgetPerCoin - trueBudgetPerCoinUsd, 0);
+            const projectedRoiUsd = trueBudgetPerCoinUsd * 70;
+
             const { data: { user } } = await supabase.auth.getUser()
-            console.log("user:", user.email)
-
-
 
             if (user) {
-                const { data: myId } = await supabase
-                    .from('users')
-                    .select('id')
-                    .eq('email', user.email) // Match based on email
-                    .single();
-                console.log("myId:", myId.id)
 
                 const portfolioData = {
-                    userId: myId.id,
-                    shares: parseInt(numberOfShares, 10), // Ensure this is an integer
+                    userId: user.id,
+                    shares: parseInt(numberOfShares, 10),
                     coinId: selectedCoin.id,
-                    coinImage: selectedCoin.thumb, // Using 'thumb' for the image
+                    coinImage: selectedCoin.large,
                     coinName: selectedCoin.name,
-                    // Assuming the following fields need to be fetched or are set to defaults as they're not in `selectedCoin`
-                    allTimeHigh: 0, // Placeholder, adjust as necessary
-                    allTimeLow: 0, // Placeholder, adjust as necessary
-                    athRoi: 0, // Placeholder, adjust as necessary
-                    increaseFromATL: 0, // Placeholder, adjust as necessary
-                    totalHoldings: 0, // You might calculate this based on current price * numberOfShares
-                    trueBudget: 0, // Placeholder, adjust as necessary
-                    additionalBudgetToCatchUp: 0, // Placeholder, adjust as necessary
-                    projectedRoi: 0, // Placeholder, adjust as necessary
-                    marketCap: selectedCoin.market_cap_rank, // Using market cap rank as a placeholder
-                    totalSupply: 0, // Placeholder, adjust as necessary
-                    circulatingSupply: 0, // Placeholder, adjust as necessary
-                    maxSupply: 0, // Placeholder, adjust as necessary
-                    tradingVolume: 0, // Placeholder, adjust as necessary
                     marketCapRank: selectedCoin.market_cap_rank,
+                    allTimeHigh: coinDetails.allTimeHigh,
+                    allTimeLow: coinDetails.allTimeLow,
+                    athRoi: athRoi,
+                    increaseFromATL: percentIncreaseFromAtl,
+                    totalHoldings: totalHoldingsUsd,
+                    trueBudgetPerCoin: trueBudgetPerCoinUsd,
+                    additionalBudget: additionalBudgetUsd,
+                    projectedRoi: projectedRoiUsd,
+                    priceChangeIcon: priceChangeIcon,
+                    priceChangeColor: priceChangeColor,
+                    tradingVolume: coinDetails.tradingVolume,
+                    marketCap: coinDetails.marketCap,
+                    maxSupply: coinDetails.maxSupply,
+                    totalSupply: coinDetails.totalSupply,
+                    circulatingSupply: coinDetails.circulatingSupply,
+                    currentPrice: coinDetails.currentPrice,
+                    priceChangePercentage: coinDetails.priceChangePercentage,
+
                 };
+
 
                 const { data, error } = await supabase.from('portfolio').insert([portfolioData]);
 
@@ -216,8 +232,9 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: 'gray',
         borderRadius: 5,
-        width: '30%',
-        padding: 10,
+        width: '40%',
+        paddingVertical: 2,
+        paddingHorizontal: 8,
         marginVertical: 10,
     },
     button: {

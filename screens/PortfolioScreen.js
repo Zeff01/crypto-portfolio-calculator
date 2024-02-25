@@ -5,45 +5,34 @@ import useCoinDataStore from '../store/useCoinDataStore';
 import CoinCard from '../components/CoinCard';
 import { fetchUsdToPhpRate } from '../utils/api';
 import { supabase } from '../services/supabase';
+import useGlobalStore from '../store/useGlobalStore';
+import { useFocusEffect } from '@react-navigation/native';
 
 const PortfolioScreen = () => {
-    const [usdToPhpRate, setUsdToPhpRate] = useState(null);
-    const [budgetPerCoin, setBudgetPerCoin] = useState('');
-    const coinData = useCoinDataStore((state) => state.coinData);
+
+    const { setUsdToPhpRate, setBudgetPerCoin, usdToPhpRate, budgetPerCoin } = useGlobalStore();
     const [isEditingBudget, setIsEditingBudget] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [portfolioEntries, setPortfolioEntries] = useState([]);
 
-    useEffect(() => {
-        checkUserPaymentStatus();
-        getExchangeRate();
-        // fetchPortfolioData();
-    }, []);
-
-    // const fetchPortfolioData = async () => {
-    //     const { data: { user } } = await supabase.auth.getUser()
-
-    //     if (user) {
-    //         const { data: myId } = await supabase
-    //             .from('users')
-    //             .select('id')
-    //             .eq('email', user.email) // Match based on email
-    //             .single();
 
 
+    const fetchPortfolioData = async () => {
+        const { data: { user } } = await supabase.auth.getUser()
 
-    //         const { data: portfolioData, error } = await supabase
-    //             .from('portfolio')
-    //             .select('*')
-    //             .eq('userId', myId.id);
-    //         console.log("portfolioData:", portfolioData)
-    //         if (error) {
-    //             console.error('Error fetching portfolio data:', error);
-    //         } else {
-    //             setPortfolioEntries(portfolioData);
-    //         }
-    //     }
-    // };
+        if (user) {
+            const { data: portfolioData, error } = await supabase
+                .from('portfolio')
+                .select('*')
+                .eq('userId', user.id);
+
+            if (error) {
+                console.error('Error fetching portfolio data:', error);
+            } else {
+                setPortfolioEntries(portfolioData);
+            }
+        }
+    };
 
     const getExchangeRate = async () => {
         const rate = await fetchUsdToPhpRate();
@@ -71,14 +60,20 @@ const PortfolioScreen = () => {
         }
     };
 
-
     useEffect(() => {
-        const getExchangeRate = async () => {
-            const rate = await fetchUsdToPhpRate();
-            setUsdToPhpRate(rate);
-        };
+        checkUserPaymentStatus();
         getExchangeRate();
+        fetchPortfolioData();
     }, []);
+
+    useFocusEffect(
+        React.useCallback(() => {
+            // Fetch or refresh your portfolio data here
+            fetchPortfolioData();
+        }, [])
+    );
+
+
 
     const handleBudgetChange = (value) => {
         setBudgetPerCoin(value);
@@ -87,6 +82,65 @@ const PortfolioScreen = () => {
     const toggleEdit = () => {
         setIsEditingBudget(!isEditingBudget);
     };
+
+    const updateBudgets = async (newBudget) => {
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (user) {
+            const { data: portfolioData, error: fetchError } = await supabase
+                .from('portfolio')
+                .select('*')
+                .eq('userId', user.id);
+
+            if (fetchError || !portfolioData) {
+                console.error('Error fetching portfolio data:', fetchError);
+                return;
+            }
+
+
+            portfolioData.forEach(async (entry) => {
+
+                const additionalBudget = Math.max(newBudget - entry.trueBudgetPerCoin, 0);
+
+
+                const { error: updateError } = await supabase
+                    .from('portfolio')
+                    .update({ additionalBudget: additionalBudget })
+                    .match({ id: entry.id });
+
+
+                if (updateError) {
+                    console.error('Error updating portfolio entry:', updateError);
+                }
+            });
+
+            // Optionally, refetch portfolio data after updates
+            fetchPortfolioData();
+        }
+    };
+
+
+    const handleConfirmNewBudget = () => {
+        updateBudgets(budgetPerCoin).then(() => {
+            setIsEditingBudget(false);
+        });
+    };
+
+    const handleBudgetConfirmation = () => {
+        if (isEditingBudget) {
+            const newBudgetValue = parseFloat(budgetPerCoin);
+            if (!isNaN(newBudgetValue) && newBudgetValue > 0) {
+                handleConfirmNewBudget(newBudgetValue);
+            } else {
+                alert("Please enter a valid budget value.");
+            }
+        }
+        setIsEditingBudget(!isEditingBudget); // Toggle regardless of validation for UX
+    };
+
+
+
+
 
 
 
@@ -97,7 +151,7 @@ const PortfolioScreen = () => {
                 transparent={true}
                 visible={modalVisible}
                 onRequestClose={() => {
-                    // Prevent modal from being closed.
+
                 }}
             >
                 <View style={styles.centeredView}>
@@ -112,20 +166,21 @@ const PortfolioScreen = () => {
                 <View style={styles.rateAndBudgetContainer}>
                     <Text style={styles.rateDisplay}>USD to PHP Rate: {usdToPhpRate || 'Loading...'}</Text>
                     <View style={styles.budgetDisplay}>
-                        {isEditingBudget || !budgetPerCoin ? (
+                        {isEditingBudget ? (
                             <>
                                 <Text style={styles.budgetTitle}>Enter Budget in (USD)</Text>
                                 <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
 
                                     <TextInput
                                         style={styles.budgetInput}
-                                        value={budgetPerCoin}
+                                        value={budgetPerCoin.toString()}
                                         onChangeText={handleBudgetChange}
                                         placeholder="0"
                                         keyboardType="numeric"
-                                        onBlur={() => setIsEditingBudget(false)} // Hide input after entering the budget
+                                        onBlur={() => setIsEditingBudget(false)}
                                     />
-                                    <TouchableOpacity onPress={toggleEdit} style={styles.iconButton}>
+
+                                    <TouchableOpacity onPress={handleBudgetConfirmation} style={styles.iconButton}>
                                         <Ionicons name="checkmark" size={24} color="green" />
                                     </TouchableOpacity>
                                 </View>
@@ -145,17 +200,6 @@ const PortfolioScreen = () => {
                         )}
                     </View>
                 </View>
-                {/* {
-                    coinData.length === 0 ? (
-                        <View style={[styles.container, styles.placeholderContainer]}>
-                            <Text>No coins added yet. Use the '+' button to add coins.</Text>
-                        </View>
-                    ) : (
-                        coinData.map((data, index) => (
-                            <CoinCard key={index} data={data} usdToPhpRate={usdToPhpRate} budgetPerCoin={budgetPerCoin} />
-                        ))
-                    )
-                } */}
                 {
                     portfolioEntries.length === 0 ? (
                         <View style={[styles.container, styles.placeholderContainer]}>
@@ -164,7 +208,7 @@ const PortfolioScreen = () => {
                     ) : (
                         portfolioEntries.map((entry, index) => (
                             // Assuming `entry` contains all the data needed by CoinCard
-                            <CoinCard key={index} data={entry} usdToPhpRate={usdToPhpRate} budgetPerCoin={budgetPerCoin} />
+                            <CoinCard key={index} data={entry} fetchPortfolioData={fetchPortfolioData} />
                         ))
                     )
                 }

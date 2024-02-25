@@ -18,17 +18,17 @@ const SignUpScreen = ({ navigation }) => {
                 }
             }
         });
-        console.log("data: from sign up", data)
+
         setLoading(false);
 
         if (data?.user) {
-            console.log('goes here')
-            const insertResponse = await supabase
+
+            await supabase
                 .from('subscription')
                 .insert([
                     { isPaid: false, userId: data.user.id }
                 ]);
-            console.log("insertResponse:", insertResponse)
+
 
         }
 

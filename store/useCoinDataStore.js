@@ -4,7 +4,7 @@ const useCoinDataStore = create((set) => ({
     coinData: [],
     addCoinData: (coin) => set((state) => ({ coinData: [...state.coinData, coin] })),
     deleteCoin: (coinId) => set((state) => {
-        console.log("Deleting coin with ID:", coinId); // Add this line
+
         return { coinData: state.coinData.filter(coin => coin.id !== coinId) };
     }),
 

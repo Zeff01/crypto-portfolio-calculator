@@ -2,12 +2,42 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import useCoinDataStore from '../store/useCoinDataStore';
+import useGlobalStore from '../store/useGlobalStore';
+import { safeToFixed } from '../utils/safeToFixed';
+import { supabase } from '../services/supabase';
 
-const CoinCard = ({ data, usdToPhpRate, budgetPerCoin }) => {
+const CoinCard = ({ data, fetchPortfolioData }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editedShares, setEditedShares] = useState(data.shares.toString());
     const deleteCoin = useCoinDataStore((state) => state.deleteCoin);
-    const updateShares = useCoinDataStore((state) => state.updateShares);
+    const { usdToPhpRate, budgetPerCoin } = useGlobalStore();
+
+    const editedSharesNum = Number(editedShares);
+    const currentPriceNum = Number(data.currentPrice);
+
+    const formattedPriceChangePercentage = safeToFixed(data.priceChangePercentage);
+    const formattedCurrentPriceUSD = safeToFixed(data.currentPrice);
+    const formattedCurrentPricePHP = safeToFixed(data.currentPrice * usdToPhpRate);
+    const formattedAllTimeHighUSD = safeToFixed(data.allTimeHigh);
+    const formattedAllTimeHighPHP = safeToFixed(data.allTimeHigh * usdToPhpRate);
+    const formattedAllTimeLowUSD = safeToFixed(data.allTimeLow);
+    const formattedAllTimeLowPHP = safeToFixed(data.allTimeLow * usdToPhpRate);
+
+    const totalHoldingsUSD = !isNaN(editedSharesNum) && !isNaN(currentPriceNum)
+        ? currentPriceNum * editedSharesNum
+        : 0;
+    const formattedTotalHoldingsUSD = totalHoldingsUSD.toFixed(2).toString();
+    const formattedTotalHoldingsPHP = safeToFixed(data.currentPrice * parseInt(editedShares) * usdToPhpRate);
+    const formattedTrueBudgetPerCoinUSD = safeToFixed(data.trueBudgetPerCoin);
+    const formattedTrueBudgetPerCoinPHP = safeToFixed(data.trueBudgetPerCoin * usdToPhpRate);
+    const formattedAdditionalBudgetUSD = safeToFixed(data.additionalBudget);
+    const formattedAdditionalBudgetPHP = safeToFixed(data.additionalBudget * usdToPhpRate);
+    const formattedProjectedRoiUSD = safeToFixed(data.projectedRoi);
+    const formattedProjectedRoiPHP = safeToFixed(data.projectedRoi * usdToPhpRate);
+    const formattedAthRoi = safeToFixed(data.athRoi)
+    const formattedIncreaseFromATL = safeToFixed(data.increaseFromATL)
+
+
 
     const handleDelete = () => {
         deleteCoin(data.id);
@@ -19,36 +49,56 @@ const CoinCard = ({ data, usdToPhpRate, budgetPerCoin }) => {
     const handleCancelEdit = () => {
         setIsEditing(false);
     };
-    const handleSave = () => {
-        updateShares(data.id, editedShares);
+
+
+
+    const updatePortfolioEntry = async (portfolioId, newShares, newTotalHoldings) => {
+
+        const { data, error } = await supabase
+            .from('portfolio')
+            .update({
+                shares: newShares,
+                totalHoldings: newTotalHoldings
+            })
+            .match({ id: portfolioId });
+
+        if (error) {
+            console.error('Error updating portfolio entry:', error);
+            return null;
+        }
+
+        console.log('Portfolio entry updated:', data);
+        fetchPortfolioData()
         setIsEditing(false);
+        return data;
     };
 
 
+    const handleSave = async () => {
+        // Assuming `data.id` is the ID of the portfolio entry and not just the coin
+        const portfolioId = data.id;
+        const newShares = Number(editedShares);
+        const currentPrice = Number(data.currentPrice); // Ensure this is the latest price
 
-    const budgetPerCoinUsd = budgetPerCoin;
-    const priceChangeIconName = data.priceChangePercentage >= 0 ? 'arrow-up' : 'arrow-down';
-    const priceChangeColor = data.priceChangePercentage >= 0 ? 'green' : 'red';
-    const athRoi = ((data.allTimeHigh / data.allTimeLow) - 1) * 100;
-    const percentIncreaseFromAtl = ((data.currentPrice / data.allTimeLow) - 1) * 100;
-    const totalHoldingsUsd = data.currentPrice * parseInt(editedShares);
-    const totalHoldingsPhp = totalHoldingsUsd * usdToPhpRate;
-    const trueBudgetPerCoinUsd = totalHoldingsUsd / (data.currentPrice / data.allTimeLow);
-    const trueBudgetPerCoinPhp = trueBudgetPerCoinUsd * usdToPhpRate;
-    const additionalBudgetUsd = (budgetPerCoinUsd - trueBudgetPerCoinUsd) > 0 ? (budgetPerCoinUsd - trueBudgetPerCoinUsd) : 0;
-    const additionalBudgetPhp = additionalBudgetUsd * usdToPhpRate;
-    const projectedRoiUsd = trueBudgetPerCoinUsd * 70;
-    const projectedRoiPhp = projectedRoiUsd * usdToPhpRate;
+        if (!isNaN(newShares) && !isNaN(currentPrice)) {
+            const newTotalHoldings = newShares * currentPrice;
+            await updatePortfolioEntry(portfolioId, newShares, newTotalHoldings);
+
+
+        } else {
+            console.error("Invalid inputs");
+        }
+    };
 
 
     return (
         <View style={styles.card}>
             <View style={styles.cardHeader}>
-                <Image source={{ uri: data.icon }} style={styles.icon} />
-                <Text style={styles.cardTitle}>{data.name}</Text>
-                <MaterialCommunityIcons name={priceChangeIconName} size={24} color={priceChangeColor} />
-                <Text style={{ color: priceChangeColor, marginLeft: 4 }}>
-                    {data.priceChangePercentage.toFixed(2)}%
+                <Image source={{ uri: data.coinImage }} style={styles.icon} />
+                <Text style={styles.cardTitle}>{data.coinName}</Text>
+                <MaterialCommunityIcons name={data.priceChangeIcon} size={24} color={data?.priceChangeColor} />
+                <Text style={{ color: data.priceChangeColor, marginLeft: 4 }}>
+                    {formattedPriceChangePercentage}%
                 </Text>
                 {/* The Delete button is always visible regardless of editing state */}
                 <TouchableOpacity onPress={handleDelete} style={styles.actionIcon}>
@@ -60,7 +110,7 @@ const CoinCard = ({ data, usdToPhpRate, budgetPerCoin }) => {
                 {/* Number of Shares */}
                 {isEditing ? (
                     <TextInput
-                        value={editedShares}
+                        value={editedShares.toString()}
                         onChangeText={setEditedShares}
                         keyboardType="numeric"
                         style={styles.input}
@@ -93,55 +143,55 @@ const CoinCard = ({ data, usdToPhpRate, budgetPerCoin }) => {
                 {/* Current Price */}
                 <View style={styles.tableRow}>
                     <Text style={styles.tableCellTitle}>Current Price:</Text>
-                    <Text style={styles.tableCellValue}>${data.currentPrice.toFixed(2)} | ₱{(data.currentPrice * usdToPhpRate).toFixed(2)}</Text>
+                    <Text style={styles.tableCellValue}>${formattedCurrentPriceUSD} | ₱{formattedCurrentPricePHP}</Text>
                 </View>
 
                 {/* All Time High */}
                 <View style={styles.tableRow}>
                     <Text style={styles.tableCellTitle}>All Time High:</Text>
-                    <Text style={styles.tableCellValue}>${data.allTimeHigh.toFixed(2)} | ₱{(data.allTimeHigh * usdToPhpRate).toFixed(2)}</Text>
+                    <Text style={styles.tableCellValue}>${formattedAllTimeHighUSD} | ₱{formattedAllTimeHighPHP}</Text>
                 </View>
 
                 {/* All Time Low */}
                 <View style={styles.tableRow}>
                     <Text style={styles.tableCellTitle}>All Time Low:</Text>
-                    <Text style={styles.tableCellValue}>${data.allTimeLow.toFixed(2)} | ₱{(data.allTimeLow * usdToPhpRate).toFixed(2)}</Text>
+                    <Text style={styles.tableCellValue}>${formattedAllTimeLowUSD} | ₱{formattedAllTimeLowPHP}</Text>
                 </View>
 
                 {/* ATH ROI */}
                 <View style={styles.tableRow}>
                     <Text style={styles.tableCellTitle}>ATH ROI:</Text>
-                    <Text style={styles.tableCellValue}>{athRoi.toFixed(2)}%</Text>
+                    <Text style={styles.tableCellValue}>{formattedAthRoi}%</Text>
                 </View>
 
                 {/* % Increase from ATL */}
                 <View style={styles.tableRow}>
                     <Text style={styles.tableCellTitle}>% Increase from ATL:</Text>
-                    <Text style={styles.tableCellValue}>{percentIncreaseFromAtl.toFixed(2)}%</Text>
+                    <Text style={styles.tableCellValue}>{formattedIncreaseFromATL}%</Text>
                 </View>
 
                 {/* Total Holdings */}
                 <View style={styles.tableRow}>
                     <Text style={styles.tableCellTitle}>Total Holdings:</Text>
-                    <Text style={styles.tableCellValue}>${totalHoldingsUsd.toFixed(2)} | ₱{totalHoldingsPhp.toFixed(2)}</Text>
+                    <Text style={styles.tableCellValue}>${formattedTotalHoldingsUSD} | ₱{formattedTotalHoldingsPHP}</Text>
                 </View>
 
                 {/* True Budget per Coin */}
                 <View style={styles.tableRow}>
                     <Text style={styles.tableCellTitle}>True Budget on this Coin:</Text>
-                    <Text style={styles.tableCellValue}>${trueBudgetPerCoinUsd.toFixed(2)} | ₱{trueBudgetPerCoinPhp.toFixed(2)}</Text>
+                    <Text style={styles.tableCellValue}>${formattedTrueBudgetPerCoinUSD} | ₱{formattedTrueBudgetPerCoinPHP}</Text>
                 </View>
 
                 {/* Additional Budget to Catch Up Bottom */}
                 <View style={styles.tableRow}>
                     <Text style={styles.tableCellTitle}>Additional Budget to Catch Up Bottom:</Text>
-                    <Text style={styles.tableCellValue}>${additionalBudgetUsd.toFixed(2)} | ₱{additionalBudgetPhp.toFixed(2)}</Text>
+                    <Text style={styles.tableCellValue}>${formattedAdditionalBudgetUSD} | ₱{formattedAdditionalBudgetPHP}</Text>
                 </View>
 
                 {/* Projected ROI */}
                 <View style={styles.tableRow}>
                     <Text style={styles.tableCellTitle}>Projected ROI (70x):</Text>
-                    <Text style={styles.tableCellValue}>${projectedRoiUsd.toFixed(2)} | ₱{projectedRoiPhp.toFixed(2)}</Text>
+                    <Text style={styles.tableCellValue}>${formattedProjectedRoiUSD} | ₱{formattedProjectedRoiPHP}</Text>
                 </View>
 
                 {/* MarketCap */}
