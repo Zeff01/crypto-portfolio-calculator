@@ -1,4 +1,4 @@
-// temp route to view info component
+// temp route to view info component delete later
 import { View } from "react-native";
 import Info from "../../components/Info/Component";
 

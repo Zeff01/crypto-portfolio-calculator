@@ -1,4 +1,4 @@
-// temp route to view login page
+// temp route to view login page delete later
 import { View } from "react-native";
 import Login from "../../components/Login";
 

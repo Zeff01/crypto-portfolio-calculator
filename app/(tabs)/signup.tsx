@@ -1,4 +1,4 @@
-// temp route to view signup component
+// temp route to view signup component delete later
 import { View } from "react-native";
 import Signup from "../../components/Signup";
 
