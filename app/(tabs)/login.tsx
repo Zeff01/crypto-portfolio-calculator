@@ -4,7 +4,7 @@ import Login from "../../components/Login";
 
 export default function login() {
     return (
-        <View className="h-screen items-center justify-center">
+        <View className="h-full items-center justify-center">
             <Login />
         </View>
     )

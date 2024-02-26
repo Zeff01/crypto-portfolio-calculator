@@ -1,11 +1,11 @@
 // temp route to view signup component
 import { View } from "react-native";
-import Signup from "../../components/Signup";
+import Dashboard from "../../components/Dashboard";
 
-export default function login() {
+export default function dashboard() {
     return (
         <View className="h-full items-center justify-center">
-            <Signup />
+            <Dashboard />
         </View>
     )
     
