@@ -1,6 +1,6 @@
 // utils/api.js
 export const fetchCoinData = async (coinId) => {
-    const url = `https://api.coingecko.com/api/v3/coins/${coinId}`;
+    const url = `${process.env.COIN_GECKO_URL}/coins/${coinId}`;
 
     try {
         const response = await fetch(url);
@@ -35,7 +35,10 @@ export const fetchCoinData = async (coinId) => {
 
 
 export const fetchSearchResults = async (query) => {
-    const url = `https://api.coingecko.com/api/v3/search?query=${query}`;
+    const url = `${process.env.COIN_GECKO_URL}/search?query=${query}`;
+
+    console.log(url);
+
     const response = await fetch(url);
     const data = await response.json();
     return data.coins;
@@ -46,7 +49,7 @@ export const fetchSearchResults = async (query) => {
 export const fetchUsdToPhpRate = async () => {
 
     // const apiUrl = 'https://api.exchangerate-api.com/v4/latest/USD';
-    const apiUrl = 'https://v6.exchangerate-api.com/v6/38e6ab442d1a0fc7a06bac3b/pair/USD/PHP';
+    const apiUrl = process.env.EXCHANGERATE_API_URL
     try {
         const response = await fetch(apiUrl);
         const data = await response.json();
