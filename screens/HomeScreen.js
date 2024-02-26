@@ -6,8 +6,8 @@ import { supabase } from '../services/supabase';
 import { useNavigation } from '@react-navigation/native';
 
 const HomeScreen = () => {
-    const toggleTheme = useThemeStore((state) => state.toggleTheme);
-    const { colors } = useTheme(); // This will get the current theme colors
+    // const toggleTheme = useThemeStore((state) => state.toggleTheme);
+    const { colors, currentTheme, toggleTheme } = useTheme() // This will get the current theme colors
     const navigation = useNavigation()
 
     const dynamicStyles = StyleSheet.create({
