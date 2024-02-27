@@ -156,7 +156,7 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
                 <TouchableOpacity onPress={handleDelete} style={styles.actionIcon}>
                     <Ionicons name="trash-outline" size={24} color="tomato" />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={(event) => navigation.navigate('Coin')} style={styles.actionIcon}>
+                <TouchableOpacity onPress={(event) => navigation.navigate('Coin', {data})} style={styles.actionIcon}>
                     <FontAwesome5 name="coins" size={24} color="violet" />
                 </TouchableOpacity>
             </View>
@@ -395,13 +395,13 @@ const styles = StyleSheet.create({
     tableRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+        alignItems: 'center',
         borderBottomWidth: 1,
         borderBottomColor: '#eee',
         paddingVertical: 8,
     },
     tableCellTitle: {
         fontWeight: 'bold',
-        fontSize: 14,
     },
     tableCellValue: {
         textAlign: 'right',
