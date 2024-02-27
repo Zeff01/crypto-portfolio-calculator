@@ -11,6 +11,7 @@ import AddCoinScreen from '../screens/AddCoinScreen';
 import { supabase } from '../services/supabase';
 import { useNavigation } from '@react-navigation/native';
 import ForgetPasswordScreen from '../screens/ForgetPasswordScreen';
+import CoinScreen from '../screens/CoinScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -51,26 +52,26 @@ const StackNavigator = () => {
                 },
             }}
         >
-            <Stack.Screen 
-                name="Login" 
+            <Stack.Screen
+                name="Login"
                 component={LoginScreen}
                 options={{
                     title: '',
                     headerStyle: {
                         backgroundColor: 'white',
                     },
-                    headerShadowVisible: false, 
+                    headerShadowVisible: false,
                 }}
             />
-            <Stack.Screen 
-                name="SignUp" 
-                component={SignUpScreen} 
+            <Stack.Screen
+                name="SignUp"
+                component={SignUpScreen}
                 options={{
                     title: '',
                     headerStyle: {
                         backgroundColor: 'white',
                     },
-                    headerShadowVisible: false, 
+                    headerShadowVisible: false,
                 }}
             />
             <Stack.Screen name="Forget" component={ForgetPasswordScreen} />
@@ -80,6 +81,14 @@ const StackNavigator = () => {
                 component={AddCoinScreen}
                 options={({ navigation }) => ({
                     title: 'Add Coin',
+
+                })}
+            />
+            <Stack.Screen
+                name="Coin"
+                component={CoinScreen}
+                options={({ navigation }) => ({
+                    title: 'Coin Info',
 
                 })}
             />

@@ -5,12 +5,16 @@ import useCoinDataStore from '../store/useCoinDataStore';
 import useGlobalStore from '../store/useGlobalStore';
 import { safeToFixed } from '../utils/safeToFixed';
 import { supabase } from '../services/supabase';
+import { useNavigation } from '@react-navigation/core';
 
 const CoinCard = ({ data, fetchPortfolioData }) => {
+    console.log("data:", data)
     const [isEditing, setIsEditing] = useState(false);
     const [editedShares, setEditedShares] = useState(data.shares.toString());
     const deleteCoin = useCoinDataStore((state) => state.deleteCoin);
     const { usdToPhpRate, budgetPerCoin } = useGlobalStore();
+
+    const navigation = useNavigation()
 
     const editedSharesNum = Number(editedShares);
     const currentPriceNum = Number(data.currentPrice);
@@ -103,6 +107,9 @@ const CoinCard = ({ data, fetchPortfolioData }) => {
                 {/* The Delete button is always visible regardless of editing state */}
                 <TouchableOpacity onPress={handleDelete} style={styles.actionIcon}>
                     <Ionicons name="trash-outline" size={24} color="tomato" />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('Coin')} style={styles.actionIcon}>
+                    <Ionicons name="arrow-forward" size={24} color="violet" />
                 </TouchableOpacity>
             </View>
 

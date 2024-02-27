@@ -7,6 +7,7 @@ import { fetchUsdToPhpRate } from '../utils/api';
 import { supabase } from '../services/supabase';
 import useGlobalStore from '../store/useGlobalStore';
 import { useFocusEffect } from '@react-navigation/native';
+import PortfolioHeader from '../components/PortfiolioHeader';
 
 const PortfolioScreen = () => {
 
@@ -14,12 +15,10 @@ const PortfolioScreen = () => {
     const [isEditingBudget, setIsEditingBudget] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
     const [portfolioEntries, setPortfolioEntries] = useState([]);
-
-
-
+    const [totalHoldings, setTotalHoldings] = useState(0);
+    //fetch portfolio data
     const fetchPortfolioData = async () => {
         const { data: { user } } = await supabase.auth.getUser()
-        console.log("user:", user)
 
         if (user) {
             const { data: portfolioData, error } = await supabase
@@ -35,11 +34,14 @@ const PortfolioScreen = () => {
         }
     };
 
+    //get dollar rate to php
     const getExchangeRate = async () => {
         const rate = await fetchUsdToPhpRate();
         setUsdToPhpRate(rate);
     };
 
+
+    //check if paid already
     const checkUserPaymentStatus = async () => {
         const { data: { user } } = await supabase.auth.getUser()
         if (user) {
@@ -61,12 +63,16 @@ const PortfolioScreen = () => {
         }
     };
 
+
+    //initial fetch
     useEffect(() => {
         checkUserPaymentStatus();
         getExchangeRate();
         fetchPortfolioData();
     }, []);
 
+
+    //to fetch portfolio data
     useFocusEffect(
         React.useCallback(() => {
             // Fetch or refresh your portfolio data here
@@ -74,16 +80,17 @@ const PortfolioScreen = () => {
         }, [])
     );
 
-
-
+    //change budget
     const handleBudgetChange = (value) => {
         setBudgetPerCoin(value);
     };
 
+    //edit budget input
     const toggleEdit = () => {
         setIsEditingBudget(!isEditingBudget);
     };
 
+    //update budget in database and recalculate  additional budget
     const updateBudgets = async (newBudget) => {
         const { data: { user } } = await supabase.auth.getUser();
 
@@ -121,6 +128,7 @@ const PortfolioScreen = () => {
     };
 
 
+    //confirms the budget update
     const handleConfirmNewBudget = () => {
         updateBudgets(budgetPerCoin).then(() => {
             setIsEditingBudget(false);
@@ -136,11 +144,15 @@ const PortfolioScreen = () => {
                 alert("Please enter a valid budget value.");
             }
         }
-        setIsEditingBudget(!isEditingBudget); // Toggle regardless of validation for UX
+        setIsEditingBudget(!isEditingBudget);
     };
 
 
-
+    //get total holdings based on portfolio entries
+    useEffect(() => {
+        const total = portfolioEntries.reduce((acc, entry) => acc + entry.totalHoldings, 0);
+        setTotalHoldings(total.toFixed(2)); // Assuming you'll store this in a state
+    }, [portfolioEntries]);
 
 
 
@@ -164,6 +176,9 @@ const PortfolioScreen = () => {
                 </View>
             </Modal>
             <ScrollView contentContainerStyle={styles.container}>
+                <PortfolioHeader title="My Portfolio"
+                    totalHoldings={totalHoldings} />
+
                 <View style={styles.rateAndBudgetContainer}>
                     <Text style={styles.rateDisplay}>USD to PHP Rate: {usdToPhpRate || 'Loading...'}</Text>
                     <View style={styles.budgetDisplay}>
@@ -207,9 +222,10 @@ const PortfolioScreen = () => {
                             <Text>No coins added yet. Use the '+' button to add coins.</Text>
                         </View>
                     ) : (
-                        portfolioEntries.map((entry, index) => (
-                            // Assuming `entry` contains all the data needed by CoinCard
-                            <CoinCard key={index} data={entry} fetchPortfolioData={fetchPortfolioData} />
+                        portfolioEntries.map((entry) => (
+
+                            <CoinCard key={entry.id} data={entry} fetchPortfolioData={fetchPortfolioData} />
+
                         ))
                     )
                 }
