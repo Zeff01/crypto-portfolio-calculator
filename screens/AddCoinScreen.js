@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, FlatList, TouchableOpacity, Text, StyleSheet, Image } from 'react-native';
+import { View, TextInput, FlatList, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { debounce } from 'lodash';
 import { fetchCoinData, fetchSearchResults } from '../utils/api';
 import { useNavigation } from '@react-navigation/native';
-import { Button } from 'react-native-paper';
 import useCoinDataStore from '../store/useCoinDataStore';
 import { supabase } from '../services/supabase';
 import useGlobalStore from '../store/useGlobalStore';
+import { Portal, Text, Button, Provider } from 'react-native-paper';
+import CustomModal from '../components/CustomModal';
 
 
 const AddCoinScreen = () => {
@@ -17,6 +18,8 @@ const AddCoinScreen = () => {
     const navigation = useNavigation();
     const addCoinData = useCoinDataStore((state) => state.addCoinData);
     const { usdToPhpRate, budgetPerCoin } = useGlobalStore();
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [modalMessage, setModalMessage] = useState('');
 
 
     const debouncedSearch = debounce(async (query) => {
@@ -35,21 +38,6 @@ const AddCoinScreen = () => {
         setSelectedCoin(coin);
         // No need to fetch and add coin data here as it will be handled in handleConfirm
     };
-
-    // const handleConfirm = async () => {
-    //     if (selectedCoin && numberOfShares) {
-    //         const coinDetails = await fetchCoinData(selectedCoin.id);
-    //         if (coinDetails) {
-    //             addCoinData({
-    //                 ...coinDetails,
-    //                 shares: numberOfShares,
-    //             });
-    //             setSelectedCoin(null);
-    //             setNumberOfShares('');
-    //             navigation.goBack();
-    //         }
-    //     }
-    // };
 
     const handleConfirm = async () => {
         if (selectedCoin && numberOfShares) {
@@ -75,6 +63,24 @@ const AddCoinScreen = () => {
             const { data: { user } } = await supabase.auth.getUser()
 
             if (user) {
+
+                const { data: existingEntries, error: existingEntriesError } = await supabase
+                    .from('portfolio')
+                    .select('*')
+                    .eq('userId', user.id)
+                    .eq('coinId', selectedCoin.id);
+
+                if (existingEntriesError) {
+                    console.error('Error checking for existing portfolio entry:', existingEntriesError);
+                    return;
+                }
+
+                if (existingEntries.length > 0) {
+                    setModalMessage(`You already have ${selectedCoin.name} in your portfolio.`);
+                    setIsModalVisible(true);
+                    return;
+                }
+
 
                 const portfolioData = {
                     userId: user.id,
@@ -123,6 +129,15 @@ const AddCoinScreen = () => {
 
     return (
         <View style={styles.container}>
+            <CustomModal
+                isVisible={isModalVisible}
+                onDismiss={() => setIsModalVisible(false)}
+                title="You Already have this coin on your portfolio"
+                onConfirm={() => setIsModalVisible(false)}
+            // onCancel={handleCancel}
+            // confirmText="Yes, Confirm"
+            // cancelText="No, Cancel"
+            />
             {selectedCoin ? (
                 <View style={styles.selectedCoinContainer}>
                     <Image source={{ uri: selectedCoin.thumb }} style={styles.icon} />
@@ -253,6 +268,29 @@ const styles = StyleSheet.create({
     },
     buttonLabel: {
         fontSize: 12,
+    },
+    modalContainer: {
+        backgroundColor: 'white',
+        padding: 20,
+        marginLeft: 20,
+        marginRight: 20,
+        borderRadius: 10,
+        shadowColor: "#000",
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+    },
+    modalText: {
+        fontSize: 16,
+        marginBottom: 20,
+        textAlign: 'center',
+    },
+    modalButton: {
+        marginTop: 10,
     },
 });
 

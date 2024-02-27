@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, TouchableWithoutFeedback, Alert, } from 'react-native';
 import { Ionicons, MaterialCommunityIcons, FontAwesome, FontAwesome5 } from '@expo/vector-icons';
 import useCoinDataStore from '../store/useCoinDataStore';
 import useGlobalStore from '../store/useGlobalStore';
@@ -8,7 +8,8 @@ import { supabase } from '../services/supabase';
 import { useNavigation } from '@react-navigation/core';
 import { List } from 'react-native-paper';
 
-const CoinCard = ({ data, fetchPortfolioData }) => {
+const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
+
     const [isEditing, setIsEditing] = useState(false);
     const [editedShares, setEditedShares] = useState(data.shares.toString());
     const deleteCoin = useCoinDataStore((state) => state.deleteCoin);
@@ -44,10 +45,37 @@ const CoinCard = ({ data, fetchPortfolioData }) => {
 
 
 
-
     const handleDelete = () => {
-        deleteCoin(data.id);
+        Alert.alert(
+            "Delete Coin",
+            "Are you sure you want to delete this coin?",
+            [
+                {
+                    text: "Cancel",
+                    onPress: () => console.log("Cancel Pressed"),
+                    style: "cancel"
+                },
+                {
+                    text: "OK", onPress: async () => {
+                        const { data: deleteResponse, error } = await supabase
+                            .from('portfolio')
+                            .delete()
+                            .match({ id: data.id });
+
+                        if (error) {
+                            console.error('Error deleting portfolio entry:', error);
+                        } else {
+                            console.log('Portfolio entry deleted:', deleteResponse);
+                            deleteCoin(data.id);
+                            fetchPortfolioData();
+                        }
+                    }
+                }
+            ],
+            { cancelable: false }
+        );
     };
+
 
     const handleEdit = () => {
         setIsEditing(true);
@@ -98,171 +126,223 @@ const CoinCard = ({ data, fetchPortfolioData }) => {
     const handleExpand = () => setExpanded(!expanded);
 
     const AccordionTitle = () => (
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', }}>
-                <Text style={styles.cardTitle}>{`${data.coinName}`}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+
+
+
+            <Text style={styles.cardTitle}>{`${data.coinName}`}</Text>
+            <View >
+                <Text style={{ fontSize: 12, }}>${formattedTotalHoldingsUSD} | ₱{formattedTotalHoldingsPHP}</Text>
+                <View style={{ flexDirection: 'row' }}>
+                    <MaterialCommunityIcons name={data.priceChangeIcon} size={24} color={data?.priceChangeColor} />
+                    <Text style={{ color: data.priceChangeColor, marginLeft: 4 }}>
+                        {formattedPriceChangePercentage}%
+                    </Text>
+                </View>
             </View>
+
+
 
 
         </View>
     );
 
     const RightIcon = () => {
-        return <View style={{ flexDirection: 'row', alignItems: 'center', }}>
-            <MaterialCommunityIcons name={data.priceChangeIcon} size={24} color={data?.priceChangeColor} />
-            <Text style={{ color: data.priceChangeColor, marginLeft: 4 }}>
-                {formattedPriceChangePercentage}%
-            </Text>
-            <TouchableOpacity onPress={handleDelete} style={styles.actionIcon}>
-                <Ionicons name="trash-outline" size={24} color="tomato" />
-            </TouchableOpacity>
-            <TouchableOpacity onPressIn={() => navigation.navigate('Coin',  {data})} style={styles.actionIcon}>
-                <FontAwesome5 name="coins" size={24} color="violet" />
-            </TouchableOpacity>
+
+
+
+        return <View style={{
+            position: 'absolute',
+            bottom: 50,
+            right: 10,
+            zIndex: 1,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'flex-end',
+            padding: 10,
+        }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', }}>
+
+                <TouchableOpacity onPress={handleDelete} style={styles.actionIcon}>
+                    <Ionicons name="trash-outline" size={30} color="tomato" />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={(event) => navigation.navigate('Coin')} style={styles.actionIcon}>
+                    <FontAwesome5 name="coins" size={30} color="violet" />
+                </TouchableOpacity>
+
+            </View>
+
         </View>
     }
 
+    const LeftIcon = () => (
+        <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+            <Image source={{ uri: data.coinImage }}
+                style={styles.icon}
+            />
+        </View>
+    )
 
 
     return (
-        <List.Accordion
-            style={styles.card}
-            title={<AccordionTitle />}
-            right={() => <RightIcon />}
-            left={() => <Image source={{ uri: data.coinImage }}
-                style={styles.icon}
-            />}
-            expanded={expanded}
-            onPress={handleExpand}
-        >
+        <View style={styles.mainContainer}>
+            <RightIcon />
+            <List.Accordion
+                style={[styles.card, isActive && styles.activeCard]}
+                title={<AccordionTitle />}
+                // right={() => <RightIcon />}
+                left={() => <LeftIcon />}
+                expanded={expanded}
+                onPress={handleExpand}
+                onLongPress={onLongPress}
+            >
+                <View style={styles.table}>
+                    {/* Number of Shares */}
+                    {isEditing ? (
+                        <TextInput
+                            value={editedShares.toString()}
+                            onChangeText={setEditedShares}
+                            keyboardType="numeric"
+                            style={styles.input}
+                        />
+                    ) : (
+                        <View style={styles.tableRow}>
+                            <Text style={styles.tableCellTitle}>Shares: </Text>
+                            <Text>{data.shares}</Text>
+                            <TouchableOpacity onPress={handleEdit} style={styles.actionIcon}>
+                                <FontAwesome name="pencil-square-o" size={24} color="black" />
+                            </TouchableOpacity>
+                        </View>
 
-            <View style={styles.table}>
-                {/* Number of Shares */}
-                {isEditing ? (
-                    <TextInput
-                        value={editedShares.toString()}
-                        onChangeText={setEditedShares}
-                        keyboardType="numeric"
-                        style={styles.input}
-                    />
-                ) : (
-                    <View style={styles.tableRow}>
-                        <Text style={styles.tableCellTitle}>Shares: </Text>
-                        <Text style={{fontWeight:'bold', fontSize:16,  color: 'green'}} >{data.shares}</Text>
-                        <TouchableOpacity onPress={handleEdit} style={styles.actionIcon}>
-                            <FontAwesome name="pencil-square-o" size={24} color="black" />
-                        </TouchableOpacity>
+                    )}
+                    <View style={styles.actions}>
+                        {isEditing &&
+                            <>
+                                <TouchableOpacity onPress={handleSave} style={styles.actionIcon}>
+                                    <Ionicons name="checkmark-circle-outline" size={24} color="green" />
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={handleCancelEdit} style={styles.actionIcon}>
+                                    <Ionicons name="close-circle-outline" size={24} color="gray" />
+                                </TouchableOpacity>
+                            </>
+                        }
                     </View>
 
-                )}
-                <View style={styles.actions}>
-                    {isEditing &&
-                        <>
-                            <TouchableOpacity onPress={handleSave} style={styles.actionIcon}>
-                                <Ionicons name="checkmark-circle-outline" size={24} color="green" />
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={handleCancelEdit} style={styles.actionIcon}>
-                                <Ionicons name="close-circle-outline" size={24} color="gray" />
-                            </TouchableOpacity>
-                        </>
-                    }
+
+                    {/* Current Price */}
+                    <View style={styles.tableRow}>
+                        <Text style={styles.tableCellTitle}>Current Price:</Text>
+                        <Text style={styles.tableCellValue}>${formattedCurrentPriceUSD} | ₱{formattedCurrentPricePHP}</Text>
+                    </View>
+
+                    {/* All Time High */}
+                    <View style={styles.tableRow}>
+                        <Text style={styles.tableCellTitle}>All Time High:</Text>
+                        <Text style={styles.tableCellValue}>${formattedAllTimeHighUSD} | ₱{formattedAllTimeHighPHP}</Text>
+                    </View>
+
+                    {/* All Time Low */}
+                    <View style={styles.tableRow}>
+                        <Text style={styles.tableCellTitle}>All Time Low:</Text>
+                        <Text style={styles.tableCellValue}>${formattedAllTimeLowUSD} | ₱{formattedAllTimeLowPHP}</Text>
+                    </View>
+
+                    {/* ATH ROI */}
+                    <View style={styles.tableRow}>
+                        <Text style={styles.tableCellTitle}>ATH ROI:</Text>
+                        <Text style={styles.tableCellValue}>{formattedAthRoi}%</Text>
+                    </View>
+
+                    {/* % Increase from ATL */}
+                    <View style={styles.tableRow}>
+                        <Text style={styles.tableCellTitle}>% Increase from ATL:</Text>
+                        <Text style={styles.tableCellValue}>{formattedIncreaseFromATL}%</Text>
+                    </View>
+
+                    {/* Total Holdings */}
+                    <View style={styles.tableRow}>
+                        <Text style={styles.tableCellTitle}>Total Holdings:</Text>
+                        <Text style={styles.tableCellValue}>${formattedTotalHoldingsUSD} | ₱{formattedTotalHoldingsPHP}</Text>
+                    </View>
+
+                    {/* True Budget per Coin */}
+                    <View style={styles.tableRow}>
+                        <Text style={styles.tableCellTitle}>True Budget on this Coin:</Text>
+                        <Text style={styles.tableCellValue}>${formattedTrueBudgetPerCoinUSD} | ₱{formattedTrueBudgetPerCoinPHP}</Text>
+                    </View>
+
+                    {/* Additional Budget to Catch Up Bottom */}
+                    <View style={styles.tableRow}>
+                        <Text style={styles.tableCellTitle}>Addtl. to Catch Up Bottom:</Text>
+                        <Text style={styles.tableCellValue}>${formattedAdditionalBudgetUSD} | ₱{formattedAdditionalBudgetPHP}</Text>
+                    </View>
+
+                    {/* Projected ROI */}
+                    <View style={styles.tableRow}>
+                        <Text style={styles.tableCellTitle}>Projected ROI (70x):</Text>
+                        <Text style={styles.tableCellValue}>${formattedProjectedRoiUSD} | ₱{formattedProjectedRoiPHP}</Text>
+                    </View>
+
+                    {/* MarketCap */}
+                    <View style={styles.tableRow}>
+                        <Text style={styles.tableCellTitle}>Market Cap:</Text>
+                        <Text style={styles.tableCellValue}>${data.marketCap.toLocaleString()}</Text>
+                    </View>
+
+                    {/* Total Supply */}
+                    <View style={styles.tableRow}>
+                        <Text style={styles.tableCellTitle}>Total Supply:</Text>
+                        <Text style={styles.tableCellValue}>{data.totalSupply ? data.totalSupply.toLocaleString() : 'N/A'}</Text>
+                    </View>
+
+                    {/* Circulating Supply */}
+                    <View style={styles.tableRow}>
+                        <Text style={styles.tableCellTitle}>Circulating Supply:</Text>
+                        <Text style={styles.tableCellValue}>{data.circulatingSupply ? data.circulatingSupply.toLocaleString() : 'N/A'}</Text>
+                    </View>
+
+                    {/* Max Supply */}
+                    <View style={styles.tableRow}>
+                        <Text style={styles.tableCellTitle}>Max Supply:</Text>
+                        <Text style={styles.tableCellValue}>{data.maxSupply ? data.maxSupply.toLocaleString() : 'N/A'}</Text>
+                    </View>
+
+                    {/* 24h Trading Volume */}
+                    <View style={styles.tableRow}>
+                        <Text style={styles.tableCellTitle}>24h Trading Volume:</Text>
+                        <Text style={styles.tableCellValue}>${data.tradingVolume.toLocaleString()}</Text>
+                    </View>
                 </View>
+            </List.Accordion>
+        </View>
 
 
-                {/* Current Price */}
-                <View style={styles.tableRow}>
-                    <Text style={styles.tableCellTitle}>Current Price:</Text>
-                    <Text style={styles.tableCellValue}>${formattedCurrentPriceUSD} | ₱{formattedCurrentPricePHP}</Text>
-                </View>
-
-                {/* All Time High */}
-                <View style={styles.tableRow}>
-                    <Text style={styles.tableCellTitle}>All Time High:</Text>
-                    <Text style={styles.tableCellValue}>${formattedAllTimeHighUSD} | ₱{formattedAllTimeHighPHP}</Text>
-                </View>
-
-                {/* All Time Low */}
-                <View style={styles.tableRow}>
-                    <Text style={styles.tableCellTitle}>All Time Low:</Text>
-                    <Text style={styles.tableCellValue}>${formattedAllTimeLowUSD} | ₱{formattedAllTimeLowPHP}</Text>
-                </View>
-
-                {/* ATH ROI */}
-                <View style={styles.tableRow}>
-                    <Text style={styles.tableCellTitle}>ATH ROI:</Text>
-                    <Text style={styles.tableCellValue}>{formattedAthRoi}%</Text>
-                </View>
-
-                {/* % Increase from ATL */}
-                <View style={styles.tableRow}>
-                    <Text style={styles.tableCellTitle}>% Increase from ATL:</Text>
-                    <Text style={styles.tableCellValue}>{formattedIncreaseFromATL}%</Text>
-                </View>
-
-                {/* Total Holdings */}
-                <View style={styles.tableRow}>
-                    <Text style={styles.tableCellTitle}>Total Holdings:</Text>
-                    <Text style={styles.tableCellValue}>${formattedTotalHoldingsUSD} | ₱{formattedTotalHoldingsPHP}</Text>
-                </View>
-
-                {/* True Budget per Coin */}
-                <View style={styles.tableRow}>
-                    <Text style={styles.tableCellTitle}>True Budget on this Coin:</Text>
-                    <Text style={styles.tableCellValue}>${formattedTrueBudgetPerCoinUSD} | ₱{formattedTrueBudgetPerCoinPHP}</Text>
-                </View>
-
-                {/* Additional Budget to Catch Up Bottom */}
-                <View style={styles.tableRow}>
-                    <Text style={styles.tableCellTitle}>Addtl. to Catch Up Bottom:</Text>
-                    <Text style={styles.tableCellValue}>${formattedAdditionalBudgetUSD} | ₱{formattedAdditionalBudgetPHP}</Text>
-                </View>
-
-                {/* Projected ROI */}
-                <View style={styles.tableRow}>
-                    <Text style={styles.tableCellTitle}>Projected ROI (70x):</Text>
-                    <Text style={styles.tableCellValue}>${formattedProjectedRoiUSD} | ₱{formattedProjectedRoiPHP}</Text>
-                </View>
-
-                {/* MarketCap */}
-                <View style={styles.tableRow}>
-                    <Text style={styles.tableCellTitle}>Market Cap:</Text>
-                    <Text style={styles.tableCellValue}>${data.marketCap.toLocaleString()}</Text>
-                </View>
-
-                {/* Total Supply */}
-                <View style={styles.tableRow}>
-                    <Text style={styles.tableCellTitle}>Total Supply:</Text>
-                    <Text style={styles.tableCellValue}>{data.totalSupply ? data.totalSupply.toLocaleString() : 'N/A'}</Text>
-                </View>
-
-                {/* Circulating Supply */}
-                <View style={styles.tableRow}>
-                    <Text style={styles.tableCellTitle}>Circulating Supply:</Text>
-                    <Text style={styles.tableCellValue}>{data.circulatingSupply ? data.circulatingSupply.toLocaleString() : 'N/A'}</Text>
-                </View>
-
-                {/* Max Supply */}
-                <View style={styles.tableRow}>
-                    <Text style={styles.tableCellTitle}>Max Supply:</Text>
-                    <Text style={styles.tableCellValue}>{data.maxSupply ? data.maxSupply.toLocaleString() : 'N/A'}</Text>
-                </View>
-
-                {/* 24h Trading Volume */}
-                <View style={styles.tableRow}>
-                    <Text style={styles.tableCellTitle}>24h Trading Volume:</Text>
-                    <Text style={styles.tableCellValue}>${data.tradingVolume.toLocaleString()}</Text>
-                </View>
-            </View>
-        </List.Accordion>
     );
 };
 
 
 const styles = StyleSheet.create({
+    mainContainer: {
+        backgroundColor: 'white',
+        position: 'relative',
+        paddingTop: 20,
+    },
     card: {
         backgroundColor: '#fff',
         borderRadius: 10,
-        padding: 10,
+        padding: 5,
+        marginBottom: 5,
+        marginHorizontal: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 5,
+    },
+    activeCard: {
+        backgroundColor: '#faf5f5',
+        borderRadius: 10,
+        padding: 5,
         marginBottom: 5,
         marginHorizontal: 10,
         shadowColor: '#000',
@@ -290,7 +370,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     actionIcon: {
-        marginLeft: 10,
+        marginLeft: 5,
     },
     input: {
         borderWidth: 1,

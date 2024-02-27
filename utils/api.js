@@ -37,7 +37,6 @@ export const fetchCoinData = async (coinId) => {
 export const fetchSearchResults = async (query) => {
     const url = `${process.env.COIN_GECKO_URL}/search?query=${query}`;
 
-    console.log(url);
 
     const response = await fetch(url);
     const data = await response.json();
