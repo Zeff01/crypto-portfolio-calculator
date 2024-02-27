@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image } from 'react-native';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, } from 'react-native';
+import { Ionicons, MaterialCommunityIcons, FontAwesome, FontAwesome5 } from '@expo/vector-icons';
 import useCoinDataStore from '../store/useCoinDataStore';
 import useGlobalStore from '../store/useGlobalStore';
 import { safeToFixed } from '../utils/safeToFixed';
 import { supabase } from '../services/supabase';
 import { useNavigation } from '@react-navigation/core';
+import { List } from 'react-native-paper';
 
 const CoinCard = ({ data, fetchPortfolioData }) => {
-    console.log("data:", data)
     const [isEditing, setIsEditing] = useState(false);
     const [editedShares, setEditedShares] = useState(data.shares.toString());
     const deleteCoin = useCoinDataStore((state) => state.deleteCoin);
     const { usdToPhpRate, budgetPerCoin } = useGlobalStore();
-
+    const [expanded, setExpanded] = useState(false);
     const navigation = useNavigation()
 
     const editedSharesNum = Number(editedShares);
@@ -40,6 +40,8 @@ const CoinCard = ({ data, fetchPortfolioData }) => {
     const formattedProjectedRoiPHP = safeToFixed(data.projectedRoi * usdToPhpRate);
     const formattedAthRoi = safeToFixed(data.athRoi)
     const formattedIncreaseFromATL = safeToFixed(data.increaseFromATL)
+
+
 
 
 
@@ -93,25 +95,46 @@ const CoinCard = ({ data, fetchPortfolioData }) => {
             console.error("Invalid inputs");
         }
     };
+    const handleExpand = () => setExpanded(!expanded);
+
+    const AccordionTitle = () => (
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', }}>
+                <Text style={styles.cardTitle}>{`${data.coinName}`}</Text>
+            </View>
+
+
+        </View>
+    );
+
+    const RightIcon = () => {
+        return <View style={{ flexDirection: 'row', alignItems: 'center', }}>
+            <MaterialCommunityIcons name={data.priceChangeIcon} size={24} color={data?.priceChangeColor} />
+            <Text style={{ color: data.priceChangeColor, marginLeft: 4 }}>
+                {formattedPriceChangePercentage}%
+            </Text>
+            <TouchableOpacity onPress={handleDelete} style={styles.actionIcon}>
+                <Ionicons name="trash-outline" size={24} color="tomato" />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('Coin')} style={styles.actionIcon}>
+                <FontAwesome5 name="coins" size={24} color="violet" />
+            </TouchableOpacity>
+        </View>
+    }
+
 
 
     return (
-        <View style={styles.card}>
-            <View style={styles.cardHeader}>
-                <Image source={{ uri: data.coinImage }} style={styles.icon} />
-                <Text style={styles.cardTitle}>{data.coinName}</Text>
-                <MaterialCommunityIcons name={data.priceChangeIcon} size={24} color={data?.priceChangeColor} />
-                <Text style={{ color: data.priceChangeColor, marginLeft: 4 }}>
-                    {formattedPriceChangePercentage}%
-                </Text>
-                {/* The Delete button is always visible regardless of editing state */}
-                <TouchableOpacity onPress={handleDelete} style={styles.actionIcon}>
-                    <Ionicons name="trash-outline" size={24} color="tomato" />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate('Coin')} style={styles.actionIcon}>
-                    <Ionicons name="arrow-forward" size={24} color="violet" />
-                </TouchableOpacity>
-            </View>
+        <List.Accordion
+            style={styles.card}
+            title={<AccordionTitle />}
+            right={() => <RightIcon />}
+            left={() => <Image source={{ uri: data.coinImage }}
+                style={styles.icon}
+            />}
+            expanded={expanded}
+            onPress={handleExpand}
+        >
 
             <View style={styles.table}>
                 {/* Number of Shares */}
@@ -127,9 +150,8 @@ const CoinCard = ({ data, fetchPortfolioData }) => {
                         <Text style={styles.tableCellTitle}>Shares: </Text>
                         <Text>{data.shares}</Text>
                         <TouchableOpacity onPress={handleEdit} style={styles.actionIcon}>
-                            <Ionicons name="pencil-outline" size={24} color="dodgerblue" />
+                            <FontAwesome name="pencil-square-o" size={24} color="black" />
                         </TouchableOpacity>
-
                     </View>
 
                 )}
@@ -191,7 +213,7 @@ const CoinCard = ({ data, fetchPortfolioData }) => {
 
                 {/* Additional Budget to Catch Up Bottom */}
                 <View style={styles.tableRow}>
-                    <Text style={styles.tableCellTitle}>Additional Budget to Catch Up Bottom:</Text>
+                    <Text style={styles.tableCellTitle}>Addtl. to Catch Up Bottom:</Text>
                     <Text style={styles.tableCellValue}>${formattedAdditionalBudgetUSD} | ₱{formattedAdditionalBudgetPHP}</Text>
                 </View>
 
@@ -231,7 +253,7 @@ const CoinCard = ({ data, fetchPortfolioData }) => {
                     <Text style={styles.tableCellValue}>${data.tradingVolume.toLocaleString()}</Text>
                 </View>
             </View>
-        </View>
+        </List.Accordion>
     );
 };
 
@@ -240,9 +262,9 @@ const styles = StyleSheet.create({
     card: {
         backgroundColor: '#fff',
         borderRadius: 10,
-        padding: 20,
-        marginVertical: 10,
-        marginHorizontal: 15,
+        padding: 10,
+        marginBottom: 5,
+        marginHorizontal: 10,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
@@ -260,11 +282,9 @@ const styles = StyleSheet.create({
         borderRadius: 20,
     },
     cardTitle: {
-        fontSize: 18,
+        fontSize: 16,
         fontWeight: 'bold',
-        flex: 1,
-        marginLeft: 15,
-        marginRight: 15,
+        marginRight: 10,
     },
     actions: {
         flexDirection: 'row',
@@ -291,7 +311,18 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     table: {
-        marginTop: 10,
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        paddingHorizontal: 10,
+        paddingVertical: 10,
+        marginHorizontal: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 5,
+        marginBottom: 5,
+        paddingRight: 10,
     },
     tableRow: {
         flexDirection: 'row',
@@ -302,6 +333,7 @@ const styles = StyleSheet.create({
     },
     tableCellTitle: {
         fontWeight: 'bold',
+        fontSize: 14,
     },
     tableCellValue: {
         textAlign: 'right',
