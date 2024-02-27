@@ -123,7 +123,6 @@ const CoinCard = ({ data, fetchPortfolioData }) => {
     }
 
 
-    navigation.navigate('Coin',  {data})
 
     return (
         <List.Accordion
