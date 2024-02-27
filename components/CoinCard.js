@@ -127,15 +127,19 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
 
     const AccordionTitle = () => (
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-            <Text style={styles.cardTitle}>{`${data.coinName}`}</Text>
-            <View >
-                <Text style={{ fontSize: 12, }}>${formattedTotalHoldingsUSD} | ₱{formattedTotalHoldingsPHP}</Text>
+            <View>
+                <Text style={styles.cardTitle}>{`${data.coinName}`}</Text>
                 <View style={{ flexDirection: 'row' }}>
-                    <MaterialCommunityIcons name={data.priceChangeIcon} size={24} color={data?.priceChangeColor} />
-                    <Text style={{ color: data.priceChangeColor, marginLeft: 4 }}>
-                        {formattedPriceChangePercentage}%
-                    </Text>
+                        <MaterialCommunityIcons name={data.priceChangeIcon} size={24} color={data?.priceChangeColor} />
+                        <Text style={{ color: data.priceChangeColor, marginLeft: 4 }}>
+                            {formattedPriceChangePercentage}%
+                        </Text>
                 </View>
+            </View>
+        
+            <View style={{paddingLeft:16}}>
+                <Text style={{ fontSize: 12, }}>$ {Number(formattedTotalHoldingsUSD).toLocaleString()}</Text>
+                <Text style={{ fontSize: 12, }}>₱ {Number(formattedTotalHoldingsPHP).toLocaleString()}</Text>                
             </View>
         </View>
     );
@@ -144,7 +148,7 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
         return <View style={{
             position: 'absolute',
             top: 0,
-            right: 10,
+            right: 0,
             zIndex: 1,
             flexDirection: 'row',
             alignItems: 'center',
@@ -174,15 +178,15 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
 
     return (
         <View style={styles.mainContainer}>
-            <RightIcon />
             <List.Accordion
                 style={[styles.card, isActive && styles.activeCard]}
                 title={<AccordionTitle />}
-                // right={() => <RightIcon />}
+                right={() => <RightIcon />}
                 left={() => <LeftIcon />}
                 expanded={expanded}
                 onPress={handleExpand}
                 onLongPress={onLongPress}
+                pointerEvents='auto'
             >
                 <View style={styles.table}>
                     {/* Number of Shares */}
