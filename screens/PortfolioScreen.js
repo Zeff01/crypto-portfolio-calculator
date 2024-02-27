@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Modal, Button } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Modal, Button, Platform, UIManager } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import useCoinDataStore from '../store/useCoinDataStore';
 import CoinCard from '../components/CoinCard';
@@ -9,6 +9,7 @@ import useGlobalStore from '../store/useGlobalStore';
 import { useFocusEffect } from '@react-navigation/native';
 import PortfolioHeader from '../components/PortfiolioHeader';
 
+
 const PortfolioScreen = () => {
 
     const { setUsdToPhpRate, setBudgetPerCoin, usdToPhpRate, budgetPerCoin } = useGlobalStore();
@@ -16,6 +17,7 @@ const PortfolioScreen = () => {
     const [modalVisible, setModalVisible] = useState(false);
     const [portfolioEntries, setPortfolioEntries] = useState([]);
     const [totalHoldings, setTotalHoldings] = useState(0);
+
     //fetch portfolio data
     const fetchPortfolioData = async () => {
         const { data: { user } } = await supabase.auth.getUser()
@@ -157,6 +159,7 @@ const PortfolioScreen = () => {
 
 
 
+
     return (
         <>
             <Modal
@@ -236,7 +239,8 @@ const PortfolioScreen = () => {
 
 const styles = StyleSheet.create({
     container: {
-        paddingTop: 10,
+        backgroundColor: 'white',
+        padding: 10,
     },
     rateAndBudgetContainer: {
         flexDirection: 'column',
