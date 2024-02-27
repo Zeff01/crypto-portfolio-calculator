@@ -116,13 +116,14 @@ const CoinCard = ({ data, fetchPortfolioData }) => {
             <TouchableOpacity onPress={handleDelete} style={styles.actionIcon}>
                 <Ionicons name="trash-outline" size={24} color="tomato" />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate('Coin',  {data})} style={styles.actionIcon}>
+            <TouchableOpacity onPressIn={() => navigation.navigate('Coin',  {data})} style={styles.actionIcon}>
                 <FontAwesome5 name="coins" size={24} color="violet" />
             </TouchableOpacity>
         </View>
     }
 
 
+    navigation.navigate('Coin',  {data})
 
     return (
         <List.Accordion
