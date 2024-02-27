@@ -19,6 +19,7 @@ const PortfolioScreen = () => {
 
     const fetchPortfolioData = async () => {
         const { data: { user } } = await supabase.auth.getUser()
+        console.log("user:", user)
 
         if (user) {
             const { data: portfolioData, error } = await supabase

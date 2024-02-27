@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View,TextInput,ScrollView, Text, Button, StyleSheet, Alert, KeyboardAvoidingView  } from 'react-native';
-import { supabase } from '../services/supabase'; // Adjust the import path as necessary
+import { View, ScrollView, Text, StyleSheet, Alert } from 'react-native';
+import { supabase } from '../services/supabase';
 
 import Logo from '../components/Logo';
 import Forms from '../components/Forms';
@@ -10,15 +10,14 @@ const SignUpScreen = ({ navigation }) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
-    const [name, setName] = useState('');
+    const [username, setUsername] = useState('');
 
     const handleSignUp = async () => {
         setLoading(true);
         const { data, error } = await supabase.auth.signUp({
             email, password, options: {
                 data: {
-                    name: name,
-                    age: 27,
+                    username: username,
                 }
             }
         });
@@ -45,85 +44,45 @@ const SignUpScreen = ({ navigation }) => {
         }
     };
 
-    const handleLogins =() => {
+    const handleLogins = () => {
         navigation.navigate('HomeBottomTab');
     }
 
-    const handleForget =() => {
+    const handleForget = () => {
         navigation.navigate('Forget');
     }
 
-    const handleLogin =() => {
+    const handleLogin = () => {
         navigation.navigate('Login');
     }
 
     return (
-        <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingHorizontal: 6, backgroundColor:'white' }}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingHorizontal: 6, backgroundColor: 'white' }}>
             <View className='flex-1 justify-start items-center px-6 '>
-                        <View className='w-full mb-10'>
-                            <Logo size={80}/>
-                        </View>
-                        <View className='w-full bg-gray-300 rounded-lg px-8 py-5'>
-                            <Forms/>
-                        </View>
-                        <View className='w-full flex-row justify-end items-center mt-5'>
-                            <ButtonArrow onPress={handleLogins} title={'Signup'}/>
-                        </View>
-                        <View className='w-full flex-col justify-between items-center mt-10  py-10'>
-                            <Text className='font-bold text-lg text-neutral-600 tracking-wider capitalize'>
-                                Already have an account?
-                            </Text>
-                            <Text 
-                                className='font-bold text-lg text-indigo-500 tracking-wider capitalize'
-                                onPress={handleLogin}>
-                                login
-                            </Text>
-                        </View>
-                        {/* <TextInput
-                            style={styles.input}
-                            placeholder="Email"
-                            value={email}
-                            onChangeText={setEmail}
-                            autoCapitalize="none"
-                            keyboardType="email-address"
-                        />
-                        <TextInput
-                            style={styles.input}
-                            placeholder="Password"
-                            value={password}
-                            onChangeText={setPassword}
-                            secureTextEntry
-                        />
-                        <Button title={loading ? 'Logging in...' : 'Login'} onPress={() => navigation.navigate('HomeBottomTab')} disabled={loading} />
-                        <Button
-                            title="Don't have an account? Sign Up"
-                            onPress={() => navigation.navigate('SignUp')}
-                        /> */}
+                <View className='w-full mb-10'>
+                    <Logo size={80} />
+                </View>
+                <View className='w-full bg-gray-200 rounded-lg px-6 py-4'>
+                    <Forms setEmail={setEmail} setPassword={setPassword} setUsername={setUsername} />
+                </View>
+                <View className='w-full flex-row justify-end items-center mt-5'>
+                    <ButtonArrow onPress={handleSignUp} title={'Signup'} />
+                </View>
+                <View className='w-full flex-col justify-between items-center mt-10  py-10'>
+                    <Text className='font-bold text-lg text-neutral-600 tracking-wider capitalize'>
+                        Already have an account?
+                    </Text>
+                    <Text
+                        className='font-bold text-lg text-indigo-500 tracking-wider capitalize'
+                        onPress={handleLogin}>
+                        login
+                    </Text>
+                </View>
+
             </View>
         </ScrollView>
     );
 };
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
-        backgroundColor: '#fff',
-    },
-    title: {
-        fontSize: 20,
-        marginBottom: 16,
-    },
-    input: {
-        width: '100%',
-        height: 40,
-        borderColor: 'gray',
-        borderWidth: 1,
-        marginBottom: 12,
-        padding: 10,
-    },
-});
 
 export default SignUpScreen;
