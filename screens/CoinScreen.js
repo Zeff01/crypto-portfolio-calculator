@@ -1,12 +1,12 @@
-import { View, Text } from 'react-native'
-import React from 'react'
+import CoinCard from '../components/CoinCard';
 
-const CoinScreen = () => {
+
+const CoinScreen = ({route}) => {
+    
+    const data = route.params.data
 
     return (
-        <View>
-            <Text>coinNAme</Text>
-        </View>
+        <CoinCard data={data} fetchPortfolioData={()=>{}}  />
     )
 }
 

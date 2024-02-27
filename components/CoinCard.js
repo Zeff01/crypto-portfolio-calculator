@@ -108,7 +108,7 @@ const CoinCard = ({ data, fetchPortfolioData }) => {
                 <TouchableOpacity onPress={handleDelete} style={styles.actionIcon}>
                     <Ionicons name="trash-outline" size={24} color="tomato" />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate('Coin')} style={styles.actionIcon}>
+                <TouchableOpacity onPress={() => navigation.navigate('Coin',  {data})} style={styles.actionIcon}>
                     <Ionicons name="arrow-forward" size={24} color="violet" />
                 </TouchableOpacity>
             </View>
@@ -125,7 +125,7 @@ const CoinCard = ({ data, fetchPortfolioData }) => {
                 ) : (
                     <View style={styles.tableRow}>
                         <Text style={styles.tableCellTitle}>Shares: </Text>
-                        <Text>{data.shares}</Text>
+                        <Text style={{fontWeight:'bold', fontSize:16,  color: 'green'}} >{data.shares}</Text>
                         <TouchableOpacity onPress={handleEdit} style={styles.actionIcon}>
                             <Ionicons name="pencil-outline" size={24} color="dodgerblue" />
                         </TouchableOpacity>
@@ -296,12 +296,14 @@ const styles = StyleSheet.create({
     tableRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+        alignItems: 'center',
         borderBottomWidth: 1,
         borderBottomColor: '#eee',
         paddingVertical: 8,
     },
     tableCellTitle: {
         fontWeight: 'bold',
+        maxWidth: '50%'
     },
     tableCellValue: {
         textAlign: 'right',
