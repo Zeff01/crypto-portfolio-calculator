@@ -127,9 +127,6 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
 
     const AccordionTitle = () => (
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-
-
-
             <Text style={styles.cardTitle}>{`${data.coinName}`}</Text>
             <View >
                 <Text style={{ fontSize: 12, }}>${formattedTotalHoldingsUSD} | ₱{formattedTotalHoldingsPHP}</Text>
@@ -140,38 +137,29 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
                     </Text>
                 </View>
             </View>
-
-
-
-
         </View>
     );
 
     const RightIcon = () => {
-
-
-
         return <View style={{
             position: 'absolute',
-            bottom: 50,
+            top: 0,
             right: 10,
             zIndex: 1,
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'flex-end',
-            padding: 10,
+
         }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', }}>
 
                 <TouchableOpacity onPress={handleDelete} style={styles.actionIcon}>
-                    <Ionicons name="trash-outline" size={30} color="tomato" />
+                    <Ionicons name="trash-outline" size={24} color="tomato" />
                 </TouchableOpacity>
                 <TouchableOpacity onPress={(event) => navigation.navigate('Coin')} style={styles.actionIcon}>
-                    <FontAwesome5 name="coins" size={30} color="violet" />
+                    <FontAwesome5 name="coins" size={24} color="violet" />
                 </TouchableOpacity>
-
             </View>
-
         </View>
     }
 
@@ -323,7 +311,7 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
 
 const styles = StyleSheet.create({
     mainContainer: {
-        backgroundColor: 'white',
+        // backgroundColor: 'white',
         position: 'relative',
         paddingTop: 20,
     },

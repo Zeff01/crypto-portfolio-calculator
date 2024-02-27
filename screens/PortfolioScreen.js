@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Modal, Button, Platform, UIManager } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Modal, RefreshControl } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import useCoinDataStore from '../store/useCoinDataStore';
 import CoinCard from '../components/CoinCard';
 import { fetchUsdToPhpRate } from '../utils/api';
 import { supabase } from '../services/supabase';
@@ -9,7 +8,7 @@ import useGlobalStore from '../store/useGlobalStore';
 import { useFocusEffect } from '@react-navigation/native';
 import PortfolioHeader from '../components/PortfiolioHeader';
 import DraggableFlatList from 'react-native-draggable-flatlist';
-
+import Spinner from 'react-native-loading-spinner-overlay';
 const PortfolioScreen = () => {
 
     const { setUsdToPhpRate, setBudgetPerCoin, usdToPhpRate, budgetPerCoin } = useGlobalStore();
@@ -17,16 +16,26 @@ const PortfolioScreen = () => {
     const [modalVisible, setModalVisible] = useState(false);
     const [portfolioEntries, setPortfolioEntries] = useState([]);
     const [totalHoldings, setTotalHoldings] = useState(0);
+    const [loading, setLoading] = useState(false);
+    const [refreshing, setRefreshing] = useState(false);
+
+    const showLoader = () => setLoading(true);
+    const hideLoader = () => setLoading(false);
+
 
     //fetch portfolio data
     const fetchPortfolioData = async () => {
+        // setRefreshing(true);
+        showLoader()
+
         const { data: { user } } = await supabase.auth.getUser()
 
         if (user) {
             const { data: portfolioData, error } = await supabase
                 .from('portfolio')
                 .select('*')
-                .eq('userId', user.id);
+                .eq('userId', user.id)
+                .order('orderIndex', { ascending: true });
 
             if (error) {
                 console.error('Error fetching portfolio data:', error);
@@ -34,6 +43,8 @@ const PortfolioScreen = () => {
                 setPortfolioEntries(portfolioData);
             }
         }
+        hideLoader();
+        // setRefreshing(false);
     };
 
     //get dollar rate to php
@@ -168,10 +179,37 @@ const PortfolioScreen = () => {
         );
     };
 
+    const onRefresh = React.useCallback(async () => {
+        setRefreshing(true);
+        // Place your data-fetching logic here
+        await fetchPortfolioData();
+        setRefreshing(false);
+    }, []);
+
+    const onDragEnd = async ({ data }) => {
+        setPortfolioEntries(data);
+
+        for (let i = 0; i < data.length; i++) {
+            const item = data[i];
+            await supabase
+                .from('portfolio')
+                .update({ orderIndex: i })
+                .match({ id: item.id });
+        }
+
+    };
 
 
     return (
         <>
+            <Spinner
+                visible={loading}
+                textContent={'Fetching Portfolio data'}
+                textStyle={styles.spinnerTextStyle}
+                color={'#FFF'}
+                overlayColor={'rgba(0,0,0,0.75)'}
+            />
+
             <Modal
                 animationType="slide"
                 transparent={true}
@@ -189,62 +227,67 @@ const PortfolioScreen = () => {
                 </View>
             </Modal>
 
-            {
-                portfolioEntries.length === 0 ? (
-                    <View style={[styles.container, styles.placeholderContainer]}>
-                        <Text>No coins added yet. Use the '+' button to add coins.</Text>
-                    </View>
-                ) : <DraggableFlatList
-                    data={portfolioEntries}
-                    renderItem={renderItem}
-                    keyExtractor={(item, index) => `draggable-item-${item.id}`}
-                    onDragEnd={({ data }) => setPortfolioEntries(data)}
-                    ListHeaderComponent={
-                        <>
-                            <PortfolioHeader title="My Portfolio"
-                                totalHoldings={totalHoldings} />
+            {portfolioEntries.length === 0 ? (
+                <View style={[styles.container, styles.placeholderContainer]}>
+                    <Text>No coins added yet. Use the '+' button to add coins.</Text>
+                </View>
+            ) : <DraggableFlatList
+                data={portfolioEntries}
+                renderItem={renderItem}
+                keyExtractor={(item, index) => `draggable-item-${item.id}`}
+                onDragEnd={onDragEnd}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                    />
+                }
+                ListHeaderComponent={
+                    <>
+                        <PortfolioHeader title="My Portfolio"
+                            totalHoldings={totalHoldings} />
 
-                            {/* //BUDGET INFO */}
-                            <View style={styles.rateAndBudgetContainer}>
-                                <Text style={styles.rateDisplay}>USD to PHP Rate: {usdToPhpRate || 'Loading...'}</Text>
-                                <View style={styles.budgetDisplay}>
-                                    {isEditingBudget ? (
-                                        <>
-                                            <Text style={styles.budgetTitle}>Enter Budget in (USD)</Text>
-                                            <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                        {/* //BUDGET INFO */}
+                        <View style={styles.rateAndBudgetContainer}>
+                            <Text style={styles.rateDisplay}>USD to PHP Rate: {usdToPhpRate || 'Loading...'}</Text>
+                            <View style={styles.budgetDisplay}>
+                                {isEditingBudget ? (
+                                    <>
+                                        <Text style={styles.budgetTitle}>Enter Budget in (USD)</Text>
+                                        <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
 
-                                                <TextInput
-                                                    style={styles.budgetInput}
-                                                    value={budgetPerCoin.toString()}
-                                                    onChangeText={handleBudgetChange}
-                                                    placeholder="0"
-                                                    keyboardType="numeric"
-                                                    onBlur={() => setIsEditingBudget(false)}
-                                                />
+                                            <TextInput
+                                                style={styles.budgetInput}
+                                                value={budgetPerCoin.toString()}
+                                                onChangeText={handleBudgetChange}
+                                                placeholder="0"
+                                                keyboardType="numeric"
+                                                onBlur={() => setIsEditingBudget(false)}
+                                            />
 
-                                                <TouchableOpacity onPress={handleBudgetConfirmation} style={styles.iconButton}>
-                                                    <Ionicons name="checkmark" size={24} color="green" />
-                                                </TouchableOpacity>
-                                            </View>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Text style={styles.budgetTitle}>Your Budget per coin</Text>
-                                            <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                                                <Text style={styles.budgetText}>
-                                                    Budget: ${budgetPerCoin} / ₱{(budgetPerCoin * usdToPhpRate).toFixed(2)}
-                                                </Text>
-                                                <TouchableOpacity onPress={toggleEdit} style={styles.iconButton}>
-                                                    <Ionicons name="pencil" size={24} color="purple" />
-                                                </TouchableOpacity>
-                                            </View>
-                                        </>
-                                    )}
-                                </View>
+                                            <TouchableOpacity onPress={handleBudgetConfirmation} style={styles.iconButton}>
+                                                <Ionicons name="checkmark" size={24} color="green" />
+                                            </TouchableOpacity>
+                                        </View>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Text style={styles.budgetTitle}>Your Budget per coin</Text>
+                                        <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                                            <Text style={styles.budgetText}>
+                                                Budget: ${budgetPerCoin} / ₱{(budgetPerCoin * usdToPhpRate).toFixed(2)}
+                                            </Text>
+                                            <TouchableOpacity onPress={toggleEdit} style={styles.iconButton}>
+                                                <Ionicons name="pencil" size={24} color="purple" />
+                                            </TouchableOpacity>
+                                        </View>
+                                    </>
+                                )}
                             </View>
-                        </>
-                    }
-                />
+                        </View>
+                    </>
+                }
+            />
             }
 
         </>
@@ -325,6 +368,10 @@ const styles = StyleSheet.create({
         marginBottom: 15,
         textAlign: "center",
         fontWeight: 'bold',
+    },
+    spinnerTextStyle: {
+        color: '#FFF', // Spinner text color
+        fontSize: 16, // Spinner text font size
     },
 });
 
