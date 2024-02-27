@@ -98,30 +98,41 @@ const CoinCard = ({ data, fetchPortfolioData }) => {
     const handleExpand = () => setExpanded(!expanded);
 
     const AccordionTitle = () => (
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', }}>
-                <Text style={styles.cardTitle}>{`${data.coinName}`}</Text>
-            </View>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
 
+            <Text style={styles.cardTitle}>{`${data.coinName}`}</Text>
 
         </View>
     );
 
     const RightIcon = () => {
-        return <View style={{ flexDirection: 'row', alignItems: 'center', }}>
-            <MaterialCommunityIcons name={data.priceChangeIcon} size={24} color={data?.priceChangeColor} />
-            <Text style={{ color: data.priceChangeColor, marginLeft: 4 }}>
-                {formattedPriceChangePercentage}%
-            </Text>
-            <TouchableOpacity onPress={handleDelete} style={styles.actionIcon}>
-                <Ionicons name="trash-outline" size={24} color="tomato" />
-            </TouchableOpacity>
-            <TouchableOpacity onPress={() => navigation.navigate('Coin')} style={styles.actionIcon}>
-                <FontAwesome5 name="coins" size={24} color="violet" />
-            </TouchableOpacity>
+        return <View style={{ alignItems: 'center' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', }}>
+                <MaterialCommunityIcons name={data.priceChangeIcon} size={24} color={data?.priceChangeColor} />
+                <Text style={{ color: data.priceChangeColor, marginLeft: 4 }}>
+                    {formattedPriceChangePercentage}%
+                </Text>
+                <TouchableOpacity onPress={handleDelete} style={styles.actionIcon}>
+                    <Ionicons name="trash-outline" size={24} color="tomato" />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('Coin')} style={styles.actionIcon}>
+                    <FontAwesome5 name="coins" size={24} color="violet" />
+                </TouchableOpacity>
+
+            </View>
+            <View style={{ marginTop: 5, }}>
+                <Text style={{ fontSize: 12, }}>${formattedTotalHoldingsUSD} | ₱{formattedTotalHoldingsPHP}</Text>
+            </View>
         </View>
     }
 
+    const LeftIcon = () => (
+        <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+            <Image source={{ uri: data.coinImage }}
+                style={styles.icon}
+            />
+        </View>
+    )
 
 
     return (
@@ -129,9 +140,7 @@ const CoinCard = ({ data, fetchPortfolioData }) => {
             style={styles.card}
             title={<AccordionTitle />}
             right={() => <RightIcon />}
-            left={() => <Image source={{ uri: data.coinImage }}
-                style={styles.icon}
-            />}
+            left={() => <LeftIcon />}
             expanded={expanded}
             onPress={handleExpand}
         >
@@ -262,7 +271,7 @@ const styles = StyleSheet.create({
     card: {
         backgroundColor: '#fff',
         borderRadius: 10,
-        padding: 10,
+        padding: 5,
         marginBottom: 5,
         marginHorizontal: 10,
         shadowColor: '#000',
@@ -290,7 +299,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     actionIcon: {
-        marginLeft: 10,
+        marginLeft: 0,
     },
     input: {
         borderWidth: 1,
