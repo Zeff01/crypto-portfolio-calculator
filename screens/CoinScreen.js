@@ -77,7 +77,7 @@ const CoinScreen = ({route}) => {
                     const value = r[1]
 
                     return (
-                        <View style={{flexDirection: 'row', padding:8, marginVertical:2, width:300,  alignItems:'center', borderBottomColor:'gray',borderBottomWidth:0.5}}>
+                        <View key={r[0]} style={{flexDirection: 'row', padding:8, marginVertical:2, width:300,  alignItems:'center', borderBottomColor:'gray',borderBottomWidth:0.5}}>
                             <View style={{width:'60%'}}><Text style={{fontWeight:'700', fontSize:16}}>{r[0]}</Text></View>
                             <View>                                
                                 {typeof value ===  'string' && value.includes('|')  ?

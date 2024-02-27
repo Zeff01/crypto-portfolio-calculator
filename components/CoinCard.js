@@ -156,7 +156,7 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
                 <TouchableOpacity onPress={handleDelete} style={styles.actionIcon}>
                     <Ionicons name="trash-outline" size={24} color="tomato" />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={(event) => navigation.navigate('Coin')} style={styles.actionIcon}>
+                <TouchableOpacity onPress={(event) => navigation.navigate('Coin', {data})} style={styles.actionIcon}>
                     <FontAwesome5 name="coins" size={24} color="violet" />
                 </TouchableOpacity>
             </View>
