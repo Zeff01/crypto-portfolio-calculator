@@ -52,6 +52,23 @@ const StackNavigator = () => {
                 },
             }}
         >
+            <Stack.Screen name="HomeBottomTab" component={BottomTabNavigator} options={{ headerShown: false }} />
+            <Stack.Screen
+                name="AddCoin"
+                component={AddCoinScreen}
+                options={({ navigation }) => ({
+                    title: 'Add Coin',
+
+                })}
+            />
+            <Stack.Screen
+                name="Coin"
+                component={CoinScreen}
+                options={({ navigation }) => ({
+                    title: 'Coin Info',
+
+                })}
+            />
             <Stack.Screen
                 name="Login"
                 component={LoginScreen}
@@ -75,23 +92,7 @@ const StackNavigator = () => {
                 }}
             />
             <Stack.Screen name="Forget" component={ForgetPasswordScreen} />
-            <Stack.Screen name="HomeBottomTab" component={BottomTabNavigator} options={{ headerShown: false }} />
-            <Stack.Screen
-                name="AddCoin"
-                component={AddCoinScreen}
-                options={({ navigation }) => ({
-                    title: 'Add Coin',
 
-                })}
-            />
-            <Stack.Screen
-                name="Coin"
-                component={CoinScreen}
-                options={({ navigation }) => ({
-                    title: 'Coin Info',
-
-                })}
-            />
         </Stack.Navigator>
 
     );

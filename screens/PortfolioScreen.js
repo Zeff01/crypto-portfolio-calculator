@@ -8,7 +8,7 @@ import { supabase } from '../services/supabase';
 import useGlobalStore from '../store/useGlobalStore';
 import { useFocusEffect } from '@react-navigation/native';
 import PortfolioHeader from '../components/PortfiolioHeader';
-
+import DraggableFlatList from 'react-native-draggable-flatlist';
 
 const PortfolioScreen = () => {
 
@@ -157,6 +157,16 @@ const PortfolioScreen = () => {
     }, [portfolioEntries]);
 
 
+    const renderItem = ({ item, index, drag, isActive }) => {
+        return (
+            <CoinCard
+                data={item}
+                onLongPress={drag}
+                isActive={isActive}
+                fetchPortfolioData={fetchPortfolioData}
+            />
+        );
+    };
 
 
 
@@ -178,61 +188,65 @@ const PortfolioScreen = () => {
                     </View>
                 </View>
             </Modal>
-            <ScrollView contentContainerStyle={styles.container}>
-                <PortfolioHeader title="My Portfolio"
-                    totalHoldings={totalHoldings} />
 
-                <View style={styles.rateAndBudgetContainer}>
-                    <Text style={styles.rateDisplay}>USD to PHP Rate: {usdToPhpRate || 'Loading...'}</Text>
-                    <View style={styles.budgetDisplay}>
-                        {isEditingBudget ? (
-                            <>
-                                <Text style={styles.budgetTitle}>Enter Budget in (USD)</Text>
-                                <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-
-                                    <TextInput
-                                        style={styles.budgetInput}
-                                        value={budgetPerCoin.toString()}
-                                        onChangeText={handleBudgetChange}
-                                        placeholder="0"
-                                        keyboardType="numeric"
-                                        onBlur={() => setIsEditingBudget(false)}
-                                    />
-
-                                    <TouchableOpacity onPress={handleBudgetConfirmation} style={styles.iconButton}>
-                                        <Ionicons name="checkmark" size={24} color="green" />
-                                    </TouchableOpacity>
-                                </View>
-                            </>
-                        ) : (
-                            <>
-                                <Text style={styles.budgetTitle}>Your Budget per coin</Text>
-                                <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                                    <Text style={styles.budgetText}>
-                                        Budget: ${budgetPerCoin} / ₱{(budgetPerCoin * usdToPhpRate).toFixed(2)}
-                                    </Text>
-                                    <TouchableOpacity onPress={toggleEdit} style={styles.iconButton}>
-                                        <Ionicons name="pencil" size={24} color="purple" />
-                                    </TouchableOpacity>
-                                </View>
-                            </>
-                        )}
+            {
+                portfolioEntries.length === 0 ? (
+                    <View style={[styles.container, styles.placeholderContainer]}>
+                        <Text>No coins added yet. Use the '+' button to add coins.</Text>
                     </View>
-                </View>
-                {
-                    portfolioEntries.length === 0 ? (
-                        <View style={[styles.container, styles.placeholderContainer]}>
-                            <Text>No coins added yet. Use the '+' button to add coins.</Text>
-                        </View>
-                    ) : (
-                        portfolioEntries.map((entry) => (
+                ) : <DraggableFlatList
+                    data={portfolioEntries}
+                    renderItem={renderItem}
+                    keyExtractor={(item, index) => `draggable-item-${item.id}`}
+                    onDragEnd={({ data }) => setPortfolioEntries(data)}
+                    ListHeaderComponent={
+                        <>
+                            <PortfolioHeader title="My Portfolio"
+                                totalHoldings={totalHoldings} />
 
-                            <CoinCard key={entry.id} data={entry} fetchPortfolioData={fetchPortfolioData} />
+                            {/* //BUDGET INFO */}
+                            <View style={styles.rateAndBudgetContainer}>
+                                <Text style={styles.rateDisplay}>USD to PHP Rate: {usdToPhpRate || 'Loading...'}</Text>
+                                <View style={styles.budgetDisplay}>
+                                    {isEditingBudget ? (
+                                        <>
+                                            <Text style={styles.budgetTitle}>Enter Budget in (USD)</Text>
+                                            <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
 
-                        ))
-                    )
-                }
-            </ScrollView>
+                                                <TextInput
+                                                    style={styles.budgetInput}
+                                                    value={budgetPerCoin.toString()}
+                                                    onChangeText={handleBudgetChange}
+                                                    placeholder="0"
+                                                    keyboardType="numeric"
+                                                    onBlur={() => setIsEditingBudget(false)}
+                                                />
+
+                                                <TouchableOpacity onPress={handleBudgetConfirmation} style={styles.iconButton}>
+                                                    <Ionicons name="checkmark" size={24} color="green" />
+                                                </TouchableOpacity>
+                                            </View>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Text style={styles.budgetTitle}>Your Budget per coin</Text>
+                                            <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                                                <Text style={styles.budgetText}>
+                                                    Budget: ${budgetPerCoin} / ₱{(budgetPerCoin * usdToPhpRate).toFixed(2)}
+                                                </Text>
+                                                <TouchableOpacity onPress={toggleEdit} style={styles.iconButton}>
+                                                    <Ionicons name="pencil" size={24} color="purple" />
+                                                </TouchableOpacity>
+                                            </View>
+                                        </>
+                                    )}
+                                </View>
+                            </View>
+                        </>
+                    }
+                />
+            }
+
         </>
     );
 };
