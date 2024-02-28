@@ -142,11 +142,17 @@ const PortfolioScreen = () => {
     };
 
     const onRefresh = React.useCallback(async () => {
+        console.log('Refreshing started');
         setRefreshing(true);
-        // Place your data-fetching logic here
-        await fetchPortfolioData();
+        try {
+            await fetchPortfolioData();
+            console.log('Refreshing successful');
+        } catch (error) {
+            console.error('Refreshing failed:', error);
+        }
         setRefreshing(false);
     }, []);
+
 
     const onDragEnd = async ({ data }) => {
         setPortfolioEntries(data);
