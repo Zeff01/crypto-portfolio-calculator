@@ -1,67 +1,9 @@
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity } from 'react-native'
+import { View, Text,  Image, ScrollView, } from 'react-native'
 import React from 'react'
-import CoinCard from '../components/CoinCard'
-import { StickyTable } from 'react-native-sticky-table'
-import { safeToFixed } from '../utils/safeToFixed';
 import useGlobalStore from '../store/useGlobalStore';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useTheme } from 'react-native-paper'
+import { dataToParse, generateTableData } from '../utils/formatter';
 
-const dataToParse = {
-    currentPrice: 'Current Price',
-    allTimeHigh: 'All Time High',
-    allTimeLow: 'All Time Low',
-    athRoi: 'ATH ROI',
-    increaseFromATL: '% Increase from ATL',
-    totalHoldings: 'Total Holdings',
-    trueBudgetPerCoin: 'True Budget on this Coin',
-    additionalBudget: 'Additional Budget Catch Up Bottom',
-    projectedRoi: 'Projected ROI (70x)',
-    marketCap: 'Market Cap',
-    totalSupply: 'Total Supply',
-    circulatingSupply: 'Circulating Supply',
-    maxSupply: 'Max Supply',
-    tradingVolume: '24h Trading Volume'
-}
-
-const formats = {
-    isMoneyWithConversion: [
-        'currentPrice',
-        'allTimeHigh',
-        'allTimeLow',
-        'totalHoldings',
-        'trueBudgetPerCoin',
-        'additionalBudget',
-        'projectedRoi',
-    ],
-    isMoney: ['marketCap', 'tradingVolume',],
-    isBigNums: ['totalSupply', 'circulatingSupply', 'maxSupply']
-
-}
-
-function generateTableData(data, dataToParse, exchangeRate) {
-
-    const result = [
-        ['Shares', data.shares]
-    ]
-    for (k in dataToParse) {
-        const value = data[k] ?? 'N/A'
-        let item = typeof value === 'number' ? safeToFixed(value) : value
-        if (formats.isMoneyWithConversion.includes(k)) {
-            item = `$${Number(item).toLocaleString()} |  ₱${Number(safeToFixed((Number(item) * exchangeRate))).toLocaleString()}`
-        }
-        if (formats.isMoney.includes(k)) {
-            item = `$${Number(item).toLocaleString()}`
-        }
-        if (formats.isBigNums.includes(k)) {
-            item = Number(item).toLocaleString()
-        }
-        result.push([
-            dataToParse[k], item
-        ])
-    }
-    return result
-}
 
 export default function CoinScreen({ route }) {
     const { usdToPhpRate } = useGlobalStore()
@@ -69,6 +11,9 @@ export default function CoinScreen({ route }) {
 
     const data = route.params.data
     const tableData = generateTableData(data, dataToParse, usdToPhpRate)
+
+    
+
     return (
         <ScrollView style={{ paddingHorizontal: 10, paddingBottom: 10, }}>
             <View style={{ alignItems: 'center', padding: 12 }}>
