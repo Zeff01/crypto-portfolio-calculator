@@ -1,4 +1,5 @@
-const dataToParse = {
+import { safeToFixed } from "./safeToFixed";
+export const dataToParse = {
     currentPrice: 'Current Price',
     allTimeHigh: 'All Time High',
     allTimeLow: 'All Time Low',
@@ -7,12 +8,12 @@ const dataToParse = {
     totalHoldings: 'Total Holdings',
     trueBudgetPerCoin: 'True Budget on this Coin',
     additionalBudget: 'Additional Budget Catch Up Bottom',
-    projectedRoi:'Projected ROI (70x)',
+    projectedRoi: 'Projected ROI (70x)',
     marketCap: 'Market Cap',
     totalSupply: 'Total Supply',
     circulatingSupply: 'Circulating Supply',
     maxSupply: 'Max Supply',
-    tradingVolume:  '24h Trading Volume'
+    tradingVolume: '24h Trading Volume'
 }
 
 const formats = {
@@ -25,30 +26,34 @@ const formats = {
         'additionalBudget',
         'projectedRoi',
     ],
-    isMoney: ['marketCap', 'tradingVolume'],
+    isMoney: ['marketCap', 'tradingVolume',],
+    isBigNums: ['totalSupply', 'circulatingSupply', 'maxSupply']
 
 }
 
-function generateTableData(data, dataToParse, exchangeRate) {
-    const result = {
-        titleData: ['key'],
-        tableData:  [
-            {
-                data: ['value'],                
-            }
-        ],
-    }
+export function generateTableData(data, dataToParse, exchangeRate) {
+
+    const result = [
+        ['Shares', data.shares]
+    ]
     for (k in dataToParse) {
-        const value  = data[k] ?? 'N/A'
-        let  item =  typeof value === 'number' ? safeToFixed(value) : value
+        const value = data[k] ?? 'N/A'
+        let item = typeof value === 'number' ? safeToFixed(value) : value
         if (formats.isMoneyWithConversion.includes(k)) {
-            item  = `$${item} |  ₱${safeToFixed(item*exchangeRate)}`
+            item = `$${Number(item).toLocaleString()} |  ₱${Number(safeToFixed((Number(item) * exchangeRate))).toLocaleString()}`
         }
-        if (formats.isMoney.includes(k))  {
-            item  = `$${item}`
+        if (formats.isMoney.includes(k)) {
+            item = `$${Number(item).toLocaleString()}`
         }
-        result.titleData.push(dataToParse[k]) 
-        result.tableData[0].data.push(item)
-    }    
+        if (formats.isBigNums.includes(k)) {
+            item = Number(item).toLocaleString()
+        }
+        if (isNaN(value)) {
+            item = 0
+        }
+        result.push([
+            dataToParse[k], item
+        ])
+    }
     return result
 }
