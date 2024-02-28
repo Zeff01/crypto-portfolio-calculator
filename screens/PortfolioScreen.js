@@ -93,72 +93,6 @@ const PortfolioScreen = () => {
         }, [])
     );
 
-    //change budget
-    const handleBudgetChange = (value) => {
-        setBudgetPerCoin(value);
-    };
-
-    //edit budget input
-    const toggleEdit = () => {
-        setIsEditingBudget(!isEditingBudget);
-    };
-
-    //update budget in database and recalculate  additional budget
-    const updateBudgets = async (newBudget) => {
-        const { data: { user } } = await supabase.auth.getUser();
-
-        if (user) {
-            const { data: portfolioData, error: fetchError } = await supabase
-                .from('portfolio')
-                .select('*')
-                .eq('userId', user.id);
-
-            if (fetchError || !portfolioData) {
-                console.error('Error fetching portfolio data:', fetchError);
-                return;
-            }
-
-
-            portfolioData.forEach(async (entry) => {
-
-                const additionalBudget = Math.max(newBudget - entry.trueBudgetPerCoin, 0);
-
-
-                const { error: updateError } = await supabase
-                    .from('portfolio')
-                    .update({ additionalBudget: additionalBudget })
-                    .match({ id: entry.id });
-
-
-                if (updateError) {
-                    console.error('Error updating portfolio entry:', updateError);
-                }
-            });
-
-            // Optionally, refetch portfolio data after updates
-            fetchPortfolioData();
-        }
-    };
-
-
-    //confirms the budget update
-    const handleConfirmNewBudget = () => {
-        updateBudgets(budgetPerCoin).then(() => {
-            setIsEditingBudget(false);
-        });
-    };
-
-    const handleBudgetConfirmation = () => {
-        if (isEditingBudget) {
-            const newBudgetValue = parseFloat(budgetPerCoin);
-            if (!isNaN(newBudgetValue) && newBudgetValue > 0) {
-                handleConfirmNewBudget(newBudgetValue);
-            } else {
-                alert("Please enter a valid budget value.");
-            }
-        }
-        setIsEditingBudget(!isEditingBudget);
-    };
 
 
     //get total holdings based on portfolio entries
@@ -243,49 +177,8 @@ const PortfolioScreen = () => {
                     />
                 }
                 ListHeaderComponent={
-                    <>
-                        <PortfolioHeader title="My Portfolio"
-                            totalHoldings={totalHoldings} />
-
-                        {/* //BUDGET INFO */}
-                        <View style={styles.rateAndBudgetContainer}>
-                            <Text style={styles.rateDisplay}>USD to PHP Rate: {usdToPhpRate || 'Loading...'}</Text>
-                            <View style={styles.budgetDisplay}>
-                                {isEditingBudget ? (
-                                    <>
-                                        <Text style={styles.budgetTitle}>Enter Budget in (USD)</Text>
-                                        <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-
-                                            <TextInput
-                                                style={styles.budgetInput}
-                                                value={budgetPerCoin.toString()}
-                                                onChangeText={handleBudgetChange}
-                                                placeholder="0"
-                                                keyboardType="numeric"
-                                                onBlur={() => setIsEditingBudget(false)}
-                                            />
-
-                                            <TouchableOpacity onPress={handleBudgetConfirmation} style={styles.iconButton}>
-                                                <Ionicons name="checkmark" size={24} color="green" />
-                                            </TouchableOpacity>
-                                        </View>
-                                    </>
-                                ) : (
-                                    <>
-                                        <Text style={styles.budgetTitle}>Your Budget per coin</Text>
-                                        <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                                            <Text style={styles.budgetText}>
-                                                Budget: ${budgetPerCoin} / ₱{(budgetPerCoin * usdToPhpRate).toFixed(2)}
-                                            </Text>
-                                            <TouchableOpacity onPress={toggleEdit} style={styles.iconButton}>
-                                                <Ionicons name="pencil" size={24} color="purple" />
-                                            </TouchableOpacity>
-                                        </View>
-                                    </>
-                                )}
-                            </View>
-                        </View>
-                    </>
+                    <PortfolioHeader title="My Portfolio"
+                        totalHoldings={totalHoldings} fetchPortfolioData={fetchPortfolioData} />
                 }
             />
             }
@@ -296,13 +189,14 @@ const PortfolioScreen = () => {
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: 'white',
+        // backgroundColor: 'white',
         padding: 10,
+        flex: 1,
     },
     rateAndBudgetContainer: {
         flexDirection: 'column',
         justifyContent: 'space-between',
-        paddingHorizontal: 10,
+
     },
     rateDisplay: {
         fontSize: 16,

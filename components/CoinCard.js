@@ -130,16 +130,16 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
             <View>
                 <Text style={styles.cardTitle}>{`${data.coinName}`}</Text>
                 <View style={{ flexDirection: 'row' }}>
-                        <MaterialCommunityIcons name={data.priceChangeIcon} size={24} color={data?.priceChangeColor} />
-                        <Text style={{ color: data.priceChangeColor, marginLeft: 4 }}>
-                            {formattedPriceChangePercentage}%
-                        </Text>
+                    <MaterialCommunityIcons name={data.priceChangeIcon} size={24} color={data?.priceChangeColor} />
+                    <Text style={{ color: data.priceChangeColor, marginLeft: 4 }}>
+                        {formattedPriceChangePercentage}%
+                    </Text>
                 </View>
             </View>
-        
-            <View style={{paddingLeft:16}}>
+
+            <View style={{ paddingLeft: 16 }}>
                 <Text style={{ fontSize: 12, }}>$ {Number(formattedTotalHoldingsUSD).toLocaleString()}</Text>
-                <Text style={{ fontSize: 12, }}>₱ {Number(formattedTotalHoldingsPHP).toLocaleString()}</Text>                
+                <Text style={{ fontSize: 12, }}>₱ {Number(formattedTotalHoldingsPHP).toLocaleString()}</Text>
             </View>
         </View>
     );
@@ -160,7 +160,7 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
                 <TouchableOpacity onPress={handleDelete} style={styles.actionIcon}>
                     <Ionicons name="trash-outline" size={24} color="tomato" />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={(event) => navigation.navigate('Coin', {data})} style={styles.actionIcon}>
+                <TouchableOpacity onPress={(event) => navigation.navigate('Coin', { data })} style={styles.actionIcon}>
                     <FontAwesome5 name="coins" size={24} color="violet" />
                 </TouchableOpacity>
             </View>
@@ -317,19 +317,19 @@ const styles = StyleSheet.create({
     mainContainer: {
         // backgroundColor: 'white',
         position: 'relative',
-        paddingTop: 20,
+        paddingVertical: 10,
+        marginHorizontal: 10,
     },
     card: {
         backgroundColor: '#fff',
         borderRadius: 10,
-        padding: 5,
-        marginBottom: 5,
-        marginHorizontal: 10,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 5,
+        padding: 5,
+
     },
     activeCard: {
         backgroundColor: '#faf5f5',
