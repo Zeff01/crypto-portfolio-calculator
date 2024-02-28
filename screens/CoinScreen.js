@@ -43,19 +43,19 @@ export default function CoinScreen({ route }) {
                     >
                         <View
                             style={{ width: '60%' }}>
-                            <Text style={{ fontWeight: '700', fontSize: 16 }}>{r[0]}</Text>
+                            <Text style={{ fontWeight: '700', fontSize: 16, color: theme.colors.text }}>{r[0]}</Text>
                         </View>
                         <View>
                             {typeof value === 'string' && value.includes('|') ?
                                 <>
-                                    <Text style={{ fontWeight: '500', textAlign: 'right' }}>
+                                    <Text style={{ fontWeight: '500', textAlign: 'right' , color:  theme.colors.text}}>
                                         {value.substring(0, value.indexOf('|'))}
                                     </Text>
-                                    <Text style={{ fontWeight: '500', textAlign: 'right' }}>
+                                    <Text style={{ fontWeight: '500', textAlign: 'right' , color:  theme.colors.text}}>
                                         {value.substring(value.indexOf('|') + 2)}
                                     </Text>
                                 </> :
-                                <Text style={{ fontWeight: '500', textAlign: 'right' }}>{value}</Text>
+                                <Text style={{ fontWeight: '500', textAlign: 'right', color:  theme.colors.text  }}>{value}</Text>
                             }
                         </View>
                     </View>

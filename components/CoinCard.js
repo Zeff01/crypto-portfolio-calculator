@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, TouchableWithoutFeedback, Alert, } from 'react-native';
-import { Ionicons, MaterialCommunityIcons, FontAwesome, FontAwesome5 } from '@expo/vector-icons';
+import { Ionicons,  FontAwesome, FontAwesome5, AntDesign } from '@expo/vector-icons';
 import useCoinDataStore from '../store/useCoinDataStore';
 import useGlobalStore from '../store/useGlobalStore';
 import { safeToFixed } from '../utils/safeToFixed';
@@ -8,8 +8,11 @@ import { supabase } from '../services/supabase';
 import { useNavigation } from '@react-navigation/core';
 import { List } from 'react-native-paper';
 import {dataToParse, generateTableData} from '../utils/formatter'
+import { useTheme } from 'react-native-paper';
 
 const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
+
+    const theme = useTheme()
 
     const [isEditing, setIsEditing] = useState(false);
     const [editedShares, setEditedShares] = useState(data.shares.toString());
@@ -124,23 +127,21 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
         }
     };
     const handleExpand = () => setExpanded(!expanded);
-
+    const  PriceChangeIcon  = data.priceChangeIcon === 'arrow-up' ? 
+    () => <AntDesign name="up" size={18} color="green" /> : 
+    () => <AntDesign name="down" size={18} color="red" />
     const AccordionTitle = () => (
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
             <View>
-                <Text style={styles.cardTitle}>{`${data.coinName}`}</Text>
-                <View style={{ flexDirection: 'row' }}>
-                    <MaterialCommunityIcons name={data.priceChangeIcon} size={24} color={data?.priceChangeColor} />
-                    <Text style={{ color: data.priceChangeColor, marginLeft: 4 }}>
+                <Text style={[styles.cardTitle, {color: theme.colors.text}]}>{`${data.coinName}`}</Text>
+                <View style={{ flexDirection: 'row', }}>
+                    <PriceChangeIcon />
+                    <Text style={{ color: data.priceChangeColor, marginLeft: 4, color: theme.colors.text }}>
                         {formattedPriceChangePercentage}%
                     </Text>
                 </View>
             </View>
-
-            <View style={{ paddingLeft: 16 }}>
-                <Text style={{ fontSize: 12, }}>$ {Number(formattedTotalHoldingsUSD).toLocaleString()}</Text>
-                <Text style={{ fontSize: 12, }}>₱ {Number(formattedTotalHoldingsPHP).toLocaleString()}</Text>
-            </View>
+            
         </View>
     );
 
@@ -156,7 +157,10 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
 
         }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', }}>
-
+                <View style={{paddingRight:10}}>
+                    <Text style={{ fontSize: 12, textAlign:  'right', fontWeight:'500', color: theme.colors.text }}>$ {Number(formattedTotalHoldingsUSD).toLocaleString()}</Text>
+                    <Text style={{ fontSize: 12, textAlign:  'right', fontWeight:'500', color: theme.colors.text }}>₱ {Number(formattedTotalHoldingsPHP).toLocaleString()}</Text>
+                </View>
                 <TouchableOpacity onPress={handleDelete} style={styles.actionIcon}>
                     <Ionicons name="trash-outline" size={24} color="tomato" />
                 </TouchableOpacity>
@@ -195,12 +199,12 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
                             value={editedShares.toString()}
                             onChangeText={setEditedShares}
                             keyboardType="numeric"
-                            style={styles.input}
+                            style={[styles.input, {color: theme.colors.text}]}
                         />
                     ) : (
                         <View style={styles.tableRow}>
-                            <Text style={styles.tableCellTitle}>Shares: </Text>
-                            <Text style={{fontWeight:'600'}}>{data.shares}</Text>
+                        <Text style={[styles.tableCellTitle, {color: theme.colors.text}]}>Shares: </Text>
+                            <Text style={{fontWeight:'600', color: theme.colors.text}}>{data.shares}</Text>
                             <TouchableOpacity onPress={handleEdit} style={styles.actionIcon}>
                                 <FontAwesome name="pencil-square-o" size={24} color="black" />
                             </TouchableOpacity>
@@ -224,19 +228,19 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
                         const value = data[1]
                          return (<View style={styles.tableRow} key={i}>
                             <View style={{maxWidth: '60%',}}>
-                                <Text style={styles.tableCellTitle}>{data[0]}:</Text>
+                                <Text style={[styles.tableCellTitle, {color: theme.colors.text}]}>{data[0]}:</Text>
                             </View>
                             <View>
                             {typeof value === 'string' && value.includes('|') ?
                                 <>
-                                    <Text style={{ fontWeight: '400', textAlign: 'right' }}>
+                                    <Text style={{ fontWeight: '400', textAlign: 'right', color: theme.colors.text }}>
                                         {value.substring(0, value.indexOf('|'))}
                                     </Text>
-                                    <Text style={{ fontWeight: '400', textAlign: 'right' }}>
+                                    <Text style={{ fontWeight: '400', textAlign: 'right', color: theme.colors.text }}>
                                         {value.substring(value.indexOf('|') + 2)}
                                     </Text>
                                 </> :
-                                <Text style={{ fontWeight: '400', textAlign: 'right' }}>{value}</Text>
+                                <Text style={{ fontWeight: '400', textAlign: 'right', color: theme.colors.text }}>{value}</Text>
                             }
                         </View>
                         </View>)
@@ -331,8 +335,8 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         elevation: 5,
         marginBottom: 5,
-        paddingRight: 10,
-        paddingLeft: 10
+        paddingRight: 10,   // paddingHorizontal wont work, need to do this
+        paddingLeft: 10 // for some reason,
     },
     tableRow: {
         flexDirection: 'row',
