@@ -5,7 +5,7 @@ import { StickyTable }  from 'react-native-sticky-table'
 import { safeToFixed } from '../utils/safeToFixed';
 import useGlobalStore from '../store/useGlobalStore';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-
+import { useTheme } from 'react-native-paper'
 
 const dataToParse = {
     currentPrice: 'Current Price',
@@ -34,11 +34,13 @@ const formats = {
         'additionalBudget',
         'projectedRoi',
     ],
-    isMoney: ['marketCap', 'tradingVolume'],
+    isMoney: ['marketCap', 'tradingVolume', ],
+    isBigNums: ['totalSupply', 'circulatingSupply', 'maxSupply']
 
 }
 
-function generateTableData(data, dataToParse, exchangeRate) {
+function generateTableData(data, dataToParse, exchangeRate) {    
+
     const  result = [
         ['Shares', data.shares]
     ]
@@ -51,6 +53,9 @@ function generateTableData(data, dataToParse, exchangeRate) {
         if (formats.isMoney.includes(k))  {
             item  = `$${Number(item).toLocaleString()}`
         }
+        if (formats.isBigNums.includes(k)) {
+            item = Number(item).toLocaleString()
+        }
         result.push([
             dataToParse[k], item
         ])
@@ -58,38 +63,61 @@ function generateTableData(data, dataToParse, exchangeRate) {
     return result
 }
 
-const CoinScreen = ({route}) => {
+export default function CoinScreen({route}){
     const {usdToPhpRate} =  useGlobalStore()
-    
+    const theme = useTheme()
 
     const data = route.params.data
     const tableData =  generateTableData(data, dataToParse, usdToPhpRate)
     console.log('---------------------------------------------')
     console.log(tableData)
     return (
-        <View style={{justifyContent:'center', alignItems: 'center', backgroundColor:'white'}}>
+        <View 
+        style={{
+            justifyContent:'center', 
+            alignItems: 'center', 
+            backgroundColor:theme.colors.background,
+        }}>
             <View  style={{alignItems: 'center',  padding:12}}>
                 <Image source={{uri:data.coinImage}} style={{width:70,  height:70}} />
-                <Text style={{fontWeight: 'bold',  fontSize: 24}}>{data.coinName}</Text>
+                <Text style={{fontWeight: 'bold',  fontSize: 24, color: theme.colors.text}}>{data.coinName}</Text>
             </View>
             <ScrollView  style={{maxWidth:500, width: '90%', height:400,}}>
                 {tableData.map(r => {
                     const value = r[1]
 
                     return (
-                        <View key={r[0]} style={{flexDirection: 'row', padding:8, marginVertical:2, width:300,  alignItems:'center', borderBottomColor:'gray',borderBottomWidth:0.5}}>
-                            <View style={{width:'60%'}}><Text style={{fontWeight:'700', fontSize:16}}>{r[0]}</Text></View>
-                            <View>                                
+                        <View 
+                        key={r[0]} 
+                        style={{
+                            flexDirection: 'row', 
+                            padding:8, 
+                            paddingHorizontal:20,
+                            marginVertical:4, 
+                            width:'100%',  
+                            alignItems:'center', 
+                            justifyContent: 'space-between',
+                            borderBottomColor:'gray',
+                            borderBottomWidth:0.5,
+                            backgroundColor: theme.colors.backdrop,
+                            borderRadius: 10
+                         }}
+                        >
+                            <View 
+                            style={{width:'60%'}}>
+                                <Text style={{fontWeight:'700', fontSize:16}}>{r[0]}</Text>
+                            </View>
+                            <View>                        
                                 {typeof value ===  'string' && value.includes('|')  ?
                                 <>
-                                <Text>
+                                <Text style={{fontWeight:'500', textAlign: 'right'}}>
                                     {value.substring(0,value.indexOf('|'))}
                                 </Text>
-                                <Text>
+                                <Text style={{fontWeight:'500', textAlign: 'right'}}>
                                     {value.substring(value.indexOf('|')+2)}
                                 </Text>
                                 </>  :
-                                <Text>{value}</Text>
+                                <Text style={{fontWeight:'500', textAlign: 'right'}}>{value}</Text>
                                 }
                             </View>
                         </View>
@@ -99,5 +127,3 @@ const CoinScreen = ({route}) => {
         </View>
     )
 }
-
-export default CoinScreen
