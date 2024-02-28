@@ -51,14 +51,15 @@ const AddCoinScreen = () => {
             }
 
             // Calculations
-            const priceChangeIcon = coinDetails.priceChangePercentage >= 0 ? 'arrow-up' : 'arrow-down';
-            const priceChangeColor = coinDetails.priceChangePercentage >= 0 ? 'green' : 'red';
+
             const athRoi = ((coinDetails.allTimeHigh / coinDetails.allTimeLow) - 1) * 100;
             const percentIncreaseFromAtl = ((coinDetails.currentPrice / coinDetails.allTimeLow) - 1) * 100;
             const totalHoldingsUsd = coinDetails.currentPrice * parseInt(numberOfShares);
             const trueBudgetPerCoinUsd = totalHoldingsUsd / (coinDetails.currentPrice / coinDetails.allTimeLow);
-            const additionalBudgetUsd = Math.max(budgetPerCoin - trueBudgetPerCoinUsd, 0);
             const projectedRoiUsd = trueBudgetPerCoinUsd * 70;
+            const additionalBudgetUsd = Math.max(budgetPerCoin - trueBudgetPerCoinUsd, 0);
+            const priceChangeIcon = coinDetails.priceChangePercentage >= 0 ? 'arrow-up' : 'arrow-down';
+            const priceChangeColor = coinDetails.priceChangePercentage >= 0 ? 'green' : 'red';
 
             const { data: { user } } = await supabase.auth.getUser()
 

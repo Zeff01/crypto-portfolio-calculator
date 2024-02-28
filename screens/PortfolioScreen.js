@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, Modal, RefreshControl } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, Modal, RefreshControl, AppState } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import CoinCard from '../components/CoinCard';
-import { fetchUsdToPhpRate } from '../utils/api';
+import { fetchUsdToPhpRate, updatePortfolioWithCoinGeckoData } from '../utils/api';
 import { supabase } from '../services/supabase';
 import useGlobalStore from '../store/useGlobalStore';
 import { useFocusEffect } from '@react-navigation/native';
@@ -11,8 +11,7 @@ import DraggableFlatList from 'react-native-draggable-flatlist';
 import Spinner from 'react-native-loading-spinner-overlay';
 const PortfolioScreen = () => {
 
-    const { setUsdToPhpRate, setBudgetPerCoin, usdToPhpRate, budgetPerCoin } = useGlobalStore();
-    const [isEditingBudget, setIsEditingBudget] = useState(false);
+    const { setUsdToPhpRate } = useGlobalStore();
     const [modalVisible, setModalVisible] = useState(false);
     const [portfolioEntries, setPortfolioEntries] = useState([]);
     const [totalHoldings, setTotalHoldings] = useState(0);
@@ -77,13 +76,6 @@ const PortfolioScreen = () => {
     };
 
 
-    //initial fetch
-    useEffect(() => {
-        checkUserPaymentStatus();
-        getExchangeRate();
-        fetchPortfolioData();
-    }, []);
-
 
     //to fetch portfolio data
     useFocusEffect(
@@ -94,12 +86,48 @@ const PortfolioScreen = () => {
     );
 
 
-
     //get total holdings based on portfolio entries
     useEffect(() => {
         const total = portfolioEntries.reduce((acc, entry) => acc + entry.totalHoldings, 0);
-        setTotalHoldings(total.toFixed(2)); // Assuming you'll store this in a state
+        setTotalHoldings(total.toFixed(2));
     }, [portfolioEntries]);
+
+
+
+
+    //initial fetch
+    useEffect(() => {
+        checkUserPaymentStatus();
+        getExchangeRate();
+    }, []);
+
+    const refreshData = async () => {
+        await fetchPortfolioData();
+        // await updatePortfolioWithCoinGeckoData();
+
+    };
+
+    useFocusEffect(
+        useCallback(() => {
+            refreshData();
+        }, [])
+    );
+
+    // useEffect(() => {
+
+    //     const interval = setInterval(updatePortfolioWithCoinGeckoData, 1800000); // Fetch every 30 mins
+
+    //     const subscription = AppState.addEventListener('change', (nextAppState) => {
+    //         if (nextAppState === 'active') {
+    //             updatePortfolioWithCoinGeckoData();
+    //         }
+    //     });
+
+    //     return () => {
+    //         clearInterval(interval);
+    //         subscription.remove();
+    //     };
+    // }, []);
 
 
     const renderItem = ({ item, index, drag, isActive }) => {
@@ -176,6 +204,7 @@ const PortfolioScreen = () => {
                         onRefresh={onRefresh}
                     />
                 }
+                refreshing={true}
                 ListHeaderComponent={
                     <PortfolioHeader title="My Portfolio"
                         totalHoldings={totalHoldings} fetchPortfolioData={fetchPortfolioData} />
