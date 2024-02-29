@@ -93,7 +93,9 @@ export const fetchCMCSearchResultsWithDetails = async (query) => {
 
 
         const athRoi = ((performanceStats?.ath_price / performanceStats?.atl_price) - 1) * 100;
-        const percentIncreaseFromAtl = ((quoteUSD.price / performanceStats?.atl_price) - 1) * 100;
+        console.log("athRoi:", athRoi)
+        const percentIncreaseFromAtl = ((currentPrice / performanceStats?.atl_price) - 1) * 100;
+        console.log("percentIncreaseFromAtl:", percentIncreaseFromAtl)
         const priceChangeIcon = quoteUSD.percent_change_24h >= 0 ? 'arrow-up' : 'arrow-down';
         const priceChangeColor = quoteUSD.percent_change_24h >= 0 ? 'green' : 'red';
 
@@ -105,10 +107,10 @@ export const fetchCMCSearchResultsWithDetails = async (query) => {
             marketCapRank: detail.cmc_rank,
             currentPrice: currentPrice,
             tradingVolume: quoteUSD.volume_24h,
-            marketCap: quoteUSD.market_cap,
+            marketCap: detail.cmc_rank,
             circulatingSupply: detail.circulating_supply,
             totalSupply: detail.total_supply,
-            maxSupply: detail.max_supply,
+            maxSupply: detail.max_supply === 'null' ? -1 : detail.max_supply,
             allTimeHigh: athPrice,
             allTimeLow: atlPrice,
             athRoi,
@@ -174,6 +176,7 @@ export async function updatePortfolioWithCoinGeckoData() {
 
             // Perform your calculations here
             const athRoi = ((coinData.market_data.ath.usd ?? 0) / (coinData.market_data.atl.usd ?? 1) - 1) * 100;
+            console.log("athRoi:", athRoi)
             const percentIncreaseFromAtl = ((coinData.market_data.current_price.usd ?? 0) / (coinData.market_data.atl.usd ?? 1) - 1) * 100;
             const totalHoldingsUsd = coinData.market_data.current_price.usd * entry.shares;
             const trueBudgetPerCoinUsd = totalHoldingsUsd / entry.shares; // Assuming 'shares' is available in your entry

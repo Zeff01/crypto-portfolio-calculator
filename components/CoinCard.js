@@ -1,14 +1,18 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, TouchableWithoutFeedback, Alert, } from 'react-native';
-import { Ionicons, MaterialCommunityIcons, FontAwesome, FontAwesome5 } from '@expo/vector-icons';
+import { Ionicons, FontAwesome, FontAwesome5, AntDesign } from '@expo/vector-icons';
 import useCoinDataStore from '../store/useCoinDataStore';
 import useGlobalStore from '../store/useGlobalStore';
 import { safeToFixed } from '../utils/safeToFixed';
 import { supabase } from '../services/supabase';
 import { useNavigation } from '@react-navigation/core';
 import { List } from 'react-native-paper';
+import { dataToParse, generateTableData } from '../utils/formatter'
+import { useTheme } from 'react-native-paper';
 
 const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
+
+    const theme = useTheme()
 
     const [isEditing, setIsEditing] = useState(false);
     const [editedShares, setEditedShares] = useState(data.shares.toString());
@@ -19,31 +23,15 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
 
     const editedSharesNum = Number(editedShares);
     const currentPriceNum = Number(data.currentPrice);
-
     const formattedPriceChangePercentage = safeToFixed(data.priceChangePercentage);
-    const formattedCurrentPriceUSD = safeToFixed(data.currentPrice);
-    const formattedCurrentPricePHP = safeToFixed(data.currentPrice * usdToPhpRate);
-    const formattedAllTimeHighUSD = safeToFixed(data.allTimeHigh);
-    const formattedAllTimeHighPHP = safeToFixed(data.allTimeHigh * usdToPhpRate);
-    const formattedAllTimeLowUSD = safeToFixed(data.allTimeLow);
-    const formattedAllTimeLowPHP = safeToFixed(data.allTimeLow * usdToPhpRate);
-
     const totalHoldingsUSD = !isNaN(editedSharesNum) && !isNaN(currentPriceNum)
         ? currentPriceNum * editedSharesNum
         : 0;
     const formattedTotalHoldingsUSD = totalHoldingsUSD.toFixed(2).toString();
     const formattedTotalHoldingsPHP = safeToFixed(data.currentPrice * parseInt(editedShares) * usdToPhpRate);
-    const formattedTrueBudgetPerCoinUSD = safeToFixed(data.trueBudgetPerCoin);
-    const formattedTrueBudgetPerCoinPHP = safeToFixed(data.trueBudgetPerCoin * usdToPhpRate);
-    const formattedAdditionalBudgetUSD = safeToFixed(data.additionalBudget);
-    const formattedAdditionalBudgetPHP = safeToFixed(data.additionalBudget * usdToPhpRate);
-    const formattedProjectedRoiUSD = safeToFixed(data.projectedRoi);
-    const formattedProjectedRoiPHP = safeToFixed(data.projectedRoi * usdToPhpRate);
-    const formattedAthRoi = safeToFixed(data.athRoi)
-    const formattedIncreaseFromATL = safeToFixed(data.increaseFromATL)
 
 
-
+    const dataTable = generateTableData(data, dataToParse, usdToPhpRate)
 
     const handleDelete = () => {
         Alert.alert(
@@ -75,8 +63,6 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
             { cancelable: false }
         );
     };
-
-
     const handleEdit = () => {
         setIsEditing(true);
     };
@@ -107,7 +93,6 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
         return data;
     };
 
-
     const handleSave = async () => {
         // Assuming `data.id` is the ID of the portfolio entry and not just the coin
         const portfolioId = data.id;
@@ -124,23 +109,21 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
         }
     };
     const handleExpand = () => setExpanded(!expanded);
-
+    const PriceChangeIcon = data.priceChangeIcon === 'arrow-up' ?
+        () => <AntDesign name="up" size={18} color="green" /> :
+        () => <AntDesign name="down" size={18} color="red" />
     const AccordionTitle = () => (
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
             <View>
-                <Text style={styles.cardTitle}>{`${data.coinName}`}</Text>
-                <View style={{ flexDirection: 'row' }}>
-                    <MaterialCommunityIcons name={data.priceChangeIcon} size={24} color={data?.priceChangeColor} />
-                    <Text style={{ color: data.priceChangeColor, marginLeft: 4 }}>
+                <Text style={[styles.cardTitle, { color: theme.colors.text }]}>{`${data.coinName}`}</Text>
+                <View style={{ flexDirection: 'row', }}>
+                    <PriceChangeIcon />
+                    <Text style={{ color: data.priceChangeColor, marginLeft: 4, color: theme.colors.text }}>
                         {formattedPriceChangePercentage}%
                     </Text>
                 </View>
             </View>
 
-            <View style={{ paddingLeft: 16 }}>
-                <Text style={{ fontSize: 12, }}>$ {Number(formattedTotalHoldingsUSD).toLocaleString()}</Text>
-                <Text style={{ fontSize: 12, }}>₱ {Number(formattedTotalHoldingsPHP).toLocaleString()}</Text>
-            </View>
         </View>
     );
 
@@ -156,7 +139,10 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
 
         }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', }}>
-
+                <View style={{ paddingRight: 10 }}>
+                    <Text style={{ fontSize: 12, textAlign: 'right', fontWeight: '500', color: theme.colors.text }}>$ {Number(formattedTotalHoldingsUSD).toLocaleString()}</Text>
+                    <Text style={{ fontSize: 12, textAlign: 'right', fontWeight: '500', color: theme.colors.text }}>₱ {Number(formattedTotalHoldingsPHP).toLocaleString()}</Text>
+                </View>
                 <TouchableOpacity onPress={handleDelete} style={styles.actionIcon}>
                     <Ionicons name="trash-outline" size={24} color="tomato" />
                 </TouchableOpacity>
@@ -195,12 +181,12 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
                             value={editedShares.toString()}
                             onChangeText={setEditedShares}
                             keyboardType="numeric"
-                            style={styles.input}
+                            style={[styles.input, { color: theme.colors.text }]}
                         />
                     ) : (
                         <View style={styles.tableRow}>
-                            <Text style={styles.tableCellTitle}>Shares: </Text>
-                            <Text>{data.shares}</Text>
+                            <Text style={[styles.tableCellTitle, { color: theme.colors.text }]}>Shares: </Text>
+                            <Text style={{ fontWeight: '600', color: theme.colors.text }}>{data.shares}</Text>
                             <TouchableOpacity onPress={handleEdit} style={styles.actionIcon}>
                                 <FontAwesome name="pencil-square-o" size={24} color="black" />
                             </TouchableOpacity>
@@ -219,91 +205,28 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
                             </>
                         }
                     </View>
-
-
-                    {/* Current Price */}
-                    <View style={styles.tableRow}>
-                        <Text style={styles.tableCellTitle}>Current Price:</Text>
-                        <Text style={styles.tableCellValue}>${formattedCurrentPriceUSD} | ₱{formattedCurrentPricePHP}</Text>
-                    </View>
-
-                    {/* All Time High */}
-                    <View style={styles.tableRow}>
-                        <Text style={styles.tableCellTitle}>All Time High:</Text>
-                        <Text style={styles.tableCellValue}>${formattedAllTimeHighUSD} | ₱{formattedAllTimeHighPHP}</Text>
-                    </View>
-
-                    {/* All Time Low */}
-                    <View style={styles.tableRow}>
-                        <Text style={styles.tableCellTitle}>All Time Low:</Text>
-                        <Text style={styles.tableCellValue}>${formattedAllTimeLowUSD} | ₱{formattedAllTimeLowPHP}</Text>
-                    </View>
-
-                    {/* ATH ROI */}
-                    <View style={styles.tableRow}>
-                        <Text style={styles.tableCellTitle}>ATH ROI:</Text>
-                        <Text style={styles.tableCellValue}>{formattedAthRoi}%</Text>
-                    </View>
-
-                    {/* % Increase from ATL */}
-                    <View style={styles.tableRow}>
-                        <Text style={styles.tableCellTitle}>% Increase from ATL:</Text>
-                        <Text style={styles.tableCellValue}>{formattedIncreaseFromATL}%</Text>
-                    </View>
-
-                    {/* Total Holdings */}
-                    <View style={styles.tableRow}>
-                        <Text style={styles.tableCellTitle}>Total Holdings:</Text>
-                        <Text style={styles.tableCellValue}>${formattedTotalHoldingsUSD} | ₱{formattedTotalHoldingsPHP}</Text>
-                    </View>
-
-                    {/* True Budget per Coin */}
-                    <View style={styles.tableRow}>
-                        <Text style={styles.tableCellTitle}>True Budget on this Coin:</Text>
-                        <Text style={styles.tableCellValue}>${formattedTrueBudgetPerCoinUSD} | ₱{formattedTrueBudgetPerCoinPHP}</Text>
-                    </View>
-
-                    {/* Additional Budget to Catch Up Bottom */}
-                    <View style={styles.tableRow}>
-                        <Text style={styles.tableCellTitle}>Addtl. to Catch Up Bottom:</Text>
-                        <Text style={styles.tableCellValue}>${formattedAdditionalBudgetUSD} | ₱{formattedAdditionalBudgetPHP}</Text>
-                    </View>
-
-                    {/* Projected ROI */}
-                    <View style={styles.tableRow}>
-                        <Text style={styles.tableCellTitle}>Projected ROI (70x):</Text>
-                        <Text style={styles.tableCellValue}>${formattedProjectedRoiUSD} | ₱{formattedProjectedRoiPHP}</Text>
-                    </View>
-
-                    {/* MarketCap */}
-                    <View style={styles.tableRow}>
-                        <Text style={styles.tableCellTitle}>Market Cap:</Text>
-                        <Text style={styles.tableCellValue}>${data.marketCap.toLocaleString()}</Text>
-                    </View>
-
-                    {/* Total Supply */}
-                    <View style={styles.tableRow}>
-                        <Text style={styles.tableCellTitle}>Total Supply:</Text>
-                        <Text style={styles.tableCellValue}>{data.totalSupply ? data.totalSupply.toLocaleString() : 'N/A'}</Text>
-                    </View>
-
-                    {/* Circulating Supply */}
-                    <View style={styles.tableRow}>
-                        <Text style={styles.tableCellTitle}>Circulating Supply:</Text>
-                        <Text style={styles.tableCellValue}>{data.circulatingSupply ? data.circulatingSupply.toLocaleString() : 'N/A'}</Text>
-                    </View>
-
-                    {/* Max Supply */}
-                    <View style={styles.tableRow}>
-                        <Text style={styles.tableCellTitle}>Max Supply:</Text>
-                        <Text style={styles.tableCellValue}>{data.maxSupply ? data.maxSupply.toLocaleString() : 'N/A'}</Text>
-                    </View>
-
-                    {/* 24h Trading Volume */}
-                    <View style={styles.tableRow}>
-                        <Text style={styles.tableCellTitle}>24h Trading Volume:</Text>
-                        <Text style={styles.tableCellValue}>${data.tradingVolume.toLocaleString()}</Text>
-                    </View>
+                    {/* removes the shares because it is redundant */}
+                    {dataTable && dataTable?.slice(1).map((data, i) => {
+                        const value = data[1]
+                        return (<View style={styles.tableRow} key={i}>
+                            <View style={{ maxWidth: '60%', }}>
+                                <Text style={[styles.tableCellTitle, { color: theme.colors.text }]}>{data[0]}:</Text>
+                            </View>
+                            <View>
+                                {typeof value === 'string' && value.includes('|') ?
+                                    <>
+                                        <Text style={{ fontWeight: '400', textAlign: 'right', color: theme.colors.text }}>
+                                            {value.substring(0, value.indexOf('|'))}
+                                        </Text>
+                                        <Text style={{ fontWeight: '400', textAlign: 'right', color: theme.colors.text }}>
+                                            {value.substring(value.indexOf('|') + 1)}
+                                        </Text>
+                                    </> :
+                                    <Text style={{ fontWeight: '400', textAlign: 'right', color: theme.colors.text }}>{value}</Text>
+                                }
+                            </View>
+                        </View>)
+                    })}
                 </View>
             </List.Accordion>
         </View>
@@ -385,9 +308,9 @@ const styles = StyleSheet.create({
     table: {
         backgroundColor: '#fff',
         borderRadius: 10,
-        paddingHorizontal: 10,
         paddingVertical: 10,
         marginHorizontal: 10,
+        marginTop: 20,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
@@ -395,6 +318,7 @@ const styles = StyleSheet.create({
         elevation: 5,
         marginBottom: 5,
         paddingRight: 10,
+        paddingLeft: 10
     },
     tableRow: {
         flexDirection: 'row',
