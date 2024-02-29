@@ -14,9 +14,9 @@ const AddCoinScreen = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [selectedCoin, setSelectedCoin] = useState(null);
+    console.log("selectedCoin:", selectedCoin)
     const [numberOfShares, setNumberOfShares] = useState('');
     const navigation = useNavigation();
-    const addCoinData = useCoinDataStore((state) => state.addCoinData);
     const { usdToPhpRate, budgetPerCoin } = useGlobalStore();
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [modalMessage, setModalMessage] = useState('');
@@ -41,24 +41,21 @@ const AddCoinScreen = () => {
         if (selectedCoin && numberOfShares) {
 
 
-            const coinDetails = await fetchCoinData(selectedCoin.id);
 
-            if (!coinDetails) {
-                console.error("Failed to fetch coin details.");
-                return;
-            }
+
 
             //MY  Calculations
 
-            const athRoi = ((coinDetails.allTimeHigh / coinDetails.allTimeLow) - 1) * 100;
-            const percentIncreaseFromAtl = ((coinDetails.currentPrice / coinDetails.allTimeLow) - 1) * 100;
-            const totalHoldingsUsd = coinDetails.currentPrice * parseInt(numberOfShares);
-            const trueBudgetPerCoinUsd = totalHoldingsUsd / (coinDetails.currentPrice / coinDetails.allTimeLow);
+
+
+            const totalHoldingsUsd = selectedCoin.currentPrice * parseInt(numberOfShares);
+            const trueBudgetPerCoinUsd = totalHoldingsUsd / (selectedCoin.currentPrice / selectedCoin.allTimeLow);
             const projectedRoiUsd = trueBudgetPerCoinUsd * 70;
             const additionalBudgetUsd = Math.max(budgetPerCoin - trueBudgetPerCoinUsd, 0);
-            const priceChangeIcon = coinDetails.priceChangePercentage >= 0 ? 'arrow-up' : 'arrow-down';
-            const priceChangeColor = coinDetails.priceChangePercentage >= 0 ? 'green' : 'red';
-
+            // const priceChangeIcon = coinDetails.priceChangePercentage >= 0 ? 'arrow-up' : 'arrow-down';
+            // const priceChangeColor = coinDetails.priceChangePercentage >= 0 ? 'green' : 'red';
+            // const percentIncreaseFromAtl = ((coinDetails.currentPrice / coinDetails.allTimeLow) - 1) * 100;
+            // const athRoi = ((coinDetails.allTimeHigh / coinDetails.allTimeLow) - 1) * 100;
             const { data: { user } } = await supabase.auth.getUser()
 
             if (user) {
@@ -84,29 +81,31 @@ const AddCoinScreen = () => {
                 const portfolioData = {
                     userId: user.id,
                     shares: parseInt(numberOfShares, 10),
-                    athRoi: athRoi,
-                    increaseFromATL: percentIncreaseFromAtl,
+                    //self caulculation
+                    athRoi: selectedCoin.athRoi,
+                    increaseFromATL: selectedCoin.percentIncreaseFromAtl,
                     totalHoldings: totalHoldingsUsd,
                     trueBudgetPerCoin: trueBudgetPerCoinUsd,
                     additionalBudget: additionalBudgetUsd,
                     projectedRoi: projectedRoiUsd,
-                    priceChangeIcon: priceChangeIcon,
-                    priceChangeColor: priceChangeColor,
+                    priceChangeIcon: selectedCoin.priceChangeIcon,
+                    priceChangeColor: selectedCoin.priceChangeColor,
 
+                    //from api
                     coinId: selectedCoin.id,
                     coinImage: selectedCoin.logo,
                     coinName: selectedCoin.name,
                     coinSymbol: selectedCoin.symbol,
                     marketCapRank: selectedCoin.market_cap_rank,
-                    allTimeHigh: coinDetails.allTimeHigh,
-                    allTimeLow: coinDetails.allTimeLow,
-                    priceChangePercentage: coinDetails.priceChangePercentage,
-                    tradingVolume: coinDetails.tradingVolume,
-                    marketCap: coinDetails.marketCap,
-                    maxSupply: coinDetails.maxSupply,
-                    totalSupply: coinDetails.totalSupply,
-                    circulatingSupply: coinDetails.circulatingSupply,
-                    currentPrice: coinDetails.currentPrice,
+                    allTimeHigh: selectedCoin.allTimeHigh,
+                    allTimeLow: selectedCoin.allTimeLow,
+                    priceChangePercentage: selectedCoin.priceChangePercentage,
+                    tradingVolume: selectedCoin.tradingVolume,
+                    marketCap: selectedCoin.marketCap,
+                    maxSupply: selectedCoin.maxSupply,
+                    totalSupply: selectedCoin.totalSupply,
+                    circulatingSupply: selectedCoin.circulatingSupply,
+                    currentPrice: selectedCoin.currentPrice,
 
 
                 };
