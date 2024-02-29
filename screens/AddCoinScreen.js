@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, FlatList, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, TextInput, FlatList, TouchableOpacity, StyleSheet, Image, ActivityIndicator } from 'react-native';
 import { debounce } from 'lodash';
 import { fetchCoinData, fetchSearchResults, fetchCMCSearchResultsWithDetails } from '../utils/api';
 import { useNavigation } from '@react-navigation/native';
@@ -8,11 +8,13 @@ import { supabase } from '../services/supabase';
 import useGlobalStore from '../store/useGlobalStore';
 import { Portal, Text, Button, Provider } from 'react-native-paper';
 import CustomModal from '../components/CustomModal';
+import { useTheme } from 'react-native-paper';
 
 
 const AddCoinScreen = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
+    const [searchLoading, setSearchLoading] = useState(false)
     const [selectedCoin, setSelectedCoin] = useState(null);
     const [numberOfShares, setNumberOfShares] = useState('');
     const navigation = useNavigation();
@@ -20,7 +22,7 @@ const AddCoinScreen = () => {
     const { usdToPhpRate, budgetPerCoin } = useGlobalStore();
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [modalMessage, setModalMessage] = useState('');
-
+    const theme = useTheme()
 
     const debouncedSearch = debounce(async (query) => {
         if (!query) return setSearchResults([]);
@@ -151,6 +153,12 @@ const AddCoinScreen = () => {
                         onChangeText={setNumberOfShares}
                         keyboardType="numeric"
                     />
+                    <ActivityIndicator 
+                    size={20} 
+                    style={{position:'absolute', right:30}} 
+                    animating={searchLoading}
+                    color={theme.colors.primary}
+                    />
                     <View style={styles.actionContainer}>
                         <Button mode="contained" onPress={handleConfirm} style={styles.actionButton} labelStyle={styles.buttonLabel}>
                             Confirm
@@ -161,13 +169,16 @@ const AddCoinScreen = () => {
                     </View>
                 </View>
             ) : (
-                <>
+                <>  
+                    <View style={{position: 'relative', margin:20}}>
+
                     <TextInput
                         style={styles.searchInput}
                         placeholder="Search for a coin..."
                         value={searchTerm}
                         onChangeText={setSearchTerm}
                     />
+                        </View>
                     <FlatList
                         data={searchResults}
                         keyExtractor={(item) => item.id}
@@ -194,7 +205,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         paddingVertical: 8,
         paddingHorizontal: 12,
-        margin: 20,
         backgroundColor: 'white',
         borderWidth: 1,
         borderColor: '#E0E0E0',
