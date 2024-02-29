@@ -12,18 +12,16 @@ import { useTheme } from 'react-native-paper';
 
 
 const AddCoinScreen = () => {
+    const theme = useTheme()
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [searchLoading, setSearchLoading] = useState(false)
     const [selectedCoin, setSelectedCoin] = useState(null);
-    console.log("selectedCoin:", selectedCoin)
     const [numberOfShares, setNumberOfShares] = useState('');
     const navigation = useNavigation();
-    const { usdToPhpRate, budgetPerCoin } = useGlobalStore();
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [modalMessage, setModalMessage] = useState('');
-    const theme = useTheme()
-
+    const [budgetPerCoin, setBudgetPerCoin] = useState(0);
     const debouncedSearch = debounce(async (query) => {
         if (!query) return setSearchResults([]);
         setSearchLoading(true)
@@ -36,6 +34,40 @@ const AddCoinScreen = () => {
             setSearchLoading(false)
         }
     }, 500);
+
+
+    useEffect(() => {
+        const fetchBudget = async () => {
+            try {
+                const { data: { user } } = await supabase.auth.getUser()
+
+
+                if (!user) {
+                    console.error("User not logged in");
+                    return;
+                }
+
+                const { data, error } = await supabase
+                    .from('subscription')
+                    .select('budget')
+                    .eq('userId', user.id)
+                    .single();
+
+                if (error) {
+                    throw error;
+                }
+
+                if (data) {
+                    setBudgetPerCoin(data.budget);
+                }
+            } catch (error) {
+                console.error('Error fetching budget:', error.message);
+            }
+        };
+
+        fetchBudget();
+    }, []);
+
 
     useEffect(() => {
         debouncedSearch(searchTerm);
@@ -57,14 +89,13 @@ const AddCoinScreen = () => {
 
 
             //MY  Calculations
-
-
-
             const totalHoldingsUsd = selectedCoin.currentPrice * parseInt(numberOfShares);
             console.log("selectedCoin:", selectedCoin)
             const trueBudgetPerCoinUsd = totalHoldingsUsd / (selectedCoin.currentPrice / selectedCoin.allTimeLow);
             const projectedRoiUsd = trueBudgetPerCoinUsd * 70;
             const additionalBudgetUsd = Math.max(budgetPerCoin - trueBudgetPerCoinUsd, 0);
+            console.log("trueBudgetPerCoinUsd:", trueBudgetPerCoinUsd)
+            console.log("budgetPerCoin:", budgetPerCoin)
             const { data: { user } } = await supabase.auth.getUser()
 
             if (user) {
@@ -142,7 +173,7 @@ const AddCoinScreen = () => {
             <CustomModal
                 isVisible={isModalVisible}
                 onDismiss={() => setIsModalVisible(false)}
-                title="You Already have this coin on your portfolio"
+                title={modalMessage}
                 onConfirm={() => setIsModalVisible(false)}
             // onCancel={handleCancel}
             // confirmText="Yes, Confirm"
@@ -176,14 +207,14 @@ const AddCoinScreen = () => {
                 </View>
             ) : (
                 <>  
-                    <View style={{position: 'relative', margin:20}}>
-
+                    <View style={{position: 'relative', margin:20,  flexDirection:'row'}}>
                     <TextInput
                         style={styles.searchInput}
                         placeholder="Search for a coin..."
                         value={searchTerm}
                         onChangeText={setSearchTerm}
                     />
+                    <ActivityIndicator animating={searchLoading} size={24} style={{position:'relative', right:40}} />
                         </View>
                     <FlatList
                         data={searchResults}
@@ -191,6 +222,7 @@ const AddCoinScreen = () => {
                         renderItem={({ item }) => (
                             <TouchableOpacity onPress={() => handleSelectCoin(item)} style={styles.resultItem}>
                                 <Image source={{ uri: item.logo }} style={styles.icon} />
+                                <Text style={styles.coinName}>{item.symbol}</Text>
                                 <Text style={styles.coinName}>{item.name}</Text>
                             </TouchableOpacity>
                         )}
@@ -223,6 +255,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 3.84,
         elevation: 5,
+        width:'100%'
     },
     resultItem: {
         flexDirection: 'row',
@@ -247,7 +280,6 @@ const styles = StyleSheet.create({
         borderRadius: 25,
     },
     coinName: {
-        flex: 1,
         marginLeft: 10,
         fontSize: 16,
         fontWeight: '500',
