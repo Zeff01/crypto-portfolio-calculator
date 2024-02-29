@@ -26,13 +26,23 @@ const AddCoinScreen = () => {
 
     const debouncedSearch = debounce(async (query) => {
         if (!query) return setSearchResults([]);
-        const results = await fetchCMCSearchResultsWithDetails(query);
-        setSearchResults(results);
+        setSearchLoading(true)
+        try {
+            const results = await fetchCMCSearchResultsWithDetails(query);            
+            setSearchResults(results);
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setSearchLoading(false)
+        }
     }, 500);
 
     useEffect(() => {
         debouncedSearch(searchTerm);
-        return () => debouncedSearch.cancel();
+        return () => {
+            setSearchLoading(false)
+            return debouncedSearch.cancel();
+        }
     }, [searchTerm]);
 
     const handleSelectCoin = async (coin) => {
