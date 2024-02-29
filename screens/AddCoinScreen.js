@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, TextInput, FlatList, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { debounce } from 'lodash';
-import { fetchCoinData, fetchSearchResults } from '../utils/api';
+import { fetchCoinData, fetchSearchResults, fetchCMCSearchResultsWithDetails } from '../utils/api';
 import { useNavigation } from '@react-navigation/native';
 import useCoinDataStore from '../store/useCoinDataStore';
 import { supabase } from '../services/supabase';
@@ -24,7 +24,7 @@ const AddCoinScreen = () => {
 
     const debouncedSearch = debounce(async (query) => {
         if (!query) return setSearchResults([]);
-        const results = await fetchSearchResults(query);
+        const results = await fetchCMCSearchResultsWithDetails(query);
         setSearchResults(results);
     }, 500);
 
@@ -34,9 +34,7 @@ const AddCoinScreen = () => {
     }, [searchTerm]);
 
     const handleSelectCoin = async (coin) => {
-        // Set selected coin's data
         setSelectedCoin(coin);
-        // No need to fetch and add coin data here as it will be handled in handleConfirm
     };
 
     const handleConfirm = async () => {
@@ -50,7 +48,7 @@ const AddCoinScreen = () => {
                 return;
             }
 
-            // Calculations
+            //MY  Calculations
 
             const athRoi = ((coinDetails.allTimeHigh / coinDetails.allTimeLow) - 1) * 100;
             const percentIncreaseFromAtl = ((coinDetails.currentPrice / coinDetails.allTimeLow) - 1) * 100;
@@ -86,12 +84,6 @@ const AddCoinScreen = () => {
                 const portfolioData = {
                     userId: user.id,
                     shares: parseInt(numberOfShares, 10),
-                    coinId: selectedCoin.id,
-                    coinImage: selectedCoin.large,
-                    coinName: selectedCoin.name,
-                    marketCapRank: selectedCoin.market_cap_rank,
-                    allTimeHigh: coinDetails.allTimeHigh,
-                    allTimeLow: coinDetails.allTimeLow,
                     athRoi: athRoi,
                     increaseFromATL: percentIncreaseFromAtl,
                     totalHoldings: totalHoldingsUsd,
@@ -100,13 +92,22 @@ const AddCoinScreen = () => {
                     projectedRoi: projectedRoiUsd,
                     priceChangeIcon: priceChangeIcon,
                     priceChangeColor: priceChangeColor,
+
+                    coinId: selectedCoin.id,
+                    coinImage: selectedCoin.logo,
+                    coinName: selectedCoin.name,
+                    coinSymbol: selectedCoin.symbol,
+                    marketCapRank: selectedCoin.market_cap_rank,
+                    allTimeHigh: coinDetails.allTimeHigh,
+                    allTimeLow: coinDetails.allTimeLow,
+                    priceChangePercentage: coinDetails.priceChangePercentage,
                     tradingVolume: coinDetails.tradingVolume,
                     marketCap: coinDetails.marketCap,
                     maxSupply: coinDetails.maxSupply,
                     totalSupply: coinDetails.totalSupply,
                     circulatingSupply: coinDetails.circulatingSupply,
                     currentPrice: coinDetails.currentPrice,
-                    priceChangePercentage: coinDetails.priceChangePercentage,
+
 
                 };
 
@@ -172,7 +173,7 @@ const AddCoinScreen = () => {
                         keyExtractor={(item) => item.id}
                         renderItem={({ item }) => (
                             <TouchableOpacity onPress={() => handleSelectCoin(item)} style={styles.resultItem}>
-                                <Image source={{ uri: item.thumb }} style={styles.icon} />
+                                <Image source={{ uri: item.logo }} style={styles.icon} />
                                 <Text style={styles.coinName}>{item.name}</Text>
                             </TouchableOpacity>
                         )}
