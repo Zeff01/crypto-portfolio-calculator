@@ -189,13 +189,7 @@ const AddCoinScreen = () => {
                         value={numberOfShares}
                         onChangeText={setNumberOfShares}
                         keyboardType="numeric"
-                    />
-                    <ActivityIndicator 
-                    size={20} 
-                    style={{position:'absolute', right:30}} 
-                    animating={searchLoading}
-                    color={theme.colors.primary}
-                    />
+                    />                    
                     <View style={styles.actionContainer}>
                         <Button mode="contained" onPress={handleConfirm} style={styles.actionButton} labelStyle={styles.buttonLabel}>
                             Confirm
@@ -208,14 +202,14 @@ const AddCoinScreen = () => {
             ) : (
                 <>  
                     <View style={{position: 'relative', margin:20,  flexDirection:'row'}}>
-                    <TextInput
-                        style={styles.searchInput}
-                        placeholder="Search for a coin..."
-                        value={searchTerm}
-                        onChangeText={setSearchTerm}
-                    />
-                    <ActivityIndicator animating={searchLoading} size={24} style={{position:'relative', right:40}} />
-                        </View>
+                        <TextInput
+                            style={styles.searchInput}
+                            placeholder="Search for a coin..."
+                            value={searchTerm}
+                            onChangeText={setSearchTerm}
+                        />
+                        <ActivityIndicator animating={searchLoading} size={24} style={{position:'relative', right:40}} />
+                    </View>
                     <FlatList
                         data={searchResults}
                         keyExtractor={(item) => item.id}
