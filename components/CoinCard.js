@@ -172,7 +172,7 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
                 expanded={expanded}
                 onPress={handleExpand}
                 onLongPress={onLongPress}
-                pointerEvents='auto'
+                pointerEvents='auto'                
             >
                 <View style={styles.table}>
                     {/* Number of Shares */}
@@ -311,6 +311,8 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         marginHorizontal: 10,
         marginTop: 20,
+        marginHorizontal:10,
+        marginTop:20,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,

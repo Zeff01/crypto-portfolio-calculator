@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, FlatList, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, TextInput, FlatList, TouchableOpacity, StyleSheet, Image, ActivityIndicator } from 'react-native';
 import { debounce } from 'lodash';
 import { fetchCoinData, fetchSearchResults, fetchCMCSearchResultsWithDetails } from '../utils/api';
 import { useNavigation } from '@react-navigation/native';
@@ -8,11 +8,14 @@ import { supabase } from '../services/supabase';
 import useGlobalStore from '../store/useGlobalStore';
 import { Portal, Text, Button, Provider } from 'react-native-paper';
 import CustomModal from '../components/CustomModal';
+import { useTheme } from 'react-native-paper';
 
 
 const AddCoinScreen = () => {
+    const theme = useTheme()
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
+    const [searchLoading, setSearchLoading] = useState(false)
     const [selectedCoin, setSelectedCoin] = useState(null);
     const [numberOfShares, setNumberOfShares] = useState('');
     const navigation = useNavigation();
@@ -21,8 +24,15 @@ const AddCoinScreen = () => {
     const [budgetPerCoin, setBudgetPerCoin] = useState(0);
     const debouncedSearch = debounce(async (query) => {
         if (!query) return setSearchResults([]);
-        const results = await fetchCMCSearchResultsWithDetails(query);
-        setSearchResults(results);
+        setSearchLoading(true)
+        try {
+            const results = await fetchCMCSearchResultsWithDetails(query);            
+            setSearchResults(results);
+        } catch (error) {
+            console.error(error)
+        } finally {
+            setSearchLoading(false)
+        }
     }, 500);
 
 
@@ -61,7 +71,10 @@ const AddCoinScreen = () => {
 
     useEffect(() => {
         debouncedSearch(searchTerm);
-        return () => debouncedSearch.cancel();
+        return () => {
+            setSearchLoading(false)
+            return debouncedSearch.cancel();
+        }
     }, [searchTerm]);
 
     const handleSelectCoin = async (coin) => {
@@ -176,7 +189,7 @@ const AddCoinScreen = () => {
                         value={numberOfShares}
                         onChangeText={setNumberOfShares}
                         keyboardType="numeric"
-                    />
+                    />                    
                     <View style={styles.actionContainer}>
                         <Button mode="contained" onPress={handleConfirm} style={styles.actionButton} labelStyle={styles.buttonLabel}>
                             Confirm
@@ -187,19 +200,23 @@ const AddCoinScreen = () => {
                     </View>
                 </View>
             ) : (
-                <>
-                    <TextInput
-                        style={styles.searchInput}
-                        placeholder="Search for a coin..."
-                        value={searchTerm}
-                        onChangeText={setSearchTerm}
-                    />
+                <>  
+                    <View style={{position: 'relative', margin:20,  flexDirection:'row'}}>
+                        <TextInput
+                            style={styles.searchInput}
+                            placeholder="Search for a coin..."
+                            value={searchTerm}
+                            onChangeText={setSearchTerm}
+                        />
+                        <ActivityIndicator animating={searchLoading} size={24} style={{position:'relative', right:40}} />
+                    </View>
                     <FlatList
                         data={searchResults}
                         keyExtractor={(item) => item.id}
                         renderItem={({ item }) => (
                             <TouchableOpacity onPress={() => handleSelectCoin(item)} style={styles.resultItem}>
                                 <Image source={{ uri: item.logo }} style={styles.icon} />
+                                <Text style={styles.coinName}>{item.symbol}</Text>
                                 <Text style={styles.coinName}>{item.name}</Text>
                             </TouchableOpacity>
                         )}
@@ -220,7 +237,6 @@ const styles = StyleSheet.create({
         fontSize: 16,
         paddingVertical: 8,
         paddingHorizontal: 12,
-        margin: 20,
         backgroundColor: 'white',
         borderWidth: 1,
         borderColor: '#E0E0E0',
@@ -233,6 +249,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 3.84,
         elevation: 5,
+        width:'100%'
     },
     resultItem: {
         flexDirection: 'row',
@@ -257,7 +274,6 @@ const styles = StyleSheet.create({
         borderRadius: 25,
     },
     coinName: {
-        flex: 1,
         marginLeft: 10,
         fontSize: 16,
         fontWeight: '500',
