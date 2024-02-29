@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, TouchableWithoutFeedback, Alert, } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, Alert, } from 'react-native';
 import { Ionicons, FontAwesome, FontAwesome5, AntDesign } from '@expo/vector-icons';
 import useCoinDataStore from '../store/useCoinDataStore';
 import useGlobalStore from '../store/useGlobalStore';
@@ -11,10 +11,7 @@ import { dataToParse, generateTableData } from '../utils/formatter'
 import { useTheme } from 'react-native-paper';
 
 const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
-
-
     const theme = useTheme()
-
     const [isEditing, setIsEditing] = useState(false);
     const [editedShares, setEditedShares] = useState(data.shares.toString());
     const [budgetPerCoin, setBudgetPerCoin] = useState(0)
@@ -111,7 +108,7 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
 
     const updatePortfolioEntry = async (portfolioId, newShares, newTotalHoldings, additionalBudget) => {
         // Recalculate trueBudgetPerCoin
-        const trueBudgetPerCoinUsd = newTotalHoldings / (data.currentPrice / data.allTimeLow);
+        const trueBudgetPerCoin = newTotalHoldings / (data.currentPrice / data.allTimeLow);
 
         // Update the portfolio entry with the new values
         const { data: { user } } = await supabase.auth.getUser();
@@ -120,7 +117,7 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
             .update({
                 shares: newShares,
                 totalHoldings: newTotalHoldings,
-                trueBudgetPerCoin: trueBudgetPerCoinUsd,
+                trueBudgetPerCoin: trueBudgetPerCoin,
                 additionalBudget: additionalBudget
             })
             .match({ id: portfolioId, userId: user.id });
@@ -155,25 +152,27 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
     };
 
 
-
-
     const handleExpand = () => setExpanded(!expanded);
     const PriceChangeIcon = data.priceChangeIcon === 'arrow-up' ?
         () => <AntDesign name="up" size={18} color="green" /> :
         () => <AntDesign name="down" size={18} color="red" />
+
     const AccordionTitle = () => (
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+
+        < View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }
+        }>
             <View>
-                <Text style={[styles.cardTitle, { color: theme.colors.text }]}>{`${data.coinName}`}</Text>
+                <Text style={[styles.cardTitle, { color: theme.colors.text }]}>{`${data.coinSymbol}`}</Text>
                 <View style={{ flexDirection: 'row', }}>
                     <PriceChangeIcon />
-                    <Text style={{ color: data.priceChangeColor, marginLeft: 4, color: theme.colors.text }}>
+                    <Text style={{ color: data?.priceChangeColor, marginLeft: 2 }}>
                         {formattedPriceChangePercentage}%
                     </Text>
+
                 </View>
             </View>
 
-        </View>
+        </View >
     );
 
     const RightIcon = () => {
@@ -188,16 +187,22 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
 
         }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', }}>
-                <View style={{ paddingRight: 10 }}>
-                    <Text style={{ fontSize: 12, textAlign: 'right', fontWeight: '500', color: theme.colors.text }}>$ {Number(formattedTotalHoldingsUSD).toLocaleString()}</Text>
-                    <Text style={{ fontSize: 12, textAlign: 'right', fontWeight: '500', color: theme.colors.text }}>₱ {Number(formattedTotalHoldingsPHP).toLocaleString()}</Text>
+
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <Text style={{ paddingRight: 5, }}>${data.currentPrice.toFixed(2)}</Text>
+                    <View style={{ paddingLeft: 5 }}>
+                        <Text style={{ fontSize: 10, textAlign: 'right', fontWeight: '500', color: theme.colors.text }}>$ {Number(formattedTotalHoldingsUSD).toLocaleString()}</Text>
+                        <Text style={{ fontSize: 10, textAlign: 'right', fontWeight: '500', color: theme.colors.text }}>₱ {Number(formattedTotalHoldingsPHP).toLocaleString()}</Text>
+                    </View>
+
                 </View>
-                <TouchableOpacity onPress={handleDelete} style={styles.actionIcon}>
-                    <Ionicons name="trash-outline" size={24} color="tomato" />
-                </TouchableOpacity>
                 <TouchableOpacity onPress={(event) => navigation.navigate('Coin', { data })} style={styles.actionIcon}>
-                    <FontAwesome5 name="coins" size={24} color="violet" />
+                    <FontAwesome5 name="coins" size={20} color="violet" />
                 </TouchableOpacity>
+                <TouchableOpacity onPress={handleDelete} style={styles.actionIcon}>
+                    <Ionicons name="trash-outline" size={20} color="tomato" />
+                </TouchableOpacity>
+
             </View>
         </View>
     }
@@ -221,7 +226,7 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
                 expanded={expanded}
                 onPress={handleExpand}
                 onLongPress={onLongPress}
-                pointerEvents='auto'                
+                pointerEvents='auto'
             >
                 <View style={styles.table}>
                     {/* Number of Shares */}
@@ -334,7 +339,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
     },
     actionIcon: {
-        marginLeft: 5,
+        marginLeft: 2,
     },
     input: {
         borderWidth: 1,
@@ -360,8 +365,8 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         marginHorizontal: 10,
         marginTop: 20,
-        marginHorizontal:10,
-        marginTop:20,
+        marginHorizontal: 10,
+        marginTop: 20,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,

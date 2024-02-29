@@ -8,7 +8,6 @@ const HomeScreen = () => {
     const { colors } = useTheme();
     const navigation = useNavigation();
     const [cryptoData, setCryptoData] = useState([]);
-    console.log("cryptoData:", cryptoData)
     const [cryptoInfoData, setCryptoInfoData] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [refreshing, setRefreshing] = useState(false);

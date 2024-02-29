@@ -1,18 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { View, TextInput, FlatList, TouchableOpacity, StyleSheet, Image, ActivityIndicator } from 'react-native';
 import { debounce } from 'lodash';
-import { fetchCoinData, fetchSearchResults, fetchCMCSearchResultsWithDetails } from '../utils/api';
+import { fetchCMCSearchResultsWithDetails } from '../utils/api';
 import { useNavigation } from '@react-navigation/native';
-import useCoinDataStore from '../store/useCoinDataStore';
 import { supabase } from '../services/supabase';
-import useGlobalStore from '../store/useGlobalStore';
-import { Portal, Text, Button, Provider } from 'react-native-paper';
+import { Text, Button } from 'react-native-paper';
 import CustomModal from '../components/CustomModal';
 import { useTheme } from 'react-native-paper';
 
 
 const AddCoinScreen = () => {
-    const theme = useTheme()
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [searchLoading, setSearchLoading] = useState(false)
@@ -22,11 +19,12 @@ const AddCoinScreen = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [modalMessage, setModalMessage] = useState('');
     const [budgetPerCoin, setBudgetPerCoin] = useState(0);
+
     const debouncedSearch = debounce(async (query) => {
         if (!query) return setSearchResults([]);
         setSearchLoading(true)
         try {
-            const results = await fetchCMCSearchResultsWithDetails(query);            
+            const results = await fetchCMCSearchResultsWithDetails(query);
             setSearchResults(results);
         } catch (error) {
             console.error(error)
@@ -85,10 +83,11 @@ const AddCoinScreen = () => {
         if (selectedCoin && numberOfShares) {
 
             //MY  Calculations
-            const totalHoldingsUsd = selectedCoin.currentPrice * parseInt(numberOfShares);
-            const trueBudgetPerCoinUsd = totalHoldingsUsd / (selectedCoin.currentPrice / selectedCoin.allTimeLow);
-            const projectedRoiUsd = trueBudgetPerCoinUsd * 70;
-            const additionalBudgetUsd = budgetPerCoin - trueBudgetPerCoinUsd
+            const totalHoldings = selectedCoin.currentPrice * parseInt(numberOfShares);
+            const trueBudgetPerCoin = totalHoldings / (selectedCoin.currentPrice / selectedCoin.allTimeLow);
+            const projectedRoi = trueBudgetPerCoin * 70;
+            const additionalBudget = budgetPerCoin - trueBudgetPerCoin
+
             const { data: { user } } = await supabase.auth.getUser()
 
             if (user) {
@@ -116,10 +115,10 @@ const AddCoinScreen = () => {
                     //self caulculation
                     athRoi: selectedCoin.athRoi,
                     increaseFromATL: selectedCoin.percentIncreaseFromAtl,
-                    totalHoldings: totalHoldingsUsd,
-                    trueBudgetPerCoin: trueBudgetPerCoinUsd,
-                    additionalBudget: additionalBudgetUsd,
-                    projectedRoi: projectedRoiUsd,
+                    totalHoldings: totalHoldings,
+                    trueBudgetPerCoin: trueBudgetPerCoin,
+                    additionalBudget: additionalBudget,
+                    projectedRoi: projectedRoi,
                     priceChangeIcon: selectedCoin.priceChangeIcon,
                     priceChangeColor: selectedCoin.priceChangeColor,
 
@@ -181,7 +180,7 @@ const AddCoinScreen = () => {
                         value={numberOfShares}
                         onChangeText={setNumberOfShares}
                         keyboardType="numeric"
-                    />                    
+                    />
                     <View style={styles.actionContainer}>
                         <Button mode="contained" onPress={handleConfirm} style={styles.actionButton} labelStyle={styles.buttonLabel}>
                             Confirm
@@ -192,15 +191,15 @@ const AddCoinScreen = () => {
                     </View>
                 </View>
             ) : (
-                <>  
-                    <View style={{position: 'relative', margin:20,  flexDirection:'row'}}>
+                <>
+                    <View style={{ position: 'relative', margin: 20, flexDirection: 'row' }}>
                         <TextInput
                             style={styles.searchInput}
                             placeholder="Search for a coin..."
                             value={searchTerm}
                             onChangeText={setSearchTerm}
                         />
-                        <ActivityIndicator animating={searchLoading} size={24} style={{position:'relative', right:40}} />
+                        <ActivityIndicator animating={searchLoading} size={24} style={{ position: 'relative', right: 40 }} />
                     </View>
                     <FlatList
                         data={searchResults}
@@ -241,7 +240,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 3.84,
         elevation: 5,
-        width:'100%'
+        width: '100%'
     },
     resultItem: {
         flexDirection: 'row',

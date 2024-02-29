@@ -1,14 +1,15 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, Modal, RefreshControl, AppState } from 'react-native';
+import { View, Text, StyleSheet, Modal, AppState } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import CoinCard from '../components/CoinCard';
-import { fetchUsdToPhpRate, updatePortfolioWithCoinGeckoData } from '../utils/api';
+import { fetchUsdToPhpRate, updatePortfolioWithCMC, updatePortfolioWithCoinGeckoData } from '../utils/api';
 import { supabase } from '../services/supabase';
 import useGlobalStore from '../store/useGlobalStore';
 import { useFocusEffect } from '@react-navigation/native';
 import PortfolioHeader from '../components/PortfiolioHeader';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import Spinner from 'react-native-loading-spinner-overlay';
+import { RefreshControl } from 'react-native-gesture-handler'
 const PortfolioScreen = () => {
 
     const { setUsdToPhpRate } = useGlobalStore();
@@ -113,21 +114,21 @@ const PortfolioScreen = () => {
         }, [])
     );
 
-    // useEffect(() => {
+    useEffect(() => {
 
-    //     const interval = setInterval(updatePortfolioWithCoinGeckoData, 1800000); // Fetch every 30 mins
+        const interval = setInterval(updatePortfolioWithCMC, 1800000); // Fetch every 30 mins
 
-    //     const subscription = AppState.addEventListener('change', (nextAppState) => {
-    //         if (nextAppState === 'active') {
-    //             updatePortfolioWithCoinGeckoData();
-    //         }
-    //     });
+        const subscription = AppState.addEventListener('change', (nextAppState) => {
+            if (nextAppState === 'active') {
+                updatePortfolioWithCMC();
+            }
+        });
 
-    //     return () => {
-    //         clearInterval(interval);
-    //         subscription.remove();
-    //     };
-    // }, []);
+        return () => {
+            clearInterval(interval);
+            subscription.remove();
+        };
+    }, []);
 
 
     const renderItem = ({ item, index, drag, isActive }) => {
@@ -142,11 +143,10 @@ const PortfolioScreen = () => {
     };
 
     const onRefresh = React.useCallback(async () => {
-        console.log('Refreshing started');
         setRefreshing(true);
         try {
             await fetchPortfolioData();
-            console.log('Refreshing successful');
+            await updatePortfolioWithCMC()
         } catch (error) {
             console.error('Refreshing failed:', error);
         }
@@ -166,6 +166,7 @@ const PortfolioScreen = () => {
         }
 
     };
+
 
 
     return (
@@ -199,23 +200,24 @@ const PortfolioScreen = () => {
                 <View style={[styles.container, styles.placeholderContainer]}>
                     <Text>No coins added yet. Use the '+' button to add coins.</Text>
                 </View>
-            ) : <DraggableFlatList
-                data={portfolioEntries}
-                renderItem={renderItem}
-                keyExtractor={(item, index) => `draggable-item-${item.id}`}
-                onDragEnd={onDragEnd}
-                refreshControl={
-                    <RefreshControl
-                        refreshing={refreshing}
-                        onRefresh={onRefresh}
-                    />
-                }
-                refreshing={true}
-                ListHeaderComponent={
-                    <PortfolioHeader title="My Portfolio"
-                        totalHoldings={totalHoldings} fetchPortfolioData={fetchPortfolioData} />
-                }
-            />
+            ) : <View style={styles.container}>
+                <DraggableFlatList
+                    data={portfolioEntries}
+                    renderItem={renderItem}
+                    keyExtractor={(item, index) => `draggable-item-${item.id}`}
+                    onDragEnd={onDragEnd}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refreshing}
+                            onRefresh={onRefresh}
+                        />
+                    }
+                    style={styles.draggableList}
+                    ListHeaderComponent={
+                        <PortfolioHeader title="My Portfolio" totalHoldings={totalHoldings} fetchPortfolioData={fetchPortfolioData} />
+                    }
+                />
+            </View>
             }
 
         </>
@@ -224,7 +226,7 @@ const PortfolioScreen = () => {
 
 const styles = StyleSheet.create({
     container: {
-        // backgroundColor: 'white',
+        backgroundColor: 'white',
         padding: 10,
         flex: 1,
     },
