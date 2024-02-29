@@ -93,10 +93,8 @@ export const fetchCMCSearchResultsWithDetails = async (query) => {
 
 
 
-        const athRoi = ((performanceStats?.ath_price / performanceStats?.atl_price) - 1) * 100;
-        console.log("athRoi:", athRoi)
-        const percentIncreaseFromAtl = ((currentPrice / performanceStats?.atl_price) - 1) * 100;
-        console.log("percentIncreaseFromAtl:", percentIncreaseFromAtl)
+        const athRoi = ((athPrice / atlPrice) - 1) * 100;
+        const percentIncreaseFromAtl = ((currentPrice / atlPrice) - 1) * 100;
         const priceChangeIcon = quoteUSD.percent_change_24h >= 0 ? 'arrow-up' : 'arrow-down';
         const priceChangeColor = quoteUSD.percent_change_24h >= 0 ? 'green' : 'red';
 

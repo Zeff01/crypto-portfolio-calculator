@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, TouchableWithoutFeedback, Alert, } from 'react-native';
 import { Ionicons, FontAwesome, FontAwesome5, AntDesign } from '@expo/vector-icons';
 import useCoinDataStore from '../store/useCoinDataStore';
@@ -12,12 +12,15 @@ import { useTheme } from 'react-native-paper';
 
 const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
 
+
     const theme = useTheme()
 
     const [isEditing, setIsEditing] = useState(false);
     const [editedShares, setEditedShares] = useState(data.shares.toString());
+    const [budgetPerCoin, setBudgetPerCoin] = useState(0)
+    const [trueBudgetPerCoin, setTrueBudgetPerCoin] = useState(0)
     const deleteCoin = useCoinDataStore((state) => state.deleteCoin);
-    const { usdToPhpRate, budgetPerCoin } = useGlobalStore();
+    const { usdToPhpRate } = useGlobalStore();
     const [expanded, setExpanded] = useState(false);
     const navigation = useNavigation()
 
@@ -70,44 +73,90 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
         setIsEditing(false);
     };
 
+    useEffect(() => {
+        // Fetch when the component mounts
+        fetchBudgetAndTrueBudgetPerCoin();
+    }, []);
+
+    const fetchBudgetAndTrueBudgetPerCoin = async () => {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return;
+
+        try {
+            const { data: subscriptionData, error: subscriptionError } = await supabase
+                .from('subscription')
+                .select('budget')
+                .eq('userId', user.id)
+                .single();
+
+            if (subscriptionError) throw subscriptionError;
+            setBudgetPerCoin(subscriptionData?.budget ?? 0);
+
+            const { data: portfolioData, error: portfolioError } = await supabase
+                .from('portfolio')
+                .select('trueBudgetPerCoin')
+                .eq('userId', user.id)
+                .eq('coinId', data.coinId);
+
+            if (portfolioError) throw portfolioError;
+            if (portfolioData && portfolioData.length > 0) {
+                setTrueBudgetPerCoin(portfolioData[0].trueBudgetPerCoin);
+            }
+
+        } catch (error) {
+            console.error('Error fetching data:', error.message);
+        }
+    };
 
 
-    const updatePortfolioEntry = async (portfolioId, newShares, newTotalHoldings) => {
+    const updatePortfolioEntry = async (portfolioId, newShares, newTotalHoldings, additionalBudget) => {
+        // Recalculate trueBudgetPerCoin
+        const trueBudgetPerCoinUsd = newTotalHoldings / (data.currentPrice / data.allTimeLow);
 
-        const { data, error } = await supabase
+        // Update the portfolio entry with the new values
+        const { data: { user } } = await supabase.auth.getUser();
+        const { data: updatedData, error } = await supabase
             .from('portfolio')
             .update({
                 shares: newShares,
-                totalHoldings: newTotalHoldings
+                totalHoldings: newTotalHoldings,
+                trueBudgetPerCoin: trueBudgetPerCoinUsd,
+                additionalBudget: additionalBudget
             })
-            .match({ id: portfolioId });
+            .match({ id: portfolioId, userId: user.id });
 
         if (error) {
             console.error('Error updating portfolio entry:', error);
             return null;
         }
 
-        console.log('Portfolio entry updated:', data);
-        fetchPortfolioData()
+        console.log('Portfolio entry updated:', updatedData);
+        fetchPortfolioData();
         setIsEditing(false);
-        return data;
+        return updatedData;
     };
 
+
     const handleSave = async () => {
-        // Assuming `data.id` is the ID of the portfolio entry and not just the coin
+
         const portfolioId = data.id;
         const newShares = Number(editedShares);
-        const currentPrice = Number(data.currentPrice); // Ensure this is the latest price
+        const currentPrice = Number(data.currentPrice);
 
         if (!isNaN(newShares) && !isNaN(currentPrice)) {
             const newTotalHoldings = newShares * currentPrice;
-            await updatePortfolioEntry(portfolioId, newShares, newTotalHoldings);
+            const additionalBudget = budgetPerCoin - trueBudgetPerCoin
+            await updatePortfolioEntry(portfolioId, newShares, newTotalHoldings, additionalBudget);
 
 
         } else {
             console.error("Invalid inputs");
         }
     };
+
+
+
+
     const handleExpand = () => setExpanded(!expanded);
     const PriceChangeIcon = data.priceChangeIcon === 'arrow-up' ?
         () => <AntDesign name="up" size={18} color="green" /> :

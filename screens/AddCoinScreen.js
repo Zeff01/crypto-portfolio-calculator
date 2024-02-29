@@ -84,22 +84,14 @@ const AddCoinScreen = () => {
     const handleConfirm = async () => {
         if (selectedCoin && numberOfShares) {
 
-
-
-
-
             //MY  Calculations
             const totalHoldingsUsd = selectedCoin.currentPrice * parseInt(numberOfShares);
-            console.log("selectedCoin:", selectedCoin)
             const trueBudgetPerCoinUsd = totalHoldingsUsd / (selectedCoin.currentPrice / selectedCoin.allTimeLow);
             const projectedRoiUsd = trueBudgetPerCoinUsd * 70;
-            const additionalBudgetUsd = Math.max(budgetPerCoin - trueBudgetPerCoinUsd, 0);
-            console.log("trueBudgetPerCoinUsd:", trueBudgetPerCoinUsd)
-            console.log("budgetPerCoin:", budgetPerCoin)
+            const additionalBudgetUsd = budgetPerCoin - trueBudgetPerCoinUsd
             const { data: { user } } = await supabase.auth.getUser()
 
             if (user) {
-
                 const { data: existingEntries, error: existingEntriesError } = await supabase
                     .from('portfolio')
                     .select('*')
