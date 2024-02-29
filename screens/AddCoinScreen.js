@@ -49,13 +49,10 @@ const AddCoinScreen = () => {
 
 
             const totalHoldingsUsd = selectedCoin.currentPrice * parseInt(numberOfShares);
+            console.log("selectedCoin:", selectedCoin)
             const trueBudgetPerCoinUsd = totalHoldingsUsd / (selectedCoin.currentPrice / selectedCoin.allTimeLow);
             const projectedRoiUsd = trueBudgetPerCoinUsd * 70;
             const additionalBudgetUsd = Math.max(budgetPerCoin - trueBudgetPerCoinUsd, 0);
-            // const priceChangeIcon = coinDetails.priceChangePercentage >= 0 ? 'arrow-up' : 'arrow-down';
-            // const priceChangeColor = coinDetails.priceChangePercentage >= 0 ? 'green' : 'red';
-            // const percentIncreaseFromAtl = ((coinDetails.currentPrice / coinDetails.allTimeLow) - 1) * 100;
-            // const athRoi = ((coinDetails.allTimeHigh / coinDetails.allTimeLow) - 1) * 100;
             const { data: { user } } = await supabase.auth.getUser()
 
             if (user) {
@@ -96,7 +93,7 @@ const AddCoinScreen = () => {
                     coinImage: selectedCoin.logo,
                     coinName: selectedCoin.name,
                     coinSymbol: selectedCoin.symbol,
-                    marketCapRank: selectedCoin.market_cap_rank,
+                    marketCapRank: selectedCoin.marketCap,
                     allTimeHigh: selectedCoin.allTimeHigh,
                     allTimeLow: selectedCoin.allTimeLow,
                     priceChangePercentage: selectedCoin.priceChangePercentage,

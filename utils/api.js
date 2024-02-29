@@ -83,6 +83,7 @@ export const fetchCMCSearchResultsWithDetails = async (query) => {
     const detailedResults = searchData.data.map(coin => {
 
         const detail = detailsData.data[coin.id];
+        console.log("detail:", detail.cmc_rank)
         const logoInfo = logosData.data[coin.id];
         const performanceStats = performanceData.data[coin.id].quote.USD;
         const quoteUSD = detail.quote.USD;
