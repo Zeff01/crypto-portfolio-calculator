@@ -154,64 +154,75 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
 
     const handleExpand = () => setExpanded(!expanded);
     const PriceChangeIcon = data.priceChangeIcon === 'arrow-up' ?
-        () => <AntDesign name="up" size={18} color="green" /> :
-        () => <AntDesign name="down" size={18} color="red" />
+        () => <AntDesign name="up" size={16} color="green" /> :
+        () => <AntDesign name="down" size={16} color="red" />
 
-    const AccordionTitle = () => (
+    const AccordionTitle = () => {
 
-        < View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }
-        }>
-            <View>
-                <Text style={[styles.cardTitle, { color: theme.colors.text }]}>{`${data.coinSymbol}`}</Text>
-                <View style={{ flexDirection: 'row', }}>
-                    <PriceChangeIcon />
-                    <Text style={{ color: data?.priceChangeColor, marginLeft: 2 }}>
-                        {formattedPriceChangePercentage}%
+
+        return (
+            <View style={{width:280, rowGap:4}}>
+                <View style={{ flexDirection: 'row', columnGap:10, alignItems: 'center'}}>
+                    <Text style={{fontWeight:'bold',fontSize:16}}>{data.coinSymbol}</Text>
+                    <View style={{ flexDirection: 'row', alignItems:'flex-end',  }}>
+                        <PriceChangeIcon />
+                        <Text style={{ color: data?.priceChangeColor, marginLeft: 2 }}>
+                            {formattedPriceChangePercentage}%
+                        </Text>
+
+                    </View>
+                    <Text style={{ paddingRight: 5, }}>${data.currentPrice.toFixed(2)}</Text>
+                </View>
+        < View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+            <View   style={{flexDirection: 'row', alignItems:'center', columnGap:10}}>
+                <Image source={{ uri: data.coinImage }}
+                    style={styles.icon}
+                />
+                <View style={{}}>
+                    <Text style={{ fontSize: 13, textAlign: 'left', fontWeight: '500', color: theme.colors.text }}>
+                        $ {Number(formattedTotalHoldingsUSD).toLocaleString()}
                     </Text>
-
+                    <Text style={{ fontSize: 13, textAlign: 'left', fontWeight: '500', color: theme.colors.text }}>
+                        ₱ {Number(formattedTotalHoldingsPHP).toLocaleString()}
+                    </Text>
                 </View>
             </View>
+            
+            
+            
+            <View style={{flexDirection:'row', columnGap:5}}>
+                    <TouchableOpacity onPress={(event) => navigation.navigate('Coin', { data })} style={styles.actionIcon}>
+                        <FontAwesome5 name="coins" size={20} color="violet" />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={handleDelete} style={styles.actionIcon}>
+                        <Ionicons name="trash-outline" size={20} color="tomato" />
+                    </TouchableOpacity>
+                </View>
 
-        </View >
-    );
+            </View >
+        </View>
+        )
+    };
 
     const RightIcon = () => {
-        return <View style={{
-            position: 'absolute',
-            top: 0,
-            right: 0,
-            zIndex: 1,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-
-        }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', }}>
-
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Text style={{ paddingRight: 5, }}>${data.currentPrice.toFixed(2)}</Text>
-                    <View style={{ paddingLeft: 5 }}>
-                        <Text style={{ fontSize: 10, textAlign: 'right', fontWeight: '500', color: theme.colors.text }}>$ {Number(formattedTotalHoldingsUSD).toLocaleString()}</Text>
-                        <Text style={{ fontSize: 10, textAlign: 'right', fontWeight: '500', color: theme.colors.text }}>₱ {Number(formattedTotalHoldingsPHP).toLocaleString()}</Text>
-                    </View>
-
+        return (
+            <View style={{  flexDirection: 'row', alignItems: 'center', justifyContent: 'center', position: 'relative', right: -10, height:45 }}>
+                <View style={{flexDirection:'row', columnGap:5}}>
+                    <TouchableOpacity onPress={(event) => navigation.navigate('Coin', { data })} style={styles.actionIcon}>
+                        <FontAwesome5 name="coins" size={20} color="violet" />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={handleDelete} style={styles.actionIcon}>
+                        <Ionicons name="trash-outline" size={20} color="tomato" />
+                    </TouchableOpacity>
                 </View>
-                <TouchableOpacity onPress={(event) => navigation.navigate('Coin', { data })} style={styles.actionIcon}>
-                    <FontAwesome5 name="coins" size={20} color="violet" />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={handleDelete} style={styles.actionIcon}>
-                    <Ionicons name="trash-outline" size={20} color="tomato" />
-                </TouchableOpacity>
-
-            </View>
-        </View>
+                
+            </View>)
     }
 
     const LeftIcon = () => (
-        <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-            <Image source={{ uri: data.coinImage }}
-                style={styles.icon}
-            />
+        <View style={{ alignItems: 'center', justifyContent: 'center', rowGap:4, paddingLeft:10 }}>
+            <Text style={[styles.cardTitle, { color: theme.colors.text }]}>{`${data.coinSymbol}`}</Text>
+            
         </View>
     )
 
@@ -221,8 +232,8 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
             <List.Accordion
                 style={[styles.card, isActive && styles.activeCard]}
                 title={<AccordionTitle />}
-                right={() => <RightIcon />}
-                left={() => <LeftIcon />}
+                right={() => <></>}
+                // left={() => <LeftIcon />}
                 expanded={expanded}
                 onPress={handleExpand}
                 onLongPress={onLongPress}
@@ -333,7 +344,6 @@ const styles = StyleSheet.create({
     cardTitle: {
         fontSize: 16,
         fontWeight: 'bold',
-        marginRight: 10,
     },
     actions: {
         flexDirection: 'row',
