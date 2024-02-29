@@ -1,34 +1,104 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, FlatList, StyleSheet, RefreshControl, Button, Image } from 'react-native';
-import { useTheme } from 'react-native-paper';
+import { TextInput, useTheme } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
+import { fetchCMCSearchResults } from '../utils/api';
 
 const HomeScreen = () => {
     const { colors } = useTheme();
     const navigation = useNavigation();
     const [cryptoData, setCryptoData] = useState([]);
     console.log("cryptoData:", cryptoData)
+    const [cryptoInfoData, setCryptoInfoData] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
     const [refreshing, setRefreshing] = useState(false);
 
-    // Fetch cryptocurrency data from an API
-    const fetchCryptoData = async () => {
+    const fetchSearchResults = async () => {
+        if (searchTerm.trim() === '') {
+            setCryptoData([]);
+            return; // Avoid searching for an empty string or resetting the list
+        }
         try {
-            const url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest';
-            const headers = {
-                'X-CMC_PRO_API_KEY': '876e0a1a-49da-4096-8009-50eee72754c0',
-                'Accept': 'application/json',
-            };
-            const response = await fetch(url, { headers });
-            const data = await response.json();
-            setCryptoData(data.data); // Make sure to access the correct data property
+            const results = await fetchCMCSearchResults(searchTerm);
+            setCryptoData(results); // Assuming results is the array of cryptocurrencies
         } catch (error) {
-            console.error("Failed to fetch cryptocurrency data:", error);
+            console.error("Failed to fetch search results:", error);
         }
     };
 
     useEffect(() => {
-        fetchCryptoData();
-    }, []);
+        fetchSearchResults();
+    }, [searchTerm]);
+
+    const SearchInput = () => (
+        <TextInput
+            style={styles.searchInput}
+            placeholder="Search Cryptocurrency"
+            placeholderTextColor="#666"
+            value={searchTerm}
+            onChangeText={setSearchTerm}
+        />
+    );
+
+
+    // // Fetch cryptocurrency data from an API
+    // const fetchCryptoData = async () => {
+    //     try {
+    //         const url = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest';
+    //         const headers = {
+    //             'X-CMC_PRO_API_KEY': '876e0a1a-49da-4096-8009-50eee72754c0',
+    //             'Accept': 'application/json',
+    //         };
+    //         const response = await fetch(url, { headers });
+    //         const data = await response.json();
+    //         setCryptoData(data.data); // Make sure to access the correct data property
+    //     } catch (error) {
+    //         console.error("Failed to fetch cryptocurrency data:", error);
+    //     }
+    // };
+
+    // useEffect(() => {
+    //     fetchCryptoData();
+    // }, []);
+    // const fetchCryptoInfo = async (coinIds) => {
+    //     try {
+    //         const url = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/info?id=${coinIds.join(',')}`;
+    //         const headers = {
+    //             'X-CMC_PRO_API_KEY': '876e0a1a-49da-4096-8009-50eee72754c0',
+    //             'Accept': 'application/json',
+    //         };
+    //         const response = await fetch(url, { headers });
+    //         const infoData = await response.json();
+    //         setCryptoInfoData(infoData.data); // Adjust state and variable names as necessary
+    //     } catch (error) {
+    //         console.error("Failed to fetch cryptocurrency info:", error);
+    //     }
+    // };
+
+    // useEffect(() => {
+    //     // Assuming you have a list of coin IDs you want to fetch info for
+    //     const coinIds = [1, 1027]; // Example coin IDs for Bitcoin and Ethereum
+    //     fetchCryptoInfo(coinIds);
+    // }, []);
+    // const fetchCryptoHistoricalData = async (coinIds) => {
+    //     try {
+    //         const url = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?id=${coinIds.join(',')}&convert=USD`;
+    //         const headers = {
+    //             'X-CMC_PRO_API_KEY': '876e0a1a-49da-4096-8009-50eee72754c0',
+    //             'Accept': 'application/json',
+    //         };
+    //         const response = await fetch(url, { headers });
+    //         const historicalData = await response.json();
+    //         // You would then extract the ATH and ATL data from historicalData, if available
+    //         console.log(historicalData);
+    //     } catch (error) {
+    //         console.error("Failed to fetch cryptocurrency historical data:", error);
+    //     }
+    // };
+    // useEffect(() => {
+    //     const coinIds = [1, 1027];
+    //     fetchCryptoHistoricalData(coinIds);
+    // }, []);
 
     const onRefresh = useCallback(async () => {
         setRefreshing(true);
@@ -121,6 +191,7 @@ const HomeScreen = () => {
                 <Button title="Change Theme" onPress={() => console.log('Toggle theme')} color={colors.onPrimary} />
                 <Button title="Logout" onPress={() => navigation.navigate('Login')} color={colors.onPrimary} />
             </View>
+            <SearchInput />
             <FlatList
                 data={cryptoData}
                 renderItem={renderItem}
@@ -131,5 +202,19 @@ const HomeScreen = () => {
         </View>
     );
 };
+
+const styles = StyleSheet.create({
+    searchInput: {
+        fontSize: 18,
+        padding: 10,
+        borderColor: 'gray',
+        borderWidth: 1,
+        borderRadius: 5,
+        margin: 10,
+        color: 'black', // Adjust based on your theme
+        backgroundColor: 'white', // Adjust based on your theme
+    },
+    // Other styles...
+});
 
 export default HomeScreen;

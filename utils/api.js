@@ -45,6 +45,63 @@ export const fetchSearchResults = async (query) => {
     return data.coins;
 };
 
+export const fetchCMCSearchResultsWithDetails = async (query) => {
+    const headers = {
+        'X-CMC_PRO_API_KEY': process.env.CMCKEY,
+        'Accept': 'application/json',
+    };
+
+    // Initial Coin Search
+    const searchUrl = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/map?symbol=${query}`;
+    const searchResponse = await fetch(searchUrl, { headers });
+    const searchData = await searchResponse.json();
+    if (!searchData.data || searchData.data.length === 0) {
+        return [];
+    }
+
+    const coinIds = searchData.data.map(coin => coin.id).join(',');
+
+    // Fetch Detailed Information and Logos
+    const detailsUrl = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?id=${coinIds}`;
+    const logosUrl = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/info?id=${coinIds}`;
+
+    const [detailsResponse, logosResponse] = await Promise.all([
+        fetch(detailsUrl, { headers }),
+        fetch(logosUrl, { headers })
+    ]);
+
+    const detailsData = await detailsResponse.json();
+    const logosData = await logosResponse.json();
+
+    // Compile Detailed Results including Logos
+    const detailedResults = searchData.data.map(coin => {
+        const detail = detailsData.data[coin.id];
+        const logoInfo = logosData.data[coin.id];
+        const quoteUSD = detail.quote.USD;
+
+        return {
+            id: coin.id,
+            name: coin.name,
+            symbol: coin.symbol,
+            logo: logoInfo.logo, // Now directly using the logo URL from the info endpoint
+            marketCapRank: detail.cmc_rank,
+            currentPrice: quoteUSD.price,
+            tradingVolume: quoteUSD.volume_24h,
+            marketCap: quoteUSD.market_cap,
+            circulatingSupply: detail.circulating_supply,
+            totalSupply: detail.total_supply,
+            maxSupply: detail.max_supply,
+            // Excluding allTimeHigh and allTimeLow as they require additional data
+        };
+    });
+    console.log("detailedResults:", detailedResults)
+
+    return detailedResults;
+};
+
+
+
+
 
 
 export const fetchUsdToPhpRate = async () => {
