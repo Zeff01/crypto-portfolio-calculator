@@ -62,39 +62,66 @@ export const fetchCMCSearchResultsWithDetails = async (query) => {
     const coinIds = searchData.data.map(coin => coin.id).join(',');
 
     // Fetch Detailed Information and Logos
-    const detailsUrl = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?id=${coinIds}`;
-    const logosUrl = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/info?id=${coinIds}`;
+    const detailsUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest?id=${coinIds}`;
+    const logosUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/info?id=${coinIds}`;
+    const performanceUrl = `https://sandbox-api.coinmarketcap.com/v2/cryptocurrency/price-performance-stats/latest?id=${coinIds}&time_period=all_time`;
 
-    const [detailsResponse, logosResponse] = await Promise.all([
+    // New: Fetch price performance stats
+    const [detailsResponse, logosResponse, performanceResponse] = await Promise.all([
         fetch(detailsUrl, { headers }),
-        fetch(logosUrl, { headers })
+        fetch(logosUrl, { headers }),
+        fetch(performanceUrl, { headers }),
+
     ]);
+
 
     const detailsData = await detailsResponse.json();
     const logosData = await logosResponse.json();
+    const performanceData = await performanceResponse.json();
 
     // Compile Detailed Results including Logos
     const detailedResults = searchData.data.map(coin => {
+
         const detail = detailsData.data[coin.id];
+        console.log("detail:", detail.cmc_rank)
         const logoInfo = logosData.data[coin.id];
+        const performanceStats = performanceData.data[coin.id].quote.USD;
         const quoteUSD = detail.quote.USD;
+        const athPrice = performanceStats.high;
+        const atlPrice = performanceStats.low;
+        const currentPrice = quoteUSD.price;
+
+
+
+        const athRoi = ((performanceStats?.ath_price / performanceStats?.atl_price) - 1) * 100;
+        console.log("athRoi:", athRoi)
+        const percentIncreaseFromAtl = ((currentPrice / performanceStats?.atl_price) - 1) * 100;
+        console.log("percentIncreaseFromAtl:", percentIncreaseFromAtl)
+        const priceChangeIcon = quoteUSD.percent_change_24h >= 0 ? 'arrow-up' : 'arrow-down';
+        const priceChangeColor = quoteUSD.percent_change_24h >= 0 ? 'green' : 'red';
 
         return {
             id: coin.id,
             name: coin.name,
             symbol: coin.symbol,
-            logo: logoInfo.logo, // Now directly using the logo URL from the info endpoint
+            logo: logoInfo.logo,
             marketCapRank: detail.cmc_rank,
-            currentPrice: quoteUSD.price,
+            currentPrice: currentPrice,
             tradingVolume: quoteUSD.volume_24h,
-            marketCap: quoteUSD.market_cap,
+            marketCap: detail.cmc_rank,
             circulatingSupply: detail.circulating_supply,
             totalSupply: detail.total_supply,
-            maxSupply: detail.max_supply,
-            // Excluding allTimeHigh and allTimeLow as they require additional data
+            maxSupply: detail.max_supply === 'null' ? -1 : detail.max_supply,
+            allTimeHigh: athPrice,
+            allTimeLow: atlPrice,
+            athRoi,
+            percentIncreaseFromAtl,
+            priceChangeIcon,
+            priceChangeColor,
+            priceChangePercentage: quoteUSD.percent_change_24h,
         };
     });
-    console.log("detailedResults:", detailedResults)
+
 
     return detailedResults;
 };
@@ -150,6 +177,7 @@ export async function updatePortfolioWithCoinGeckoData() {
 
             // Perform your calculations here
             const athRoi = ((coinData.market_data.ath.usd ?? 0) / (coinData.market_data.atl.usd ?? 1) - 1) * 100;
+            console.log("athRoi:", athRoi)
             const percentIncreaseFromAtl = ((coinData.market_data.current_price.usd ?? 0) / (coinData.market_data.atl.usd ?? 1) - 1) * 100;
             const totalHoldingsUsd = coinData.market_data.current_price.usd * entry.shares;
             const trueBudgetPerCoinUsd = totalHoldingsUsd / entry.shares; // Assuming 'shares' is available in your entry

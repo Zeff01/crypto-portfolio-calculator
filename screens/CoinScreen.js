@@ -1,4 +1,4 @@
-import { View, Text,  Image, ScrollView, } from 'react-native'
+import { View, Text, Image, ScrollView, } from 'react-native'
 import React from 'react'
 import useGlobalStore from '../store/useGlobalStore';
 import { useTheme } from 'react-native-paper'
@@ -12,7 +12,7 @@ export default function CoinScreen({ route }) {
     const data = route.params.data
     const tableData = generateTableData(data, dataToParse, usdToPhpRate)
 
-    
+
 
     return (
         <ScrollView style={{ paddingHorizontal: 10, paddingBottom: 10, }}>
@@ -48,14 +48,14 @@ export default function CoinScreen({ route }) {
                         <View>
                             {typeof value === 'string' && value.includes('|') ?
                                 <>
-                                    <Text style={{ fontWeight: '500', textAlign: 'right' , color:  theme.colors.text}}>
+                                    <Text style={{ fontWeight: '500', textAlign: 'right', color: theme.colors.text }}>
                                         {value.substring(0, value.indexOf('|'))}
                                     </Text>
-                                    <Text style={{ fontWeight: '500', textAlign: 'right' , color:  theme.colors.text}}>
+                                    <Text style={{ fontWeight: '500', textAlign: 'right', color: theme.colors.text }}>
                                         {value.substring(value.indexOf('|') + 2)}
                                     </Text>
                                 </> :
-                                <Text style={{ fontWeight: '500', textAlign: 'right', color:  theme.colors.text  }}>{value}</Text>
+                                <Text style={{ fontWeight: '500', textAlign: 'right', color: theme.colors.text }}>{value}</Text>
                             }
                         </View>
                     </View>

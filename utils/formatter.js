@@ -9,13 +9,13 @@ export const dataToParse = {
     trueBudgetPerCoin: 'True Budget on this Coin',
     additionalBudget: 'Additional Budget Catch Up Bottom',
     projectedRoi: 'Projected ROI (70x)',
+    projectedRoi: 'Projected ROI (70x)',
     marketCap: 'Market Cap',
     totalSupply: 'Total Supply',
     circulatingSupply: 'Circulating Supply',
     maxSupply: 'Max Supply',
     tradingVolume: '24h Trading Volume'
 }
-
 const formats = {
     isMoneyWithConversion: [
         'currentPrice',
@@ -27,20 +27,22 @@ const formats = {
         'projectedRoi',
     ],
     isMoney: ['marketCap', 'tradingVolume',],
-    isBigNums: ['totalSupply', 'circulatingSupply', 'maxSupply']
-
+    isBigNums: ['totalSupply', 'circulatingSupply', 'maxSupply',]
 }
-
 export function generateTableData(data, dataToParse, exchangeRate) {
-
     const result = [
         ['Shares', data.shares]
     ]
     for (k in dataToParse) {
+        if (k === 'maxSupply' && data[k] === 0) {
+            result.push([dataToParse[k], 'Unlimited']);
+            continue;
+        }
+
         const value = data[k] ?? 'N/A'
         let item = typeof value === 'number' ? safeToFixed(value) : value
         if (formats.isMoneyWithConversion.includes(k)) {
-            item = `$${Number(item).toLocaleString()} |  ₱${Number(safeToFixed((Number(item) * exchangeRate))).toLocaleString()}`
+            item = `$${Number(item).toLocaleString()}|₱${Number(safeToFixed((Number(item) * exchangeRate))).toLocaleString()}`
         }
         if (formats.isMoney.includes(k)) {
             item = `$${Number(item).toLocaleString()}`
