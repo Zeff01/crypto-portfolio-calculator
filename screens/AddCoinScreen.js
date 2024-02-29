@@ -14,19 +14,50 @@ const AddCoinScreen = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [selectedCoin, setSelectedCoin] = useState(null);
-    console.log("selectedCoin:", selectedCoin)
     const [numberOfShares, setNumberOfShares] = useState('');
     const navigation = useNavigation();
-    const { usdToPhpRate, budgetPerCoin } = useGlobalStore();
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [modalMessage, setModalMessage] = useState('');
-
-
+    const [budgetPerCoin, setBudgetPerCoin] = useState(0);
     const debouncedSearch = debounce(async (query) => {
         if (!query) return setSearchResults([]);
         const results = await fetchCMCSearchResultsWithDetails(query);
         setSearchResults(results);
     }, 500);
+
+
+    useEffect(() => {
+        const fetchBudget = async () => {
+            try {
+                const { data: { user } } = await supabase.auth.getUser()
+
+
+                if (!user) {
+                    console.error("User not logged in");
+                    return;
+                }
+
+                const { data, error } = await supabase
+                    .from('subscription')
+                    .select('budget')
+                    .eq('userId', user.id)
+                    .single();
+
+                if (error) {
+                    throw error;
+                }
+
+                if (data) {
+                    setBudgetPerCoin(data.budget);
+                }
+            } catch (error) {
+                console.error('Error fetching budget:', error.message);
+            }
+        };
+
+        fetchBudget();
+    }, []);
+
 
     useEffect(() => {
         debouncedSearch(searchTerm);
@@ -45,14 +76,13 @@ const AddCoinScreen = () => {
 
 
             //MY  Calculations
-
-
-
             const totalHoldingsUsd = selectedCoin.currentPrice * parseInt(numberOfShares);
             console.log("selectedCoin:", selectedCoin)
             const trueBudgetPerCoinUsd = totalHoldingsUsd / (selectedCoin.currentPrice / selectedCoin.allTimeLow);
             const projectedRoiUsd = trueBudgetPerCoinUsd * 70;
             const additionalBudgetUsd = Math.max(budgetPerCoin - trueBudgetPerCoinUsd, 0);
+            console.log("trueBudgetPerCoinUsd:", trueBudgetPerCoinUsd)
+            console.log("budgetPerCoin:", budgetPerCoin)
             const { data: { user } } = await supabase.auth.getUser()
 
             if (user) {
@@ -130,7 +160,7 @@ const AddCoinScreen = () => {
             <CustomModal
                 isVisible={isModalVisible}
                 onDismiss={() => setIsModalVisible(false)}
-                title="You Already have this coin on your portfolio"
+                title={modalMessage}
                 onConfirm={() => setIsModalVisible(false)}
             // onCancel={handleCancel}
             // confirmText="Yes, Confirm"
