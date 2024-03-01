@@ -2,16 +2,27 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, FlatList, StyleSheet, RefreshControl, Button, Image } from 'react-native';
 import { TextInput, useTheme } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import { fetchCMCSearchResults } from '../utils/api';
+import { fetchCMCGlobalMetrics } from '../utils/api';
+import CryptoMetricsUI from '../components/CryptoMetrcisUi';
 
 const HomeScreen = () => {
     const { colors } = useTheme();
     const navigation = useNavigation();
     const [cryptoData, setCryptoData] = useState([]);
-    const [cryptoInfoData, setCryptoInfoData] = useState([]);
-    const [searchTerm, setSearchTerm] = useState('');
+    console.log("cryptoData:", cryptoData)
     const [refreshing, setRefreshing] = useState(false);
 
+
+    const fetchCryptoData = async () => {
+        const data = await fetchCMCGlobalMetrics();
+        if (data) {
+            setCryptoData(data.data);
+        }
+    };
+
+    useEffect(() => {
+        fetchCryptoData();
+    }, []);
 
 
     const onRefresh = useCallback(async () => {
@@ -105,6 +116,7 @@ const HomeScreen = () => {
                 <Button title="Change Theme" onPress={() => console.log('Toggle theme')} color={colors.onPrimary} />
                 <Button title="Logout" onPress={() => navigation.navigate('Login')} color={colors.onPrimary} />
             </View>
+            {/* {cryptoData && <CryptoMetricsUI data={cryptoData} />} */}
             <FlatList
                 data={cryptoData}
                 renderItem={renderItem}

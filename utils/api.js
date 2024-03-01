@@ -1,7 +1,7 @@
 import { supabase } from "../services/supabase";
 
 // utils/api.js
-export const fetchCoinData = async (coinId) => {
+export const fetchCoinDataCoinGecko = async (coinId) => {
     const url = `${process.env.COIN_GECKO_URL}/coins/${coinId}`;
 
     try {
@@ -34,6 +34,83 @@ export const fetchCoinData = async (coinId) => {
         return null;
     }
 };
+export async function updatePortfolioWithCoinGeckoData() {
+    const { data: portfolioEntries, error: portfolioError } = await supabase
+        .from('portfolio')
+        .select('*');
+
+    if (portfolioError) {
+        console.error('Error fetching portfolio:', portfolioError);
+        return;
+    }
+
+
+
+    // Prepare all fetch requests for CoinGecko data in parallel
+    const coinDataPromises = portfolioEntries.map(entry =>
+        fetch(`https://api.coingecko.com/api/v3/coins/${entry.coinId}`)
+            .then(response => response.json())
+            .catch(error => {
+                console.error(`Error fetching data for coin ${entry.coinId}:`, error);
+                return null;
+            })
+    );
+
+    try {
+        // Execute all fetch requests in parallel
+        const coinDatas = await Promise.all(coinDataPromises);
+
+        for (let i = 0; i < portfolioEntries.length; i++) {
+            const entry = portfolioEntries[i];
+            const coinData = coinDatas[i]; // The corresponding fetched data for this entry
+
+            // Perform your calculations here
+            const athRoi = ((coinData.market_data.ath.usd ?? 0) / (coinData.market_data.atl.usd ?? 1) - 1) * 100;
+            const percentIncreaseFromAtl = ((coinData.market_data.current_price.usd ?? 0) / (coinData.market_data.atl.usd ?? 1) - 1) * 100;
+            const totalHoldings = coinData.market_data.current_price.usd * entry.shares;
+            const trueBudgetPerCoin = totalHoldings / entry.shares; // Assuming 'shares' is available in your entry
+            const projectedRoi = trueBudgetPerCoin * 70; // Adjust multiplier as needed
+            const additionalBudget = Math.max(entry.budget - trueBudgetPerCoin, 0); // Assuming 'budget' is in your entry
+            const priceChangeIcon = coinData.market_data.price_change_percentage_24h >= 0 ? 'arrow-up' : 'arrow-down';
+            const priceChangeColor = coinData.market_data.price_change_percentage_24h >= 0 ? 'green' : 'red';
+
+            // Update the entry in Supabase
+            const updateResponse = await supabase
+                .from('portfolio')
+                .update({
+                    coinImage: coinData.image.small,
+                    coinName: coinData.name,
+                    allTimeHigh: coinData.market_data.ath.usd,
+                    allTimeLow: coinData.market_data.atl.usd,
+                    athRoi,
+                    increaseFromATL: percentIncreaseFromAtl,
+                    totalHoldings: totalHoldings,
+                    trueBudgetPerCoin: trueBudgetPerCoin,
+                    additionalBudget: additionalBudget,
+                    projectedRoi: projectedRoi,
+                    marketCap: coinData.market_data.market_cap.usd,
+                    totalSupply: coinData.market_data.total_supply,
+                    circulatingSupply: coinData.market_data.circulating_supply,
+                    maxSupply: coinData.market_data.max_supply,
+                    tradingVolume: coinData.market_data.total_volume.usd,
+                    marketCapRank: coinData.market_cap_rank,
+                    currentPrice: coinData.market_data.current_price.usd,
+                    priceChangePercentage: coinData.market_data.price_change_percentage_24h,
+                    priceChangeIcon,
+                    priceChangeColor
+                })
+                .match({ id: entry.id });
+
+            if (updateResponse.error) {
+                console.error(`Error updating portfolio entry for coin ${entry.coinId}:`, updateResponse.error);
+            }
+        }
+    } catch (error) {
+
+        console.error('Error updating portfolio with CoinGecko data:', error);
+    }
+}
+
 
 
 export const fetchSearchResults = async (query) => {
@@ -44,7 +121,6 @@ export const fetchSearchResults = async (query) => {
     const data = await response.json();
     return data.coins;
 };
-
 
 export const fetchUsdToPhpRate = async () => {
 
@@ -118,6 +194,7 @@ export const fetchCMCSearchResultsWithDetails = async (query) => {
             name: coin.name,
             symbol: coin.symbol,
             logo: logoInfo.logo,
+            description: logoInfo.description,
             marketCapRank: detail.cmc_rank,
             currentPrice: currentPrice,
             tradingVolume: quoteUSD.volume_24h,
@@ -139,7 +216,6 @@ export const fetchCMCSearchResultsWithDetails = async (query) => {
     return detailedResults;
 };
 
-// Helper function to fetch latest coin data from CMC
 async function fetchLatestCoinData(coinId) {
     const headers = {
         'X-CMC_PRO_API_KEY': process.env.CMCKEY,
@@ -244,83 +320,23 @@ export async function updatePortfolioWithCMC() {
     }
 }
 
-
-
-
-export async function updatePortfolioWithCoinGeckoData() {
-    const { data: portfolioEntries, error: portfolioError } = await supabase
-        .from('portfolio')
-        .select('*');
-
-    if (portfolioError) {
-        console.error('Error fetching portfolio:', portfolioError);
-        return;
-    }
-
-
-
-    // Prepare all fetch requests for CoinGecko data in parallel
-    const coinDataPromises = portfolioEntries.map(entry =>
-        fetch(`https://api.coingecko.com/api/v3/coins/${entry.coinId}`)
-            .then(response => response.json())
-            .catch(error => {
-                console.error(`Error fetching data for coin ${entry.coinId}:`, error);
-                return null;
-            })
-    );
+export async function fetchCMCGlobalMetrics() {
+    const headers = {
+        'X-CMC_PRO_API_KEY': process.env.CMCKEY,
+        'Accept': 'application/json',
+    };
+    const globalMetricsUrl = 'https://pro-api.coinmarketcap.com/v1/global-metrics/quotes/latest';
 
     try {
-        // Execute all fetch requests in parallel
-        const coinDatas = await Promise.all(coinDataPromises);
-
-        for (let i = 0; i < portfolioEntries.length; i++) {
-            const entry = portfolioEntries[i];
-            const coinData = coinDatas[i]; // The corresponding fetched data for this entry
-
-            // Perform your calculations here
-            const athRoi = ((coinData.market_data.ath.usd ?? 0) / (coinData.market_data.atl.usd ?? 1) - 1) * 100;
-            const percentIncreaseFromAtl = ((coinData.market_data.current_price.usd ?? 0) / (coinData.market_data.atl.usd ?? 1) - 1) * 100;
-            const totalHoldings = coinData.market_data.current_price.usd * entry.shares;
-            const trueBudgetPerCoin = totalHoldings / entry.shares; // Assuming 'shares' is available in your entry
-            const projectedRoi = trueBudgetPerCoin * 70; // Adjust multiplier as needed
-            const additionalBudget = Math.max(entry.budget - trueBudgetPerCoin, 0); // Assuming 'budget' is in your entry
-            const priceChangeIcon = coinData.market_data.price_change_percentage_24h >= 0 ? 'arrow-up' : 'arrow-down';
-            const priceChangeColor = coinData.market_data.price_change_percentage_24h >= 0 ? 'green' : 'red';
-
-            // Update the entry in Supabase
-            const updateResponse = await supabase
-                .from('portfolio')
-                .update({
-                    coinImage: coinData.image.small,
-                    coinName: coinData.name,
-                    allTimeHigh: coinData.market_data.ath.usd,
-                    allTimeLow: coinData.market_data.atl.usd,
-                    athRoi,
-                    increaseFromATL: percentIncreaseFromAtl,
-                    totalHoldings: totalHoldings,
-                    trueBudgetPerCoin: trueBudgetPerCoin,
-                    additionalBudget: additionalBudget,
-                    projectedRoi: projectedRoi,
-                    marketCap: coinData.market_data.market_cap.usd,
-                    totalSupply: coinData.market_data.total_supply,
-                    circulatingSupply: coinData.market_data.circulating_supply,
-                    maxSupply: coinData.market_data.max_supply,
-                    tradingVolume: coinData.market_data.total_volume.usd,
-                    marketCapRank: coinData.market_cap_rank,
-                    currentPrice: coinData.market_data.current_price.usd,
-                    priceChangePercentage: coinData.market_data.price_change_percentage_24h,
-                    priceChangeIcon,
-                    priceChangeColor
-                })
-                .match({ id: entry.id });
-
-            if (updateResponse.error) {
-                console.error(`Error updating portfolio entry for coin ${entry.coinId}:`, updateResponse.error);
-            }
+        const response = await fetch(globalMetricsUrl, { headers });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
-    } catch (error) {
+        const data = await response.json();
 
-        console.error('Error updating portfolio with CoinGecko data:', error);
+        return data;
+    } catch (error) {
+        console.error('Error fetching CoinMarketCap data:', error.message);
+        return null;
     }
 }
-

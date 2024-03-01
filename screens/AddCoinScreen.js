@@ -81,6 +81,7 @@ const AddCoinScreen = () => {
 
     const handleConfirm = async () => {
         if (selectedCoin && numberOfShares) {
+            console.log("selectedCoin:", selectedCoin)
 
             //MY  Calculations
             const totalHoldings = selectedCoin.currentPrice * parseInt(numberOfShares);
@@ -127,7 +128,8 @@ const AddCoinScreen = () => {
                     coinImage: selectedCoin.logo,
                     coinName: selectedCoin.name,
                     coinSymbol: selectedCoin.symbol,
-                    marketCapRank: selectedCoin.marketCap,
+                    coinDescription: selectedCoin.description,
+                    marketCapRank: selectedCoin.marketCapRank,
                     allTimeHigh: selectedCoin.allTimeHigh,
                     allTimeLow: selectedCoin.allTimeLow,
                     priceChangePercentage: selectedCoin.priceChangePercentage,
