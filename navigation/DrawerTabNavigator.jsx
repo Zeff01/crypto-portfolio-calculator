@@ -15,7 +15,6 @@ export default  function DrawerNavigator() {
         screenOptions={{
             headerShown: false,                        
         }}
-        defaultStatus='open'
         >
             <Drawer.Screen name='Root' component={StackNavigator} />
         </Drawer.Navigator>
