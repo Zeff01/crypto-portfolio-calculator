@@ -325,8 +325,7 @@ export async function fetchCMCGlobalMetrics() {
         'X-CMC_PRO_API_KEY': process.env.CMCKEY,
         'Accept': 'application/json',
     };
-    const globalMetricsUrl = 'https://pro-api.coinmarketcap.com/v1/global-metrics/quotes/latest';
-    // /v1/content/latest
+    const globalMetricsUrl = 'https://sandbox-api.coinmarketcap.com/v1/global-metrics/quotes/latest';
 
 
     try {

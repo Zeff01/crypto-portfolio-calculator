@@ -7,7 +7,9 @@ import { safeToFixed } from '../utils/safeToFixed';
 const CryptoMetricsUI = ({ data }) => {
 
 
+
     if (!data || !data.quote || !data.quote.USD) {
+
         // Render a placeholder or nothing if the data is not ready
         return <Text>Loading...</Text>;
     }
@@ -30,10 +32,19 @@ const CryptoMetricsUI = ({ data }) => {
         }
     };
 
+    const calculatePercentageChange = (current, previous) => {
+        if (typeof current !== 'number' || typeof previous !== 'number' || previous === 0) {
+            return 'N/A'; // Return 'N/A' or some other placeholder if the calculation cannot be performed
+        }
+        return safeToFixed(((current - previous) / previous) * 100);
+    };
+
+
+
     // Calculating the percentage changes
-    const marketCapChange = safeToFixed(((total_market_cap - data.total_market_cap_yesterday) / data.total_market_cap_yesterday) * 100);
-    const volumeChange = safeToFixed(((total_volume_24h - data.total_volume_24h_yesterday) / data.total_volume_24h_yesterday) * 100);
-    const btcDominanceChange = safeToFixed(btc_dominance - data.btc_dominance_yesterday);
+    const marketCapChange = safeToFixed(((data.quote.USD.total_market_cap - data.quote.USD.total_market_cap_yesterday) / data.quote.USD.total_market_cap_yesterday) * 100);
+    const volumeChange = safeToFixed(((data.quote.USD.total_volume_24h - data.quote.USD.total_volume_24h_yesterday) / data.quote.USD.total_volume_24h_yesterday) * 100);
+    const btcDominanceChange = calculatePercentageChange(data.btc_dominance, data.btc_dominance_yesterday);
 
     return (
         <View style={styles.container}>
@@ -58,7 +69,7 @@ const CryptoMetricsUI = ({ data }) => {
             {/* BTC Dominance */}
             <View style={styles.metricContainer}>
                 <Text style={styles.metricLabel}>BTC Dominance</Text>
-                <Text style={styles.metricValue}>{safeToFixed(btc_dominance)}%</Text>
+                <Text style={styles.metricValue}>{safeToFixed(data.btc_dominance)}%</Text>
                 <Text style={[styles.percentageChange, btcDominanceChange.startsWith('-') ? styles.negativeChange : styles.positiveChange]}>
                     {btcDominanceChange}%
                 </Text>
@@ -66,6 +77,7 @@ const CryptoMetricsUI = ({ data }) => {
         </View>
     );
 };
+
 
 const styles = StyleSheet.create({
     container: {

@@ -26,14 +26,12 @@ const HomeScreen = () => {
             setCryptoTrending(data.data);
         }
     };
-
     const fetchLatestNews = async () => {
         const data = await fetchLatestContent();
         if (data) {
             setCryptoNews(data.data);
         }
     };
-
 
     useEffect(() => {
         fetchLatestNews()
