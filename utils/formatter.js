@@ -30,32 +30,35 @@ const formats = {
     isBigNums: ['totalSupply', 'circulatingSupply', 'maxSupply',]
 }
 export function generateTableData(data, dataToParse, exchangeRate) {
+    // Assuming `coinName` and `coinDescription` are direct properties of the `data` object
     const result = [
+        ['', ''],
+        ['Coin Name', data.coinName ?? 'N/A'],
+        ['Coin Description', data.coinDescription ?? 'N/A'],
         ['Shares', data.shares]
-    ]
-    for (k in dataToParse) {
+    ];
+
+    for (const k in dataToParse) {
         if (k === 'maxSupply' && data[k] === 0) {
             result.push([dataToParse[k], 'Unlimited']);
             continue;
         }
 
-        const value = data[k] ?? 'N/A'
-        let item = typeof value === 'number' ? safeToFixed(value) : value
+        const value = data[k] ?? 'N/A';
+        let item = typeof value === 'number' ? safeToFixed(value) : value;
         if (formats.isMoneyWithConversion.includes(k)) {
-            item = `$${Number(item).toLocaleString()}|₱${Number(safeToFixed((Number(item) * exchangeRate))).toLocaleString()}`
+            item = `$${Number(item).toLocaleString()}|₱${Number(safeToFixed(Number(item) * exchangeRate)).toLocaleString()}`;
+        } else if (formats.isMoney.includes(k)) {
+            item = `$${Number(item).toLocaleString()}`;
+        } else if (formats.isBigNums.includes(k)) {
+            item = Number(item).toLocaleString();
         }
-        if (formats.isMoney.includes(k)) {
-            item = `$${Number(item).toLocaleString()}`
-        }
-        if (formats.isBigNums.includes(k)) {
-            item = Number(item).toLocaleString()
-        }
+
         if (isNaN(value)) {
-            item = 0
+            item = '0'; // Changed from number 0 to string '0' for consistency
         }
-        result.push([
-            dataToParse[k], item
-        ])
+
+        result.push([dataToParse[k], item]);
     }
-    return result
+    return result;
 }

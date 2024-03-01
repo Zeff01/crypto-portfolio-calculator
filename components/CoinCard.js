@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Image, Alert, } from 'react-native';
-import { Ionicons, FontAwesome, FontAwesome5, AntDesign } from '@expo/vector-icons';
+import { Ionicons, FontAwesome, FontAwesome5, AntDesign, Entypo } from '@expo/vector-icons';
 import useCoinDataStore from '../store/useCoinDataStore';
 import useGlobalStore from '../store/useGlobalStore';
 import { safeToFixed } from '../utils/safeToFixed';
@@ -9,6 +9,8 @@ import { useNavigation } from '@react-navigation/core';
 import { List } from 'react-native-paper';
 import { dataToParse, generateTableData } from '../utils/formatter'
 import { useTheme } from 'react-native-paper';
+import { Swipeable } from 'react-native-gesture-handler';
+
 
 const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
     const theme = useTheme()
@@ -158,27 +160,24 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
         () => <AntDesign name="down" size={16} color="red" />
 
     const AccordionTitle = () => {
-
-
         return (
-            <View style={{width:280, rowGap:4}}>
-                <View style={{ flexDirection: 'row', columnGap:10, alignItems: 'center'}}>
-                    <Text style={{fontWeight:'bold',fontSize:16}}>{data.coinSymbol}</Text>
-                    <View style={{ flexDirection: 'row', alignItems:'flex-end',  }}>
-                        <PriceChangeIcon />
-                        <Text style={{ color: data?.priceChangeColor, marginLeft: 2 }}>
-                            {formattedPriceChangePercentage}%
-                        </Text>
+            <View style={{ gap: 5 }}>
+                <Text >${data.currentPrice.toFixed(2)}</Text>
+                < View style={{ flexDirection: 'row' }}>
+                    <PriceChangeIcon />
+                    <Text style={{ color: data?.priceChangeColor, marginLeft: 2 }}>
+                        {formattedPriceChangePercentage}%
+                    </Text>
+                </View >
+            </View>
+        )
+    };
 
-                    </View>
-                    <Text style={{ paddingRight: 5, }}>${data.currentPrice.toFixed(2)}</Text>
-                </View>
-        < View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <View   style={{flexDirection: 'row', alignItems:'center', columnGap:10}}>
-                <Image source={{ uri: data.coinImage }}
-                    style={styles.icon}
-                />
-                <View style={{}}>
+    const RightIcon = () => {
+        return (
+
+            <View style={{ flexDirection: 'row', alignItems: 'center', }}>
+                <View style={{ gap: 5 }}>
                     <Text style={{ fontSize: 13, textAlign: 'left', fontWeight: '500', color: theme.colors.text }}>
                         $ {Number(formattedTotalHoldingsUSD).toLocaleString()}
                     </Text>
@@ -186,54 +185,45 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
                         ₱ {Number(formattedTotalHoldingsPHP).toLocaleString()}
                     </Text>
                 </View>
+                <View style={{ gap: 5 }}>
+                    <TouchableOpacity onPress={handleDelete} style={{ right: -15 }}>
+                        <AntDesign name="closecircleo" size={24} color="tomato" />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={(event) => navigation.navigate('Coin', { data })} style={{ right: -15 }}>
+                        <Entypo name="chevron-with-circle-right" size={24} color="violet" />
+                    </TouchableOpacity>
+
+                </View>
+
             </View>
-            
-            
-            
-            <View style={{flexDirection:'row', columnGap:5}}>
-                    <TouchableOpacity onPress={(event) => navigation.navigate('Coin', { data })} style={styles.actionIcon}>
-                        <FontAwesome5 name="coins" size={20} color="violet" />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={handleDelete} style={styles.actionIcon}>
-                        <Ionicons name="trash-outline" size={20} color="tomato" />
-                    </TouchableOpacity>
-                </View>
 
-            </View >
-        </View>
+
+
         )
-    };
-
-    const RightIcon = () => {
-        return (
-            <View style={{  flexDirection: 'row', alignItems: 'center', justifyContent: 'center', position: 'relative', right: -10, height:45 }}>
-                <View style={{flexDirection:'row', columnGap:5}}>
-                    <TouchableOpacity onPress={(event) => navigation.navigate('Coin', { data })} style={styles.actionIcon}>
-                        <FontAwesome5 name="coins" size={20} color="violet" />
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={handleDelete} style={styles.actionIcon}>
-                        <Ionicons name="trash-outline" size={20} color="tomato" />
-                    </TouchableOpacity>
-                </View>
-                
-            </View>)
     }
 
     const LeftIcon = () => (
-        <View style={{ alignItems: 'center', justifyContent: 'center', rowGap:4, paddingLeft:10 }}>
+        <View style={{ alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 5 }}>
+            <Image source={{ uri: data.coinImage }}
+                style={styles.icon}
+            />
             <Text style={[styles.cardTitle, { color: theme.colors.text }]}>{`${data.coinSymbol}`}</Text>
-            
+            <View style={{ flexDirection: 'row', alignItems: 'flex-end', }}>
+
+
+            </View>
         </View>
     )
 
 
     return (
+
         <View style={styles.mainContainer}>
             <List.Accordion
                 style={[styles.card, isActive && styles.activeCard]}
                 title={<AccordionTitle />}
-                right={() => <></>}
-                // left={() => <LeftIcon />}
+                right={() => <RightIcon />}
+                left={() => <LeftIcon />}
                 expanded={expanded}
                 onPress={handleExpand}
                 onLongPress={onLongPress}
@@ -308,6 +298,15 @@ const styles = StyleSheet.create({
         paddingVertical: 10,
         marginHorizontal: 10,
     },
+    deleteButton: {
+        backgroundColor: 'tomato',
+        justifyContent: 'center',
+        alignItems: 'center',
+        width: 100,
+        height: '80%',
+        marginTop: 10,
+        borderRadius: 10,
+    },
     card: {
         backgroundColor: '#fff',
         borderRadius: 10,
@@ -355,8 +354,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#ddd',
         borderRadius: 5,
-        padding: 10,
-        marginTop: 10,
+        padding: 2,
         marginBottom: 5,
         fontSize: 16,
         fontWeight: 'bold',
@@ -372,11 +370,8 @@ const styles = StyleSheet.create({
     table: {
         backgroundColor: '#fff',
         borderRadius: 10,
-        paddingVertical: 10,
         marginHorizontal: 10,
-        marginTop: 20,
-        marginHorizontal: 10,
-        marginTop: 20,
+        marginTop: 10,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
@@ -384,7 +379,7 @@ const styles = StyleSheet.create({
         elevation: 5,
         marginBottom: 5,
         paddingRight: 10,
-        paddingLeft: 10
+        paddingLeft: 10,
     },
     tableRow: {
         flexDirection: 'row',
@@ -392,7 +387,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderBottomWidth: 1,
         borderBottomColor: '#eee',
-        paddingVertical: 8,
+        paddingVertical: 10,
     },
     tableCellTitle: {
         fontWeight: 'bold',
@@ -400,6 +395,7 @@ const styles = StyleSheet.create({
     tableCellValue: {
         textAlign: 'right',
     },
+
 });
 
 
