@@ -3,13 +3,19 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import {useTheme} from  'react-native-paper'
 import { Feather } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
+import { AntDesign } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
+import { FontAwesome5 } from '@expo/vector-icons';
 
 export default function DrawerContent(props) {
     const theme=  useTheme()
     return (
         <SafeAreaView style={{padding:15, flex:1}}>
             <View style={{marginBottom:30, rowGap:5, borderBottomWidth:0.5, borderBottomColor:theme.colors.text, paddingBottom:10}}>
-                    <View  style={{width:100, height:100, backgroundColor: theme.colors.primary, borderRadius: 100,elevation:10}} />
+                    <TouchableOpacity style={{position:'relative', width: 80}}>
+                        <FontAwesome name="user-circle-o" size={80} color={theme.colors.primary} />
+                        <FontAwesome5 name="plus" size={24} color={theme.colors.primary} style={{position: 'absolute', right:1, top:30, zIndex:10}} />
+                    </TouchableOpacity>
                     <View>
                         <Text style={{fontWeight:'700', color: theme.colors.text, fontSize:18}}>Username</Text>
                         <View style={{flexDirection:'row', alignItems:'center', columnGap:5}}>
@@ -47,9 +53,6 @@ export default function DrawerContent(props) {
                     <Entypo name="switch" size={24} color="black" />
                 </View>
                 <View style={{rowGap:10}}>
-                <TouchableOpacity style={{borderWidth:1,borderColor:'#adadad', paddingHorizontal:20, paddingVertical:6, borderRadius:10}}>
-                    <Text style={{fontSize:16, textAlign:'center', color: theme.colors.text}}>switch account</Text>
-                </TouchableOpacity>
                 <TouchableOpacity style={{borderWidth:1,borderColor:'#adadad', paddingHorizontal:20, paddingVertical:6, borderRadius:10}}>
                     <Text style={{fontSize:16, textAlign:'center', color: theme.colors.text}}>logout</Text>
                 </TouchableOpacity>      
