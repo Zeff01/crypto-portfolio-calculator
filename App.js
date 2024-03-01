@@ -1,4 +1,3 @@
-import 'react-native-gesture-handler';
 import React, { useState, useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -24,18 +23,6 @@ export default function App() {
     Poppins_600SemiBold,
     Poppins_700Bold,
   });
-  const [session, setSession] = useState()
-
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-    })
-
-    supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-    })
-  }, [])
 
 
 

@@ -2,55 +2,67 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { safeToFixed } from '../utils/safeToFixed';
 
+
+
 const CryptoMetricsUI = ({ data }) => {
-    // Destructuring the data for easy access
+
+
+    if (!data || !data.quote || !data.quote.USD) {
+        // Render a placeholder or nothing if the data is not ready
+        return <Text>Loading...</Text>;
+    }
     const {
         total_market_cap,
-        btc_dominance,
         total_volume_24h,
-        total_market_cap_yesterday,
-        total_volume_24h_yesterday
-    } = data;
+        btc_dominance
+    } = data.quote.USD;
 
     // Helper function to format numbers into a more readable format
     const formatNumber = (num) => {
         if (num > 1e12) {
-            return `${(num / 1e12).toFixed(2)}T`;
+            return `${safeToFixed(num / 1e12)}T`;
         } else if (num > 1e9) {
-            return `${(num / 1e9).toFixed(2)}B`;
+            return `${safeToFixed(num / 1e9)}B`;
         } else if (num > 1e6) {
-            return `${(num / 1e6).toFixed(2)}M`;
+            return `${safeToFixed(num / 1e6)}M`;
         } else {
-            return `${num.toFixed(2)}`;
+            return safeToFixed(num);
         }
     };
 
-    // Calculating the percentage change of market cap
-    const marketCapChange = ((total_market_cap - total_market_cap_yesterday) / total_market_cap_yesterday) * 100;
-    const volumeChange = ((total_volume_24h - total_volume_24h_yesterday) / total_volume_24h_yesterday) * 100;
+    // Calculating the percentage changes
+    const marketCapChange = safeToFixed(((total_market_cap - data.total_market_cap_yesterday) / data.total_market_cap_yesterday) * 100);
+    const volumeChange = safeToFixed(((total_volume_24h - data.total_volume_24h_yesterday) / data.total_volume_24h_yesterday) * 100);
+    const btcDominanceChange = safeToFixed(btc_dominance - data.btc_dominance_yesterday);
 
     return (
         <View style={styles.container}>
+            {/* Market Cap */}
             <View style={styles.metricContainer}>
                 <Text style={styles.metricLabel}>Market Cap</Text>
                 <Text style={styles.metricValue}>${formatNumber(total_market_cap)}</Text>
-                <Text style={[styles.percentageChange, marketCapChange >= 0 ? styles.positiveChange : styles.negativeChange]}>
-                    {marketCapChange.toFixed(2)}%
+                <Text style={[styles.percentageChange, marketCapChange.startsWith('-') ? styles.negativeChange : styles.positiveChange]}>
+                    {marketCapChange}%
                 </Text>
             </View>
+
+            {/* Volume */}
             <View style={styles.metricContainer}>
                 <Text style={styles.metricLabel}>Volume</Text>
                 <Text style={styles.metricValue}>${formatNumber(total_volume_24h)}</Text>
-                <Text style={[styles.percentageChange, volumeChange >= 0 ? styles.positiveChange : styles.negativeChange]}>
-                    {volumeChange.toFixed(2)}%
+                <Text style={[styles.percentageChange, volumeChange.startsWith('-') ? styles.negativeChange : styles.positiveChange]}>
+                    {volumeChange}%
                 </Text>
             </View>
+
+            {/* BTC Dominance */}
             <View style={styles.metricContainer}>
                 <Text style={styles.metricLabel}>BTC Dominance</Text>
-                <Text style={styles.metricValue}>{btc_dominance.toFixed(2)}%</Text>
-                {/* Add percentage change calculation and Text component */}
+                <Text style={styles.metricValue}>{safeToFixed(btc_dominance)}%</Text>
+                <Text style={[styles.percentageChange, btcDominanceChange.startsWith('-') ? styles.negativeChange : styles.positiveChange]}>
+                    {btcDominanceChange}%
+                </Text>
             </View>
-            {/* Repeat for other metrics */}
         </View>
     );
 };
@@ -60,7 +72,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-around',
         padding: 10,
-        backgroundColor: '#fff', // Adjust the background color as needed
+        backgroundColor: '#fff',
     },
     metricContainer: {
         alignItems: 'center',
@@ -68,12 +80,12 @@ const styles = StyleSheet.create({
     metricLabel: {
         fontSize: 14,
         fontWeight: 'bold',
-        color: '#333', // Adjust the color as needed
+        color: '#333',
     },
     metricValue: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#333', // Adjust the color as needed
+        color: '#333',
     },
     percentageChange: {
         fontSize: 16,
@@ -88,7 +100,6 @@ const styles = StyleSheet.create({
     negativeChange: {
         color: 'red',
     },
-    // Add more styles as needed
 });
 
 export default CryptoMetricsUI;

@@ -326,6 +326,8 @@ export async function fetchCMCGlobalMetrics() {
         'Accept': 'application/json',
     };
     const globalMetricsUrl = 'https://pro-api.coinmarketcap.com/v1/global-metrics/quotes/latest';
+    // /v1/content/latest
+
 
     try {
         const response = await fetch(globalMetricsUrl, { headers });
@@ -337,6 +339,50 @@ export async function fetchCMCGlobalMetrics() {
         return data;
     } catch (error) {
         console.error('Error fetching CoinMarketCap data:', error.message);
+        return null;
+    }
+}
+
+export async function fetchTrendingTokens() {
+    const headers = {
+        'X-CMC_PRO_API_KEY': process.env.CMCKEY,
+        'Accept': 'application/json',
+    };
+
+    const trendingTokenUrl = 'https://sandbox-api.coinmarketcap.com/v1/community/trending/token';
+
+    try {
+        const response = await fetch(trendingTokenUrl, { headers });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+
+        return data;
+    } catch (error) {
+        console.error('Error fetching Trending Token data:', error.message);
+        return null;
+    }
+}
+
+export async function fetchLatestContent() {
+    const headers = {
+        'X-CMC_PRO_API_KEY': process.env.CMCKEY,
+        'Accept': 'application/json',
+    };
+
+    const latestContentUrl = 'https://sandbox-api.coinmarketcap.com/v1/content/latest';
+
+    try {
+        const response = await fetch(latestContentUrl, { headers });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+
+        return data;
+    } catch (error) {
+        console.error('Error fetching Latest Content:', error.message);
         return null;
     }
 }

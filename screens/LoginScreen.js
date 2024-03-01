@@ -29,10 +29,6 @@ const LoginScreen = ({ navigation }) => {
         }
     };
 
-    const handleLogins = () => {
-        navigation.navigate('HomeBottomTab');
-    }
-
     const handleForget = () => {
         navigation.navigate('Forget');
     }

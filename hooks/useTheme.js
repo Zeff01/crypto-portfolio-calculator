@@ -7,8 +7,7 @@ export const useTheme = () => {
         const nextTheme = theme === 'light' ? 'dark' : 'light';
         setTheme(nextTheme);
 
-        const colors  = theme === 'dark' ? CustomDarkTheme : CustomLightTheme;
-        console.log('clicking');
+        const colors = theme === 'dark' ? CustomDarkTheme : CustomLightTheme;
         return { colors, currentTheme: theme, toggleTheme }
     };
 }

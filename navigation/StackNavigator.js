@@ -24,13 +24,11 @@ const StackNavigator = () => {
             const { data, error } = await supabase.auth.getSession()
 
             if (data.session) {
-                // If there's a session, navigate to the HomeBottomTab
                 navigation.reset({
                     index: 0,
                     routes: [{ name: 'HomeBottomTab' }],
                 });
             } else {
-                // If there's no session, navigate to the Login screen
                 navigation.reset({
                     index: 0,
                     routes: [{ name: 'Login' }],

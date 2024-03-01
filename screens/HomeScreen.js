@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, StyleSheet, RefreshControl, Button, Image } from 'react-native';
+import { View, Text, FlatList, StyleSheet, RefreshControl, Button, Image, TouchableOpacity } from 'react-native';
 import { TextInput, useTheme } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import { fetchCMCGlobalMetrics } from '../utils/api';
+import { fetchCMCGlobalMetrics, fetchLatestContent, fetchTrendingTokens } from '../utils/api';
 import CryptoMetricsUI from '../components/CryptoMetrcisUi';
 
 const HomeScreen = () => {
     const { colors } = useTheme();
     const navigation = useNavigation();
     const [cryptoData, setCryptoData] = useState([]);
-    console.log("cryptoData:", cryptoData)
+    const [cryptoNews, setCryptoNews] = useState()
+    const [cryptoTrending, setCryptoTrending] = useState()
     const [refreshing, setRefreshing] = useState(false);
 
 
@@ -19,8 +20,24 @@ const HomeScreen = () => {
             setCryptoData(data.data);
         }
     };
+    const fetchTrendingToken = async () => {
+        const data = await fetchTrendingTokens();
+        if (data) {
+            setCryptoTrending(data.data);
+        }
+    };
+
+    const fetchLatestNews = async () => {
+        const data = await fetchLatestContent();
+        if (data) {
+            setCryptoNews(data.data);
+        }
+    };
+
 
     useEffect(() => {
+        fetchLatestNews()
+        fetchTrendingToken()
         fetchCryptoData();
     }, []);
 
@@ -31,24 +48,6 @@ const HomeScreen = () => {
         setRefreshing(false);
     }, []);
 
-    const renderItem = ({ item }) => (
-        <View style={dynamicStyles.cryptoItem}>
-            <View style={dynamicStyles.cryptoNameContainer}>
-                {/* Replace 'item.icon' with the actual property that holds the icon URI */}
-                <Image source={{ uri: item.icon }} style={dynamicStyles.cryptoIcon} />
-                <Text style={dynamicStyles.cryptoName}>{item.name}</Text>
-            </View>
-            <Text style={dynamicStyles.cryptoPrice}>${item.quote.USD.price.toFixed(2)}</Text>
-            <Text style={[
-                dynamicStyles.cryptoChange,
-                item.quote.USD.percent_change_24h >= 0
-                    ? dynamicStyles.cryptoChangePositive
-                    : dynamicStyles.cryptoChangeNegative
-            ]}>
-                {item.quote.USD.percent_change_24h.toFixed(2)}%
-            </Text>
-        </View>
-    );
 
     const dynamicStyles = StyleSheet.create({
         container: {
@@ -110,36 +109,127 @@ const HomeScreen = () => {
         },
     });
 
+    const handleLogout = async () => {
+        try {
+            const { error } = await supabase.auth.signOut();
+            if (error) throw error;
+
+            navigation.navigate('Login');
+        } catch (error) {
+            console.error('Logout error:', error.message);
+        }
+    };
+    const renderTrendingItem = ({ item }) => (
+        <TouchableOpacity style={styles.trendingItem} onPress={() => console.log('Trending coin pressed', item)}>
+            <Text style={styles.trendingName}>{item.name}</Text>
+            <Text style={styles.trendingSymbol}>{item.symbol}</Text>
+            <Text style={styles.trendingRank}>Rank: {item.cmc_rank}</Text>
+        </TouchableOpacity>
+    );
+
+    const renderNewsItem = ({ item }) => (
+        <View style={styles.newsItem}>
+            <Image source={{ uri: item.cover }} style={styles.newsImage} />
+            <View style={styles.newsContent}>
+                <Text style={styles.newsTitle}>{item.title}</Text>
+                <Text style={styles.newsSubtitle}>{item.subtitle}</Text>
+                <Text style={styles.newsSource}>Source: {item.source_name}</Text>
+            </View>
+        </View>
+    );
+
     return (
         <View style={dynamicStyles.container}>
             <View style={dynamicStyles.topBar}>
                 <Button title="Change Theme" onPress={() => console.log('Toggle theme')} color={colors.onPrimary} />
-                <Button title="Logout" onPress={() => navigation.navigate('Login')} color={colors.onPrimary} />
+                <Button title="Logout" onPress={handleLogout} color={colors.onPrimary} />
             </View>
-            {/* {cryptoData && <CryptoMetricsUI data={cryptoData} />} */}
+            {<CryptoMetricsUI data={cryptoData} />}
             <FlatList
-                data={cryptoData}
-                renderItem={renderItem}
-                keyExtractor={item => item.id.toString()}
-                refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-                contentContainerStyle={{ paddingBottom: 20 }} // Added padding at the bottom for better look
+                data={cryptoTrending}
+                renderItem={renderTrendingItem}
+                keyExtractor={(item) => item.id.toString()}
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                    />
+                }
+                contentContainerStyle={{ paddingBottom: 20 }}
+            />
+            <FlatList
+                data={cryptoNews}
+                renderItem={renderNewsItem}
+                keyExtractor={(item, index) => index.toString()}
+                style={styles.newsList}
             />
         </View>
     );
 };
 
+
 const styles = StyleSheet.create({
-    searchInput: {
-        fontSize: 18,
-        padding: 10,
-        borderColor: 'gray',
-        borderWidth: 1,
-        borderRadius: 5,
-        margin: 10,
-        color: 'black', // Adjust based on your theme
-        backgroundColor: 'white', // Adjust based on your theme
+
+    trendingItem: {
+        backgroundColor: 'white',
+        padding: 12,
+        borderRadius: 12,
+        marginRight: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
     },
-    // Other styles...
+    trendingName: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 4,
+    },
+    trendingSymbol: {
+        fontSize: 14,
+        color: 'grey',
+    },
+    trendingRank: {
+        fontSize: 12,
+        color: 'blue',
+        marginTop: 4,
+    },
+
+    newsItem: {
+        backgroundColor: 'white',
+        borderRadius: 12,
+        overflow: 'hidden',
+        marginBottom: 16,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 5,
+    },
+    newsImage: {
+        width: '100%',
+        height: 200,
+    },
+    newsContent: {
+        padding: 16,
+    },
+    newsTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    newsSubtitle: {
+        fontSize: 14,
+        color: '#666',
+        marginVertical: 4,
+    },
+    newsSource: {
+        fontSize: 12,
+        color: '#888',
+        marginTop: 4,
+        fontStyle: 'italic',
+    },
 });
 
 export default HomeScreen;
