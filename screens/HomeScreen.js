@@ -138,10 +138,10 @@ const HomeScreen = () => {
 
     return (
         <View style={dynamicStyles.container}>
-            <View style={dynamicStyles.topBar}>
+            {/* <View style={dynamicStyles.topBar}>
                 <Button title="Change Theme" onPress={() => console.log('Toggle theme')} color={colors.onPrimary} />
                 <Button title="Logout" onPress={handleLogout} color={colors.onPrimary} />
-            </View>
+            </View> */}
             {<CryptoMetricsUI data={cryptoData} />}
             <FlatList
                 data={cryptoTrending}
