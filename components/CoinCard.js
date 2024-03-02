@@ -164,7 +164,7 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
     const AccordionTitle = () => {
         return (
             <View style={{ gap: 5, width: 200, top: -10 }}>
-                <Text >${data.currentPrice.toFixed(2)}</Text>
+                <Text >${data.currentPrice?.toFixed(2)}</Text>
                 < View style={{ flexDirection: 'row' }}>
                     <PriceChangeIcon />
                     <Text style={{ color: data?.priceChangeColor, marginLeft: 2 }}>
@@ -255,7 +255,7 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
                                 value={editedShares.toString()}
                                 onChangeText={setEditedShares}
                                 keyboardType="numeric"
-                                style={[styles.input, { color: theme.colors.text }]}
+                                style={[styles.input, { color: theme.colors.text }]}                                
                             />
                         ) : (
                             <View style={styles.tableRow}>
@@ -283,10 +283,10 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
                         {dataTable && dataTable?.slice(1).map((data, i) => {
                             const value = data[1]
                             return (<View style={styles.tableRow} key={i}>
-                                <View style={{ maxWidth: '60%', }}>
+                                <View style={{ maxWidth: '40%', }}>
                                     <Text style={[styles.tableCellTitle, { color: theme.colors.text }]}>{data[0]}:</Text>
                                 </View>
-                                <View>
+                                <View style={{maxWidth:'60%'}}>
                                     {typeof value === 'string' && value.includes('|') ?
                                         <>
                                             <Text style={{ fontWeight: '400', textAlign: 'right', color: theme.colors.text }}>
@@ -388,8 +388,9 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#ddd',
         borderRadius: 5,
-        padding: 2,
-        marginBottom: 5,
+        paddingVertical: 2,
+        paddingHorizontal:10,
+        marginVertical:10,
         fontSize: 16,
         fontWeight: 'bold',
     },
