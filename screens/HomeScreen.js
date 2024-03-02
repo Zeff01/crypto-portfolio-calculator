@@ -4,6 +4,7 @@ import { TextInput, useTheme } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { fetchCMCGlobalMetrics, fetchLatestContent, fetchTrendingTokens } from '../utils/api';
 import CryptoMetricsUI from '../components/CryptoMetrcisUi';
+import Banner from '../components/home/Banner';
 
 const HomeScreen = () => {
     const { colors } = useTheme();
@@ -51,6 +52,8 @@ const HomeScreen = () => {
         container: {
             flex: 1,
             backgroundColor: colors.background,
+            alignItems: 'center',
+            gap: 10,
         },
         topBar: {
             flexDirection: 'row',
@@ -138,11 +141,8 @@ const HomeScreen = () => {
 
     return (
         <View style={dynamicStyles.container}>
-            {/* <View style={dynamicStyles.topBar}>
-                <Button title="Change Theme" onPress={() => console.log('Toggle theme')} color={colors.onPrimary} />
-                <Button title="Logout" onPress={handleLogout} color={colors.onPrimary} />
-            </View> */}
-            {<CryptoMetricsUI data={cryptoData} />}
+            <Banner username={'zeff'}/>
+            <CryptoMetricsUI data={cryptoData} />
             <FlatList
                 data={cryptoTrending}
                 renderItem={renderTrendingItem}
