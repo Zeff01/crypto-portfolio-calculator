@@ -1,8 +1,8 @@
-import { SafeAreaView, View, Text, StyleSheet, Image } from 'react-native';
+import { SafeAreaView, View, Text, StyleSheet, Image, FlatList, TouchableOpacity } from 'react-native';
 import React from 'react';
 import icon1 from '../../assets/images/bitcoin.png';
 import icon2 from '../../assets/images/ethereum.png';
-import { FlatList } from 'react-native-gesture-handler';
+// import { FlatList } from 'react-native-gesture-handler';
 
 dummyCoins = [
     {
@@ -116,12 +116,10 @@ const styles = StyleSheet.create({
     });
 
 const Coins = ({ title, data }) => {
-    console.log(`trending: ${data}`)
-
     const renderCoin = ({ item }) => {
 
         return (
-            <View style={styles.item}>
+            <TouchableOpacity style={styles.item} onPress={() => console.log('punta sa coin data page')}>
                 <View style={styles.iconContainer}>
                     <Image
                         source={item.icon}
@@ -133,7 +131,7 @@ const Coins = ({ title, data }) => {
                 <View style={styles.growthContainer}>
                     <Text style={styles.growth}>{item.growth}</Text>
                 </View>
-            </View>
+            </TouchableOpacity>
         )
     }
     return (

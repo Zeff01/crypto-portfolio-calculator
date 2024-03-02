@@ -146,26 +146,8 @@ const HomeScreen = () => {
             <Banner username={'zeff'}/>
             <CryptoMetricsUI data={cryptoData} />
             <News data={cryptoNews}/>
-            <Coins title={'top coins'} data={cryptoTrending}/>
             <Coins title={'trending coins'} data={cryptoTrending}/>
-            {/* <FlatList
-                data={cryptoTrending}
-                renderItem={renderTrendingItem}
-                keyExtractor={(item) => item.id.toString()}
-                refreshControl={
-                    <RefreshControl
-                        refreshing={refreshing}
-                        onRefresh={onRefresh}
-                    />
-                }
-                contentContainerStyle={{ paddingBottom: 20 }}
-            /> */}
-            {/* <FlatList
-                data={cryptoNews}
-                renderItem={renderNewsItem}
-                keyExtractor={(item, index) => index.toString()}
-                style={styles.newsList}
-            /> */}
+            <Coins title={'new coins'} data={cryptoTrending} />
         </View>
     );
 };

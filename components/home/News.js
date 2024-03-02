@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import React,{ useState, useEffect} from 'react';
 import Carousel from 'react-native-snap-carousel';
 import news1Image from '../../assets/images/news1.png';
@@ -57,10 +57,9 @@ const styles = StyleSheet.create({
   });
 
 const News = ({ data }) => {
-    console.log(data)
     const renderItem = ({ item }) => {
             return (
-                <View style={styles.content}>
+                <TouchableOpacity style={styles.content} onPress={() => console.log('punta sa news page')}>
                     <View style={styles.textContainer}>
                     <Text style={styles.preview}>{item.title}</Text>
                     <Text style={styles.published}>{dateConverter(item.created_at)}</Text>
@@ -69,7 +68,7 @@ const News = ({ data }) => {
                     source={item.cover}
                     style={styles.image}
                     />
-                </View>
+                </TouchableOpacity>
             )
         };
     
