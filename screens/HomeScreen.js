@@ -5,6 +5,8 @@ import { useNavigation } from '@react-navigation/native';
 import { fetchCMCGlobalMetrics, fetchLatestContent, fetchTrendingTokens } from '../utils/api';
 import CryptoMetricsUI from '../components/CryptoMetrcisUi';
 import Banner from '../components/home/Banner';
+import News from '../components/home/News';
+import Coins from '../components/home/Coins';
 
 const HomeScreen = () => {
     const { colors } = useTheme();
@@ -143,7 +145,10 @@ const HomeScreen = () => {
         <View style={dynamicStyles.container}>
             <Banner username={'zeff'}/>
             <CryptoMetricsUI data={cryptoData} />
-            <FlatList
+            <News data={cryptoNews}/>
+            <Coins title={'top coins'} data={cryptoTrending}/>
+            <Coins title={'trending coins'} data={cryptoTrending}/>
+            {/* <FlatList
                 data={cryptoTrending}
                 renderItem={renderTrendingItem}
                 keyExtractor={(item) => item.id.toString()}
@@ -154,13 +159,13 @@ const HomeScreen = () => {
                     />
                 }
                 contentContainerStyle={{ paddingBottom: 20 }}
-            />
-            <FlatList
+            /> */}
+            {/* <FlatList
                 data={cryptoNews}
                 renderItem={renderNewsItem}
                 keyExtractor={(item, index) => index.toString()}
                 style={styles.newsList}
-            />
+            /> */}
         </View>
     );
 };

@@ -4,7 +4,7 @@ import React from 'react';
 const styles = StyleSheet.create({
     container: {
         backgroundColor: '#2563eb',
-        height: '20%',
+        height: '15%',
         width: '90%',
         justifyContent: 'center',
         borderRadius: 10,
