@@ -10,6 +10,8 @@ import { useTheme } from 'react-native-paper';
 
 
 const AddCoinScreen = () => {
+    const theme = useTheme()
+
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [searchLoading, setSearchLoading] = useState(false)
@@ -19,6 +21,7 @@ const AddCoinScreen = () => {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [modalMessage, setModalMessage] = useState('');
     const [budgetPerCoin, setBudgetPerCoin] = useState(0);
+    const [addCoinLoading, setAddCoinLoading] = useState(false)
 
     const debouncedSearch = debounce(async (query) => {
         if (!query) return setSearchResults([]);
@@ -80,6 +83,7 @@ const AddCoinScreen = () => {
     };
 
     const handleConfirm = async () => {
+        setAddCoinLoading(true)
         if (selectedCoin && numberOfShares) {
             console.log("selectedCoin:", selectedCoin)
 
@@ -100,12 +104,14 @@ const AddCoinScreen = () => {
 
                 if (existingEntriesError) {
                     console.error('Error checking for existing portfolio entry:', existingEntriesError);
+                    setAddCoinLoading(false)
                     return;
                 }
 
                 if (existingEntries.length > 0) {
                     setModalMessage(`You already have ${selectedCoin.name} in your portfolio.`);
                     setIsModalVisible(true);
+                    setAddCoinLoading(false)
                     return;
                 }
 
@@ -148,16 +154,21 @@ const AddCoinScreen = () => {
 
                 if (error) {
                     console.error('Error saving portfolio data:', error);
+                    setAddCoinLoading(false)
                 } else {
                     console.log('Portfolio data saved successfully:', data);
                     setSelectedCoin(null);
                     setNumberOfShares('');
+                    setAddCoinLoading(false)
                     navigation.goBack();
                 }
             } else {
                 console.error("User not logged in");
+                setAddCoinLoading(false)
             }
+            setAddCoinLoading(false)
         }
+        setAddCoinLoading(false)
     };
 
 
@@ -177,17 +188,27 @@ const AddCoinScreen = () => {
                     <Image source={{ uri: selectedCoin.thumb }} style={styles.icon} />
                     <Text style={styles.coinName}>{selectedCoin.name}</Text>
                     <TextInput
-                        style={styles.input}
+                        style={[styles.input, {opacity:addCoinLoading?0.5:1}]}
                         placeholder="Number of Shares"
                         value={numberOfShares}
                         onChangeText={setNumberOfShares}
                         keyboardType="numeric"
+                        editable={!addCoinLoading}
+                        width={200}
                     />
                     <View style={styles.actionContainer}>
-                        <Button mode="contained" onPress={handleConfirm} style={styles.actionButton} labelStyle={styles.buttonLabel}>
-                            Confirm
+                        <Button mode="contained" onPress={handleConfirm} style={[styles.actionButton, {backgroundColor:theme.colors.primary}]} labelStyle={[styles.buttonLabel]}
+                        disabled={addCoinLoading}
+                        >
+                            {
+                            addCoinLoading? 
+                            <ActivityIndicator size={22} animating={addCoinLoading} /> :
+                            "Confirm"
+                            }
                         </Button>
-                        <Button mode="outlined" onPress={() => setSelectedCoin(null)} style={styles.actionButton} labelStyle={styles.buttonLabel}>
+                        <Button mode="outlined" onPress={() => setSelectedCoin(null)} style={[styles.actionButton, {opacity:addCoinLoading?0.5:1}]} labelStyle={styles.buttonLabel}
+                        disabled={addCoinLoading}
+                        >
                             Cancel
                         </Button>
                     </View>
@@ -268,8 +289,8 @@ const styles = StyleSheet.create({
     },
     coinName: {
         marginLeft: 10,
-        fontSize: 16,
-        fontWeight: '500',
+        fontSize: 18,
+        fontWeight: '600',
     },
     percentageContainer: {
         flexDirection: 'row',
@@ -285,8 +306,8 @@ const styles = StyleSheet.create({
         borderColor: 'gray',
         borderRadius: 5,
         width: '40%',
-        paddingVertical: 2,
-        paddingHorizontal: 8,
+        paddingVertical: 5,
+        paddingHorizontal: 15,
         marginVertical: 10,
     },
     button: {
@@ -301,7 +322,7 @@ const styles = StyleSheet.create({
     },
     actionButton: {
         flex: 1,
-        marginHorizontal: 5,
+        marginHorizontal: 5,        
     },
     buttonLabel: {
         fontSize: 12,

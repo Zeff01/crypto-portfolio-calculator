@@ -164,7 +164,7 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
     const AccordionTitle = () => {
         return (
             <View style={{ gap: 5, width: 200, top: -10 }}>
-                <Text >${data.currentPrice.toFixed(2)}</Text>
+                <Text >${data.currentPrice?.toFixed(2)}</Text>
                 < View style={{ flexDirection: 'row' }}>
                     <PriceChangeIcon />
                     <Text style={{ color: data?.priceChangeColor, marginLeft: 2 }}>
