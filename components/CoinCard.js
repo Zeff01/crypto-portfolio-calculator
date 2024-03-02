@@ -9,10 +9,9 @@ import { useNavigation } from '@react-navigation/core';
 import { List } from 'react-native-paper';
 import { dataToParse, generateTableData } from '../utils/formatter'
 import { useTheme } from 'react-native-paper';
-import { Swipeable } from 'react-native-gesture-handler';
 
 
-const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
+const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedView }) => {
     const theme = useTheme()
     const [isEditing, setIsEditing] = useState(false);
     const [editedShares, setEditedShares] = useState(data.shares.toString());
@@ -155,13 +154,16 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
 
 
     const handleExpand = () => setExpanded(!expanded);
+
     const PriceChangeIcon = data.priceChangeIcon === 'arrow-up' ?
         () => <AntDesign name="up" size={16} color="green" /> :
         () => <AntDesign name="down" size={16} color="red" />
 
+
+
     const AccordionTitle = () => {
         return (
-            <View style={{ gap: 5 }}>
+            <View style={{ gap: 5, width: 200, top: -10 }}>
                 <Text >${data.currentPrice.toFixed(2)}</Text>
                 < View style={{ flexDirection: 'row' }}>
                     <PriceChangeIcon />
@@ -176,21 +178,21 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
     const RightIcon = () => {
         return (
 
-            <View style={{ flexDirection: 'row', alignItems: 'center', }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', right: -15, gap: 5, }}>
                 <View style={{ gap: 5 }}>
-                    <Text style={{ fontSize: 13, textAlign: 'left', fontWeight: '500', color: theme.colors.text }}>
+                    <Text style={{ fontSize: 12, textAlign: 'left', fontWeight: '500', color: theme.colors.text }}>
                         $ {Number(formattedTotalHoldingsUSD).toLocaleString()}
                     </Text>
-                    <Text style={{ fontSize: 13, textAlign: 'left', fontWeight: '500', color: theme.colors.text }}>
+                    <Text style={{ fontSize: 12, textAlign: 'left', fontWeight: '500', color: theme.colors.text }}>
                         ₱ {Number(formattedTotalHoldingsPHP).toLocaleString()}
                     </Text>
                 </View>
                 <View style={{ gap: 5 }}>
-                    <TouchableOpacity onPress={handleDelete} style={{ right: -15 }}>
-                        <AntDesign name="closecircleo" size={24} color="tomato" />
+                    <TouchableOpacity onPress={handleDelete} style={{}}>
+                        <AntDesign name="closecircleo" size={26} color="tomato" />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={(event) => navigation.navigate('Coin', { data })} style={{ right: -15 }}>
-                        <Entypo name="chevron-with-circle-right" size={24} color="violet" />
+                    <TouchableOpacity onPress={() => navigation.navigate('Coin', { data })} style={{}}>
+                        <Entypo name="chevron-with-circle-right" size={26} color="violet" />
                     </TouchableOpacity>
 
                 </View>
@@ -203,7 +205,7 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
     }
 
     const LeftIcon = () => (
-        <View style={{ alignItems: 'center', justifyContent: 'center', flexDirection: 'row', gap: 5 }}>
+        <View style={{ alignItems: 'center', flexDirection: 'row', gap: 5, width: 90 }}>
             <Image source={{ uri: data.coinImage }}
                 style={styles.icon}
             />
@@ -215,79 +217,97 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive }) => {
         </View>
     )
 
+    if (simplifiedView) {
+        return (
+            <TouchableOpacity onLongPress={() => handleDelete()} onPress={() => navigation.navigate('Coin', { data })} style={[simplifiedView && styles.simplifiedCard]}>
+                <Image source={{ uri: data.coinImage }} style={styles.icon} />
+                <Text style={[styles.cardTitle, { color: theme.colors.text }]}>{data.coinName}</Text>
+                <Text style={{ color: theme.colors.text }}>Price: ${data.currentPrice.toFixed(2)}</Text>
+                < View style={{ flexDirection: 'row' }}>
+                    <PriceChangeIcon />
+                    <Text style={{ color: data?.priceChangeColor, marginLeft: 2 }}>
+                        {formattedPriceChangePercentage}%
+                    </Text>
+                </View >
+            </TouchableOpacity>
+        );
+    } else {
 
-    return (
 
-        <View style={styles.mainContainer}>
-            <List.Accordion
-                style={[styles.card, isActive && styles.activeCard]}
-                title={<AccordionTitle />}
-                right={() => <RightIcon />}
-                left={() => <LeftIcon />}
-                expanded={expanded}
-                onPress={handleExpand}
-                onLongPress={onLongPress}
-                pointerEvents='auto'
-            >
-                <View style={styles.table}>
-                    {/* Number of Shares */}
-                    {isEditing ? (
-                        <TextInput
-                            value={editedShares.toString()}
-                            onChangeText={setEditedShares}
-                            keyboardType="numeric"
-                            style={[styles.input, { color: theme.colors.text }]}
-                        />
-                    ) : (
-                        <View style={styles.tableRow}>
-                            <Text style={[styles.tableCellTitle, { color: theme.colors.text }]}>Shares: </Text>
-                            <Text style={{ fontWeight: '600', color: theme.colors.text }}>{data.shares}</Text>
-                            <TouchableOpacity onPress={handleEdit} style={styles.actionIcon}>
-                                <FontAwesome name="pencil-square-o" size={24} color="black" />
-                            </TouchableOpacity>
+
+        return (
+
+            <View style={styles.mainContainer}>
+                <List.Accordion
+                    style={[styles.card, isActive && styles.activeCard]}
+                    title={<AccordionTitle />}
+                    right={() => <RightIcon />}
+                    left={() => <LeftIcon />}
+                    expanded={expanded}
+                    onPress={handleExpand}
+                    onLongPress={onLongPress}
+                    pointerEvents='auto'
+                >
+                    <View style={styles.table}>
+                        {/* Number of Shares */}
+                        {isEditing ? (
+                            <TextInput
+                                value={editedShares.toString()}
+                                onChangeText={setEditedShares}
+                                keyboardType="numeric"
+                                style={[styles.input, { color: theme.colors.text }]}
+                            />
+                        ) : (
+                            <View style={styles.tableRow}>
+                                <Text style={[styles.tableCellTitle, { color: theme.colors.text }]}>Shares: </Text>
+                                <Text style={{ fontWeight: '600', color: theme.colors.text }}>{data.shares}</Text>
+                                <TouchableOpacity onPress={handleEdit} style={styles.actionIcon}>
+                                    <FontAwesome name="pencil-square-o" size={24} color="black" />
+                                </TouchableOpacity>
+                            </View>
+
+                        )}
+                        <View style={styles.actions}>
+                            {isEditing &&
+                                <>
+                                    <TouchableOpacity onPress={handleSave} style={styles.actionIcon}>
+                                        <Ionicons name="checkmark-circle-outline" size={24} color="green" />
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={handleCancelEdit} style={styles.actionIcon}>
+                                        <Ionicons name="close-circle-outline" size={24} color="gray" />
+                                    </TouchableOpacity>
+                                </>
+                            }
                         </View>
-
-                    )}
-                    <View style={styles.actions}>
-                        {isEditing &&
-                            <>
-                                <TouchableOpacity onPress={handleSave} style={styles.actionIcon}>
-                                    <Ionicons name="checkmark-circle-outline" size={24} color="green" />
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={handleCancelEdit} style={styles.actionIcon}>
-                                    <Ionicons name="close-circle-outline" size={24} color="gray" />
-                                </TouchableOpacity>
-                            </>
-                        }
+                        {/* removes the shares because it is redundant */}
+                        {dataTable && dataTable?.slice(1).map((data, i) => {
+                            const value = data[1]
+                            return (<View style={styles.tableRow} key={i}>
+                                <View style={{ maxWidth: '60%', }}>
+                                    <Text style={[styles.tableCellTitle, { color: theme.colors.text }]}>{data[0]}:</Text>
+                                </View>
+                                <View>
+                                    {typeof value === 'string' && value.includes('|') ?
+                                        <>
+                                            <Text style={{ fontWeight: '400', textAlign: 'right', color: theme.colors.text }}>
+                                                {value.substring(0, value.indexOf('|'))}
+                                            </Text>
+                                            <Text style={{ fontWeight: '400', textAlign: 'right', color: theme.colors.text }}>
+                                                {value.substring(value.indexOf('|') + 1)}
+                                            </Text>
+                                        </> :
+                                        <Text style={{ fontWeight: '400', textAlign: 'right', color: theme.colors.text }}>{value}</Text>
+                                    }
+                                </View>
+                            </View>)
+                        })}
                     </View>
-                    {/* removes the shares because it is redundant */}
-                    {dataTable && dataTable?.slice(1).map((data, i) => {
-                        const value = data[1]
-                        return (<View style={styles.tableRow} key={i}>
-                            <View style={{ maxWidth: '60%', }}>
-                                <Text style={[styles.tableCellTitle, { color: theme.colors.text }]}>{data[0]}:</Text>
-                            </View>
-                            <View>
-                                {typeof value === 'string' && value.includes('|') ?
-                                    <>
-                                        <Text style={{ fontWeight: '400', textAlign: 'right', color: theme.colors.text }}>
-                                            {value.substring(0, value.indexOf('|'))}
-                                        </Text>
-                                        <Text style={{ fontWeight: '400', textAlign: 'right', color: theme.colors.text }}>
-                                            {value.substring(value.indexOf('|') + 1)}
-                                        </Text>
-                                    </> :
-                                    <Text style={{ fontWeight: '400', textAlign: 'right', color: theme.colors.text }}>{value}</Text>
-                                }
-                            </View>
-                        </View>)
-                    })}
-                </View>
-            </List.Accordion>
-        </View>
+                </List.Accordion>
+            </View>
 
 
-    );
+        );
+    }
 };
 
 
@@ -296,7 +316,7 @@ const styles = StyleSheet.create({
         // backgroundColor: 'white',
         position: 'relative',
         paddingVertical: 10,
-        marginHorizontal: 10,
+        marginHorizontal: 2,
     },
     deleteButton: {
         backgroundColor: 'tomato',
@@ -314,9 +334,23 @@ const styles = StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
-        elevation: 5,
-        padding: 5,
-
+        elevation: 2,
+        padding: 3,
+        paddingVertical: 0,
+    },
+    simplifiedCard: {
+        padding: 10,
+        width: '45%',
+        height: 150,
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+        margin: 8,
+        gap: 5,
     },
     activeCard: {
         backgroundColor: '#faf5f5',

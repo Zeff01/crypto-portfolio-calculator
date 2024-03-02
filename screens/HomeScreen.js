@@ -4,6 +4,7 @@ import { TextInput, useTheme } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { fetchCMCGlobalMetrics, fetchLatestContent, fetchTrendingTokens } from '../utils/api';
 import CryptoMetricsUI from '../components/CryptoMetrcisUi';
+import { CategoriesList } from '../components/CategoryList';
 
 const HomeScreen = () => {
     const { colors } = useTheme();
@@ -13,6 +14,10 @@ const HomeScreen = () => {
     const [cryptoTrending, setCryptoTrending] = useState()
     const [refreshing, setRefreshing] = useState(false);
 
+    const [category, setCategory] = useState()
+    // console.log("category:", category)
+    const [categories, setCategories] = useState()
+    // console.log("categories:", categories)
 
     const fetchCryptoData = async () => {
         const data = await fetchCMCGlobalMetrics();
@@ -33,10 +38,25 @@ const HomeScreen = () => {
         }
     };
 
+    const fetchCategory = async () => {
+        const data = await fetchLatestContent();
+        if (data) {
+            setCategory(data.data);
+        }
+    };
+    const fetchCategories = async () => {
+        const data = await fetchLatestContent();
+        if (data) {
+            setCategories(data.data);
+        }
+    };
+
     useEffect(() => {
-        fetchLatestNews()
-        fetchTrendingToken()
-        fetchCryptoData();
+        fetchCategory()
+        fetchCategories()
+        // fetchLatestNews()
+        // fetchTrendingToken()
+        // fetchCryptoData();
     }, []);
 
 
@@ -143,6 +163,9 @@ const HomeScreen = () => {
                 <Button title="Logout" onPress={handleLogout} color={colors.onPrimary} />
             </View>
             {<CryptoMetricsUI data={cryptoData} />}
+
+            <Text style={dynamicStyles.sectionTitle}>Categories</Text>
+            <CategoriesList data={categories} />
             <FlatList
                 data={cryptoTrending}
                 renderItem={renderTrendingItem}
@@ -228,6 +251,7 @@ const styles = StyleSheet.create({
         marginTop: 4,
         fontStyle: 'italic',
     },
+
 });
 
 export default HomeScreen;

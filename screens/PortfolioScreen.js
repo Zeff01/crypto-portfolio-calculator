@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, Modal, AppState } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View, Text, StyleSheet, Modal, AppState, TouchableOpacity, Dimensions } from 'react-native';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import CoinCard from '../components/CoinCard';
 import { fetchUsdToPhpRate, updatePortfolioWithCMC, updatePortfolioWithCoinGeckoData } from '../utils/api';
 import { supabase } from '../services/supabase';
@@ -18,10 +18,11 @@ const PortfolioScreen = () => {
     const [totalHoldings, setTotalHoldings] = useState(0);
     const [loading, setLoading] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
+    const [simplifiedView, setSimplifiedView] = useState(false);
 
     const showLoader = () => setLoading(true);
     const hideLoader = () => setLoading(false);
-
+    const toggleViewMode = () => setSimplifiedView(!simplifiedView);
 
     //fetch portfolio data
     const fetchPortfolioData = async () => {
@@ -132,15 +133,30 @@ const PortfolioScreen = () => {
 
 
     const renderItem = ({ item, index, drag, isActive }) => {
+
+        const itemStyle = simplifiedView ? styles.itemTwoColumn : styles.itemSingleColumn;
         return (
+
             <CoinCard
+                style={[itemStyle, { backgroundColor: isActive ? '#f0f0f0' : '#fff' }]}
                 data={item}
+                fetchPortfolioData={fetchPortfolioData}
+                simplifiedView={simplifiedView}
                 onLongPress={drag}
                 isActive={isActive}
-                fetchPortfolioData={fetchPortfolioData}
             />
+
         );
     };
+
+    const ListHeaderComponent = () => (
+        <View style={styles.headerContainer}>
+            <PortfolioHeader title="My Portfolio" totalHoldings={totalHoldings} fetchPortfolioData={fetchPortfolioData} />
+            <TouchableOpacity onPress={toggleViewMode} style={styles.toggleViewButton}>
+                <MaterialIcons name={simplifiedView ? 'view-agenda' : 'view-module'} size={24} color="violet" />
+            </TouchableOpacity>
+        </View>
+    );
 
     const onRefresh = React.useCallback(async () => {
         setRefreshing(true);
@@ -170,7 +186,7 @@ const PortfolioScreen = () => {
 
 
     return (
-        <>
+        <View style={styles.container}>
             <Spinner
                 visible={loading}
                 textContent={'Fetching Portfolio data'}
@@ -195,32 +211,34 @@ const PortfolioScreen = () => {
                     </View>
                 </View>
             </Modal>
-
+            {portfolioEntries.length === 0 && <PortfolioHeader title="My Portfolio" totalHoldings={totalHoldings} fetchPortfolioData={fetchPortfolioData} />}
             {portfolioEntries.length === 0 ? (
                 <View style={[styles.container, styles.placeholderContainer]}>
                     <Text>No coins added yet. Use the '+' button to add coins.</Text>
                 </View>
-            ) : <View style={styles.container}>
-                <DraggableFlatList
-                    data={portfolioEntries}
-                    renderItem={renderItem}
-                    keyExtractor={(item, index) => `draggable-item-${item.id}`}
-                    onDragEnd={onDragEnd}
-                    refreshControl={
-                        <RefreshControl
-                            refreshing={refreshing}
-                            onRefresh={onRefresh}
-                        />
-                    }
-                    style={styles.draggableList}
-                    ListHeaderComponent={
-                        <PortfolioHeader title="My Portfolio" totalHoldings={totalHoldings} fetchPortfolioData={fetchPortfolioData} />
-                    }
-                />
-            </View>
+            ) :
+                <View style={styles.container}>
+                    <DraggableFlatList
+                        data={portfolioEntries}
+                        renderItem={renderItem}
+                        keyExtractor={(item, index) => `draggable-item-${item.id}`}
+                        onDragEnd={onDragEnd}
+                        numColumns={simplifiedView ? 2 : 1}
+                        ListHeaderComponent={ListHeaderComponent}
+                        key={simplifiedView ? 'two-columns' : 'one-column'}
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={refreshing}
+                                onRefresh={onRefresh}
+                            />
+                        }
+
+
+                    />
+                </View>
             }
 
-        </>
+        </View>
     );
 };
 
@@ -301,8 +319,22 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     spinnerTextStyle: {
-        color: '#FFF', // Spinner text color
-        fontSize: 16, // Spinner text font size
+        color: '#FFF',
+        fontSize: 16,
+    },
+    headerContainer: {
+        // justifyContent: 'space-between',
+        // alignItems: 'center',
+    },
+    toggleViewButton: {
+        padding: 0,
+    },
+    itemSingleColumn: {
+        flex: 1,
+    },
+    itemTwoColumn: {
+        width: Dimensions.get('window').width / 2 - 15,
+        flex: 1 / 2,
     },
 });
 

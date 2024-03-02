@@ -3,7 +3,7 @@ export const dataToParse = {
     currentPrice: 'Current Price',
     allTimeHigh: 'All Time High',
     allTimeLow: 'All Time Low',
-    athRoi: 'ATH ROI',
+    athRoi: 'X increase from ATL',
     increaseFromATL: '% Increase from ATL',
     totalHoldings: 'Total Holdings',
     trueBudgetPerCoin: 'True Budget on this Coin',
@@ -30,7 +30,7 @@ const formats = {
     isBigNums: ['totalSupply', 'circulatingSupply', 'maxSupply',]
 }
 export function generateTableData(data, dataToParse, exchangeRate) {
-    // Assuming `coinName` and `coinDescription` are direct properties of the `data` object
+
     const result = [
         ['', ''],
         ['Coin Name', data.coinName ?? 'N/A'],
@@ -46,7 +46,11 @@ export function generateTableData(data, dataToParse, exchangeRate) {
 
         const value = data[k] ?? 'N/A';
         let item = typeof value === 'number' ? safeToFixed(value) : value;
-        if (formats.isMoneyWithConversion.includes(k)) {
+
+        if (k === 'athRoi' && typeof value === 'number') {
+            item = `${safeToFixed(value)}x`;
+        }
+        else if (formats.isMoneyWithConversion.includes(k)) {
             item = `$${Number(item).toLocaleString()}|₱${Number(safeToFixed(Number(item) * exchangeRate)).toLocaleString()}`;
         } else if (formats.isMoney.includes(k)) {
             item = `$${Number(item).toLocaleString()}`;
@@ -55,7 +59,7 @@ export function generateTableData(data, dataToParse, exchangeRate) {
         }
 
         if (isNaN(value)) {
-            item = '0'; // Changed from number 0 to string '0' for consistency
+            item = '0';
         }
 
         result.push([dataToParse[k], item]);

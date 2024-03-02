@@ -44,9 +44,6 @@ export async function updatePortfolioWithCoinGeckoData() {
         return;
     }
 
-
-
-    // Prepare all fetch requests for CoinGecko data in parallel
     const coinDataPromises = portfolioEntries.map(entry =>
         fetch(`https://api.coingecko.com/api/v3/coins/${entry.coinId}`)
             .then(response => response.json())
@@ -57,20 +54,19 @@ export async function updatePortfolioWithCoinGeckoData() {
     );
 
     try {
-        // Execute all fetch requests in parallel
         const coinDatas = await Promise.all(coinDataPromises);
 
         for (let i = 0; i < portfolioEntries.length; i++) {
             const entry = portfolioEntries[i];
-            const coinData = coinDatas[i]; // The corresponding fetched data for this entry
+            const coinData = coinDatas[i]
 
             // Perform your calculations here
-            const athRoi = ((coinData.market_data.ath.usd ?? 0) / (coinData.market_data.atl.usd ?? 1) - 1) * 100;
+            const athRoi = (coinData.market_data.ath.usd ?? 0) / (coinData.market_data.atl.usd ?? 1);
             const percentIncreaseFromAtl = ((coinData.market_data.current_price.usd ?? 0) / (coinData.market_data.atl.usd ?? 1) - 1) * 100;
             const totalHoldings = coinData.market_data.current_price.usd * entry.shares;
-            const trueBudgetPerCoin = totalHoldings / entry.shares; // Assuming 'shares' is available in your entry
-            const projectedRoi = trueBudgetPerCoin * 70; // Adjust multiplier as needed
-            const additionalBudget = Math.max(entry.budget - trueBudgetPerCoin, 0); // Assuming 'budget' is in your entry
+            const trueBudgetPerCoin = totalHoldings / entry.shares;
+            const projectedRoi = trueBudgetPerCoin * 70;
+            const additionalBudget = Math.max(entry.budget - trueBudgetPerCoin, 0);
             const priceChangeIcon = coinData.market_data.price_change_percentage_24h >= 0 ? 'arrow-up' : 'arrow-down';
             const priceChangeColor = coinData.market_data.price_change_percentage_24h >= 0 ? 'green' : 'red';
 
@@ -110,8 +106,6 @@ export async function updatePortfolioWithCoinGeckoData() {
         console.error('Error updating portfolio with CoinGecko data:', error);
     }
 }
-
-
 
 export const fetchSearchResults = async (query) => {
     const url = `${process.env.COIN_GECKO_URL}/search?query=${query}`;
@@ -166,7 +160,6 @@ export const fetchCMCSearchResultsWithDetails = async (query) => {
 
     ]);
 
-
     const detailsData = await detailsResponse.json();
     const logosData = await logosResponse.json();
     const performanceData = await performanceResponse.json();
@@ -184,7 +177,7 @@ export const fetchCMCSearchResultsWithDetails = async (query) => {
 
 
 
-        const athRoi = ((athPrice / atlPrice) - 1) * 100;
+        const athRoi = (athPrice / atlPrice)
         const percentIncreaseFromAtl = ((currentPrice / atlPrice) - 1) * 100;
         const priceChangeIcon = quoteUSD.percent_change_24h >= 0 ? 'arrow-up' : 'arrow-down';
         const priceChangeColor = quoteUSD.percent_change_24h >= 0 ? 'green' : 'red';
@@ -249,7 +242,6 @@ async function fetchLatestCoinData(coinId) {
     }
 }
 
-// Main function to update portfolio with the latest data from CMC
 export async function updatePortfolioWithCMC() {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return;
@@ -278,7 +270,7 @@ export async function updatePortfolioWithCMC() {
 
 
 
-        const athRoi = ((athPrice / atlPrice) - 1) * 100;
+        const athRoi = (athPrice / atlPrice)
         const percentIncreaseFromAtl = ((currentPrice / atlPrice) - 1) * 100;
         const priceChangeIcon = quoteUSD.percent_change_24h >= 0 ? 'arrow-up' : 'arrow-down';
         const priceChangeColor = quoteUSD.percent_change_24h >= 0 ? 'green' : 'red';
@@ -382,6 +374,50 @@ export async function fetchLatestContent() {
         return data;
     } catch (error) {
         console.error('Error fetching Latest Content:', error.message);
+        return null;
+    }
+}
+
+export async function fetchCryptocurrencyCategory(categoryId) {
+    const headers = {
+        'X-CMC_PRO_API_KEY': process.env.CMCKEY,
+        'Accept': 'application/json',
+    };
+
+    const categoryUrl = `https://sandbox-api.coinmarketcap.com/v1/cryptocurrency/category?id=${categoryId}`;
+
+    try {
+        const response = await fetch(categoryUrl, { headers });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+
+        return data;
+    } catch (error) {
+        console.error('Error fetching Cryptocurrency Category:', error.message);
+        return null;
+    }
+}
+
+export async function fetchCryptocurrencyCategories() {
+    const headers = {
+        'X-CMC_PRO_API_KEY': process.env.CMCKEY,
+        'Accept': 'application/json',
+    };
+
+    const categoriesUrl = 'https://sandbox-api.coinmarketcap.com/v1/cryptocurrency/categories';
+
+    try {
+        const response = await fetch(categoriesUrl, { headers });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+
+        return data;
+    } catch (error) {
+        console.error('Error fetching Cryptocurrency Categories:', error.message);
         return null;
     }
 }

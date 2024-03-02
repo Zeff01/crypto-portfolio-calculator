@@ -76,12 +76,12 @@ const PortfolioHeader = ({ title, totalHoldings, fetchPortfolioData }) => {
         }
     };
 
-    //change budget
     const handleBudgetChange = (value) => {
-        console.log("value:", value)
-        const numericValue = value.replace(/[^\d.]/g, ''); // Ensure only numeric input
+        const numericValue = value.replace(/[^\d.]/g, '');
         setBudget(numericValue);
     };
+
+
 
 
     //edit budget input
@@ -91,7 +91,7 @@ const PortfolioHeader = ({ title, totalHoldings, fetchPortfolioData }) => {
 
 
     const handleBudgetUpdate = () => {
-        const newBudgetValue = parseFloat(budget);
+        const newBudgetValue = parseFloat(budget.replace(/,/g, ''));
         if (!isNaN(newBudgetValue) && newBudgetValue >= 0) {
             console.log('Updating budget...');
             updateBudget(newBudgetValue);
@@ -147,6 +147,8 @@ const PortfolioHeader = ({ title, totalHoldings, fetchPortfolioData }) => {
                             onChangeText={handleBudgetChange}
                             placeholder="0"
                             keyboardType="numeric"
+                            returnKeyType="done"
+                            onBlur={handleBudgetUpdate}
                         />
 
                         <TouchableOpacity onPress={handleBudgetUpdate} style={styles.iconButton}>
@@ -171,7 +173,7 @@ const PortfolioHeader = ({ title, totalHoldings, fetchPortfolioData }) => {
 const styles = StyleSheet.create({
     card: {
         backgroundColor: '#fff',
-        padding: 15,
+        padding: 10,
         borderRadius: 8,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
@@ -179,7 +181,7 @@ const styles = StyleSheet.create({
         shadowRadius: 8,
         elevation: 5,
         marginVertical: 10,
-        marginHorizontal: 10,
+        marginHorizontal: 2,
     },
     title: {
         fontSize: 20,
