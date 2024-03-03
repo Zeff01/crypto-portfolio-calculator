@@ -140,7 +140,7 @@ const PortfolioHeader = ({ title, totalHoldings, fetchPortfolioData }) => {
             {isEditingBudget ? (
                 <>
                     <Text style={styles.holdings}>Enter Budget in (USD)</Text>
-                    <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', }}>
                         <TextInput
                             style={styles.budgetInput}
                             value={budget.toString()}
@@ -220,12 +220,15 @@ const styles = StyleSheet.create({
     },
     iconButton: {
         marginLeft: 5,
-    }, budgetInput: {
+    }, 
+    budgetInput: {
         borderWidth: 1,
         borderRadius: 5,
-        paddingHorizontal: 5,
+        paddingHorizontal: 10,
         paddingVertical: 4,
-        marginRight: 2
+        marginRight: 2,
+        marginTop:5,
+        width:150
     }
 });
 

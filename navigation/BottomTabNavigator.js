@@ -41,7 +41,7 @@ const BottomTabNavigator = () => {
                 options={({ navigation }) => ({
                     headerRight: () => (
                         <TouchableOpacity onPress={() => navigation.navigate('AddCoin')}>
-                            <Ionicons name="add" size={30} color="#fff" />
+                            <Ionicons name="add" size={30} color="#fff" style={{marginRight:5}} />
                         </TouchableOpacity>
                     ),
                     title: 'Portfolio', // Ensure you have a title for aesthetics

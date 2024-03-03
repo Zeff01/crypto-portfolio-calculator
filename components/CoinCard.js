@@ -11,6 +11,7 @@ import { dataToParse, generateTableData } from '../utils/formatter'
 import { useTheme } from 'react-native-paper';
 
 
+
 const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedView }) => {
     const theme = useTheme()
     const [isEditing, setIsEditing] = useState(false);
@@ -30,7 +31,7 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
         : 0;
     const formattedTotalHoldingsUSD = totalHoldingsUSD.toFixed(2).toString();
     const formattedTotalHoldingsPHP = safeToFixed(data.currentPrice * parseInt(editedShares) * usdToPhpRate);
-
+    
 
     const dataTable = generateTableData(data, dataToParse, usdToPhpRate)
 
@@ -177,7 +178,7 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
 
     const RightIcon = () => {
         return (
-
+            
             <View style={{ flexDirection: 'row', alignItems: 'center', right: -15, gap: 5, }}>
                 <View style={{ gap: 5 }}>
                     <Text style={{ fontSize: 12, textAlign: 'left', fontWeight: '500', color: theme.colors.text }}>
@@ -222,7 +223,11 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
             <TouchableOpacity onLongPress={() => handleDelete()} onPress={() => navigation.navigate('Coin', { data })} style={[simplifiedView && styles.simplifiedCard]}>
                 <Image source={{ uri: data.coinImage }} style={styles.icon} />
                 <Text style={[styles.cardTitle, { color: theme.colors.text }]}>{data.coinName}</Text>
-                <Text style={{ color: theme.colors.text }}>Price: ${data.currentPrice.toFixed(2)}</Text>
+                <Text style={{ color: theme.colors.text }}>
+                    {/* sometimes current price is Null */}
+                    Price: ${currentPriceNum.toFixed(2)}
+                </Text>
+                
                 < View style={{ flexDirection: 'row' }}>
                     <PriceChangeIcon />
                     <Text style={{ color: data?.priceChangeColor, marginLeft: 2 }}>
