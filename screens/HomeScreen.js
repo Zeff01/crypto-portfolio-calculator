@@ -5,6 +5,9 @@ import { useNavigation } from '@react-navigation/native';
 import { fetchCMCGlobalMetrics, fetchLatestContent, fetchTrendingTokens } from '../utils/api';
 import CryptoMetricsUI from '../components/CryptoMetrcisUi';
 import { CategoriesList } from '../components/CategoryList';
+import Banner from '../components/home/Banner';
+import News from '../components/home/News';
+import Coins from '../components/home/Coins';
 
 const HomeScreen = () => {
     const { colors } = useTheme();
@@ -54,9 +57,9 @@ const HomeScreen = () => {
     useEffect(() => {
         fetchCategory()
         fetchCategories()
-        // fetchLatestNews()
-        // fetchTrendingToken()
-        // fetchCryptoData();
+        fetchLatestNews()
+        fetchTrendingToken()
+        fetchCryptoData();
     }, []);
 
 
@@ -71,6 +74,8 @@ const HomeScreen = () => {
         container: {
             flex: 1,
             backgroundColor: colors.background,
+            alignItems: 'center',
+            gap: 10,
         },
         topBar: {
             flexDirection: 'row',
@@ -79,51 +84,51 @@ const HomeScreen = () => {
             backgroundColor: colors.primary,
         },
         cryptoItem: {
-            backgroundColor: 'white', // Assuming a white card background
-            borderRadius: 10, // Rounded corners
-            padding: 16, // Padding around the content
-            flexDirection: 'row', // Layout children in a row
-            alignItems: 'center', // Align items vertically
-            justifyContent: 'space-between', // Space between the items
-            marginBottom: 10, // Margin at the bottom of each card
-            shadowColor: '#000', // Shadow to give a lifted card effect
+            backgroundColor: 'white',
+            borderRadius: 10,
+            padding: 16,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: 10,
+            shadowColor: '#000',
             shadowOffset: { width: 0, height: 2 },
             shadowOpacity: 0.1,
             shadowRadius: 4,
-            elevation: 3, // Elevation for Android
+            elevation: 3,
         },
         cryptoIcon: {
-            width: 30, // Icon size
-            height: 30, // Icon size
-            marginRight: 10, // Margin to the right of the icon
+            width: 30,
+            height: 30,
+            marginRight: 10,
         },
         cryptoNameContainer: {
-            flexDirection: 'row', // Layout children in a row
-            alignItems: 'center', // Align items vertically
+            flexDirection: 'row',
+            alignItems: 'center',
         },
         cryptoName: {
-            fontSize: 18, // Larger font size for the name
-            fontWeight: '600', // Slightly bolder than normal
+            fontSize: 18,
+            fontWeight: '600',
             color: colors.text,
         },
         cryptoPrice: {
-            fontSize: 16, // Larger font size for the price
-            fontWeight: 'bold', // Bold font weight for the price
+            fontSize: 16,
+            fontWeight: 'bold',
             color: colors.text,
         },
         cryptoChange: {
-            fontSize: 14, // Smaller font size for the change percentage
+            fontSize: 14,
             fontWeight: '500', // Medium boldness
-            borderRadius: 5, // Rounded corners for the percentage change
-            paddingVertical: 2, // Vertical padding for the change percentage
-            paddingHorizontal: 6, // Horizontal padding for the change percentage
-            color: 'white', // White text color
+            borderRadius: 5,
+            paddingVertical: 2,
+            paddingHorizontal: 6,
+            color: 'white',
         },
         cryptoChangePositive: {
-            backgroundColor: 'green', // Green background for positive change
+            backgroundColor: 'green',
         },
         cryptoChangeNegative: {
-            backgroundColor: 'red', // Red background for negative change
+            backgroundColor: 'red',
         },
     });
 
@@ -184,6 +189,11 @@ const HomeScreen = () => {
                 keyExtractor={(item, index) => index.toString()}
                 style={styles.newsList}
             />
+            <Banner username={'zeff'} />
+            <CryptoMetricsUI data={cryptoData} />
+            <News data={cryptoNews} />
+            <Coins title={'trending coins'} data={cryptoTrending} />
+            <Coins title={'new coins'} data={cryptoTrending} />
         </View>
     );
 };
