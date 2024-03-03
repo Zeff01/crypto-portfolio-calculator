@@ -1,12 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, Image } from 'react-native';
 import { safeToFixed } from '../utils/safeToFixed';
+import { Svg, Circle, Path } from 'react-native-svg';
+import FearGreed from './FearGreed';
+
 
 
 
 const CryptoMetricsUI = ({ data }) => {
-
-
 
     if (!data || !data.quote || !data.quote.USD) {
 
@@ -49,7 +50,7 @@ const CryptoMetricsUI = ({ data }) => {
     return (
         <View style={styles.container}>
             {/* Market Cap */}
-            <View style={styles.metricContainer}>
+            <View style={[styles.metricContainer, styles.marketCap]}>
                 <Text style={styles.metricLabel}>Market Cap</Text>
                 <Text style={styles.metricValue}>${formatNumber(total_market_cap)}</Text>
                 <Text style={[styles.percentageChange, marketCapChange.startsWith('-') ? styles.negativeChange : styles.positiveChange]}>
@@ -74,6 +75,13 @@ const CryptoMetricsUI = ({ data }) => {
                     {btcDominanceChange}%
                 </Text>
             </View>
+              {/* Fear and Greed */}
+            <View style={[styles.metricContainer, styles.fearGreed]}>
+                <Text style={styles.metricLabel}>Fear & Greed</Text>  
+                {/* need data for fear and greed */}
+                <FearGreed data={safeToFixed(data.btc_dominance)}/> 
+                <Text style={styles.fearGreedPercent}>{safeToFixed(data.btc_dominance)}%</Text>
+            </View>
         </View>
     );
 };
@@ -83,16 +91,24 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         justifyContent: 'space-around',
-        padding: 10,
-        backgroundColor: '#fff',
-        width: '90%'
+        width: '90%',
+        marginTop: 10,
+
     },
     metricContainer: {
         alignItems: 'center',
+        position: 'relative',
+        paddingVertical: 10,
+        width : '24%',
+        backgroundColor: '#f5f5f5',
+        elevation: 5,
+        justifyContent : 'center'
+
+        
     },
     metricLabel: {
-        fontSize: 14,
-        fontWeight: 'bold',
+        fontSize: 11,
+        fontWeight: '800',
         color: '#333',
     },
     metricValue: {
@@ -113,6 +129,23 @@ const styles = StyleSheet.create({
     negativeChange: {
         color: 'red',
     },
+    
+    fearGreedPercent: {
+        position: 'absolute',
+        top: 55,
+        left: 20,
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#333',
+    },
+    marketCap:{
+        borderTopLeftRadius : 10,
+        borderBottomLeftRadius : 10
+    },
+    fearGreed:{
+        borderTopRightRadius : 10,
+        borderBottomRightRadius : 10
+    }
 });
 
 export default CryptoMetricsUI;
