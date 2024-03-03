@@ -5,6 +5,9 @@ import { useNavigation } from '@react-navigation/native';
 import { fetchCMCGlobalMetrics, fetchLatestContent, fetchTrendingTokens } from '../utils/api';
 import CryptoMetricsUI from '../components/CryptoMetrcisUi';
 import { CategoriesList } from '../components/CategoryList';
+import Banner from '../components/home/Banner';
+import News from '../components/home/News';
+import Coins from '../components/home/Coins';
 
 const HomeScreen = () => {
     const { colors } = useTheme();
@@ -71,6 +74,8 @@ const HomeScreen = () => {
         container: {
             flex: 1,
             backgroundColor: colors.background,
+            alignItems: 'center',
+            gap: 10,
         },
         topBar: {
             flexDirection: 'row',
@@ -79,18 +84,18 @@ const HomeScreen = () => {
             backgroundColor: colors.primary,
         },
         cryptoItem: {
-            backgroundColor: 'white', // Assuming a white card background
-            borderRadius: 10, // Rounded corners
-            padding: 16, // Padding around the content
-            flexDirection: 'row', // Layout children in a row
-            alignItems: 'center', // Align items vertically
-            justifyContent: 'space-between', // Space between the items
-            marginBottom: 10, // Margin at the bottom of each card
-            shadowColor: '#000', // Shadow to give a lifted card effect
+            backgroundColor: 'white',
+            borderRadius: 10,
+            padding: 16,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: 10,
+            shadowColor: '#000',
             shadowOffset: { width: 0, height: 2 },
             shadowOpacity: 0.1,
             shadowRadius: 4,
-            elevation: 3, // Elevation for Android
+            elevation: 3,
         },
         cryptoIcon: {
             width: 30, // Icon size
@@ -184,6 +189,11 @@ const HomeScreen = () => {
                 keyExtractor={(item, index) => index.toString()}
                 style={styles.newsList}
             />
+            <Banner username={'zeff'} />
+            <CryptoMetricsUI data={cryptoData} />
+            <News data={cryptoNews} />
+            <Coins title={'trending coins'} data={cryptoTrending} />
+            <Coins title={'new coins'} data={cryptoTrending} />
         </View>
     );
 };

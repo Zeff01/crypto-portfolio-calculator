@@ -85,6 +85,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-around',
         padding: 10,
         backgroundColor: '#fff',
+        width: '90%'
     },
     metricContainer: {
         alignItems: 'center',
