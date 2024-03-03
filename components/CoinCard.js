@@ -31,7 +31,7 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
         : 0;
     const formattedTotalHoldingsUSD = totalHoldingsUSD.toFixed(2).toString();
     const formattedTotalHoldingsPHP = safeToFixed(data.currentPrice * parseInt(editedShares) * usdToPhpRate);
-
+    
 
     const dataTable = generateTableData(data, dataToParse, usdToPhpRate)
 
@@ -224,12 +224,10 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
                 <Image source={{ uri: data.coinImage }} style={styles.icon} />
                 <Text style={[styles.cardTitle, { color: theme.colors.text }]}>{data.coinName}</Text>
                 <Text style={{ color: theme.colors.text }}>
-                    Price: ${
-                    typeof data.currentPrice === 'number' ? 
-                    data.currentPrice?.toFixed(2) : 
-                    data.currentPrice 
-                    }
+                    {/* sometimes current price is Null */}
+                    Price: ${currentPriceNum.toFixed(2)}
                 </Text>
+                
                 < View style={{ flexDirection: 'row' }}>
                     <PriceChangeIcon />
                     <Text style={{ color: data?.priceChangeColor, marginLeft: 2 }}>
