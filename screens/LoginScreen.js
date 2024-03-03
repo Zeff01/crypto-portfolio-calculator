@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, TextInput, ScrollView, Text, Button, StyleSheet, Alert, KeyboardAvoidingView } from 'react-native';
 import { supabase } from '../services/supabase'; // Adjust the import path as necessary
-
+import useAuthStore from '../store/useAuthStore'
 import Logo from '../components/Logo';
 import Forms from '../components/Forms';
 import ButtonArrow from '../components/ButtonArrow';
@@ -16,18 +16,19 @@ const LoginScreen = ({ navigation }) => {
 
     const handleLogin = async () => {
         setLoading(true);
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email, password
+        const { data: session, error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
         });
         setLoading(false);
 
         if (error) {
             Alert.alert('Login Failed', error.message);
         } else {
-            console.log('LOGIN SUCCESFULLY')
-            navigation.navigate('HomeBottomTab');
+            useAuthStore.getState().login(session);
         }
     };
+
 
     const handleForget = () => {
         navigation.navigate('Forget');

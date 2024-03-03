@@ -1,13 +1,41 @@
-import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import StackNavigator from './StackNavigator';
-import { navigationRef } from './navigationActions'; // Updated import path
+import React, { useEffect, useState } from 'react';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
+
+import { navigationRef } from './navigationActions';
 import DrawerNavigator from './DrawerTabNavigator';
+import AuthStackNavigator from './AuthStackNavigator';
+import useAuthStore from '../store/useAuthStore';
+import { supabase } from '../services/supabase';
+
 
 const RootNavigation = () => {
+    const { session, setSession } = useAuthStore();
+
+    useEffect(() => {
+        const checkCurrentSession = async () => {
+            const { data: currentSession, error } = await supabase.auth.getSession();
+
+            if (currentSession) {
+                setSession(currentSession);
+            } else if (error) {
+                console.error('Error getting current session:', error.message);
+            }
+        };
+
+        checkCurrentSession();
+
+        const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+            setSession(session);
+        });
+
+        return () => {
+            listener.unsubscribe();
+        };
+    }, [setSession]);
+
     return (
         <NavigationContainer ref={navigationRef}>
-            <DrawerNavigator />
+            {session ? <DrawerNavigator /> : <AuthStackNavigator />}
         </NavigationContainer>
     );
 };

@@ -11,13 +11,36 @@ const SignUpScreen = ({ navigation }) => {
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [username, setUsername] = useState('');
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [repeatPassword, setRepeatPassword] = useState('');
+    const [passwordsMatch, setPasswordsMatch] = useState(true);
+
+
+    const updatePassword = (pwd) => {
+        setPassword(pwd);
+        setPasswordsMatch(pwd === repeatPassword);
+    };
+
+    const updateRepeatPassword = (pwd) => {
+        setRepeatPassword(pwd);
+        setPasswordsMatch(pwd === password);
+    };
+
 
     const handleSignUp = async () => {
+        if (!passwordsMatch) {
+            Alert.alert('Error', 'Passwords do not match.');
+            return;
+        }
+
         setLoading(true);
         const { data, error } = await supabase.auth.signUp({
             email, password, options: {
                 data: {
                     username: username,
+                    firstName: firstName,
+                    lastName: lastName
                 }
             }
         });
@@ -29,7 +52,7 @@ const SignUpScreen = ({ navigation }) => {
             await supabase
                 .from('subscription')
                 .insert([
-                    { isPaid: false, userId: data.user.id }
+                    { isPaid: false, userId: data.user.id, email: email, firstName: firstName, lastName: lastName }
                 ]);
 
 
@@ -44,38 +67,32 @@ const SignUpScreen = ({ navigation }) => {
         }
     };
 
-    const handleLogins = () => {
-        navigation.navigate('HomeBottomTab');
-    }
 
-    const handleForget = () => {
-        navigation.navigate('Forget');
-    }
 
     const handleLogin = () => {
         navigation.navigate('Login');
     }
 
     return (
-        <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingHorizontal: 6, backgroundColor: 'white' }}>
+        <ScrollView contentContainerStyle={{ justifyContent: 'center', paddingHorizontal: 6, backgroundColor: 'white', paddingTop: 20, flex: 1 }}>
             <View className='flex-1 justify-start items-center px-6 '>
-                <View className='w-full mb-10'>
+                <View className='w-full '>
                     <Logo size={80} />
                 </View>
                 <View className='w-full bg-gray-200 rounded-lg px-6 py-4'>
-                    <Forms setEmail={setEmail} setPassword={setPassword} setUsername={setUsername} />
+                    <Forms setEmail={setEmail} setPassword={updatePassword} setUsername={setUsername} setLastName={setLastName} setFirstName={setFirstName} setRepeatPassword={updateRepeatPassword} />
                 </View>
                 <View className='w-full flex-row justify-end items-center mt-5'>
                     <ButtonArrow onPress={handleSignUp} title={'Signup'} />
                 </View>
-                <View className='w-full flex-col justify-between items-center mt-10  py-10'>
+                <View className='w-full flex-col justify-between items-center mt-10 '>
                     <Text className='font-bold text-lg text-neutral-600 tracking-wider capitalize'>
                         Already have an account?
                     </Text>
                     <Text
                         className='font-bold text-lg text-indigo-500 tracking-wider capitalize'
                         onPress={handleLogin}>
-                        login
+                        Login
                     </Text>
                 </View>
 

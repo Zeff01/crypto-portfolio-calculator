@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, StyleSheet, RefreshControl, Button, Image, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, StyleSheet, RefreshControl, Button, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { TextInput, useTheme } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { fetchCMCGlobalMetrics, fetchLatestContent, fetchTrendingTokens } from '../utils/api';
@@ -18,9 +18,7 @@ const HomeScreen = () => {
     const [refreshing, setRefreshing] = useState(false);
 
     const [category, setCategory] = useState()
-    // console.log("category:", category)
     const [categories, setCategories] = useState()
-    // console.log("categories:", categories)
 
     const fetchCryptoData = async () => {
         const data = await fetchCMCGlobalMetrics();
@@ -76,6 +74,7 @@ const HomeScreen = () => {
             backgroundColor: colors.background,
             alignItems: 'center',
             gap: 10,
+            paddingBottom: 10
         },
         topBar: {
             flexDirection: 'row',
@@ -162,14 +161,22 @@ const HomeScreen = () => {
     );
 
     return (
-        <View style={dynamicStyles.container}>
-           
+        <ScrollView
+            contentContainerStyle={dynamicStyles.container}
+            refreshControl={
+                <RefreshControl
+                    refreshing={refreshing}
+                    onRefresh={onRefresh}
+                />
+            }
+        >
+
             <CryptoMetricsUI data={cryptoData} />
             <Banner username={'zeff'} />
             <News data={cryptoNews} />
             <Coins title={'trending coins'} data={cryptoTrending} />
             <Coins title={'new coins'} data={cryptoTrending} />
-        </View>
+        </ScrollView>
     );
 };
 

@@ -36,7 +36,6 @@ const PortfolioHeader = ({ title, totalHoldings, fetchPortfolioData }) => {
     const updateBudget = async (newBudget) => {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-            console.log("user:", user)
             const { error } = await supabase
                 .from('subscription')
                 .update({ budget: newBudget })
@@ -220,15 +219,15 @@ const styles = StyleSheet.create({
     },
     iconButton: {
         marginLeft: 5,
-    }, 
+    },
     budgetInput: {
         borderWidth: 1,
         borderRadius: 5,
         paddingHorizontal: 10,
         paddingVertical: 4,
         marginRight: 2,
-        marginTop:5,
-        width:150
+        marginTop: 5,
+        width: 150
     }
 });
 

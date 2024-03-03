@@ -2,8 +2,10 @@ import { View, TextInput } from 'react-native'
 import React, { useState } from 'react'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 
-const Forms = ({ type, setEmail, setPassword, setUsername }) => {
+const Forms = ({ type, setEmail, setPassword, setUsername, setFirstName, setLastName, setRepeatPassword }) => {
   const [isUsernameFocused, setIsUsernameFocused] = useState(false);
+  const [isFirstNameFocused, setIsFirstNameFocused] = useState(false);
+  const [isLastNameFocused, setIsLastNameFocused] = useState(false);
   const [isEmailFocused, setIsEmailFocused] = useState(false);
   const [isPasswordFocused, setIsPasswordFocused] = useState(false);
   const [isRepeatPasswordFocused, setIsRepeatPasswordFocused] = useState(false);
@@ -42,13 +44,34 @@ const Forms = ({ type, setEmail, setPassword, setUsername }) => {
         ) : (
           <>
             <View className='flex-row gap-2 justify-center items-center border-b px-2 pb-6'>
-              <FontAwesome name='user' size={25} color={isUsernameFocused ? '#6366f1' : '#f4f4f5'} type='regular' />
+              <FontAwesome name='id-card-o' size={25} color={isFirstNameFocused ? '#6366f1' : '#f4f4f5'} />
               <TextInput
-                className='w-full h-[40px] p-2 font-bold tracking-wider text-neutral-500 text-base '
+                className='w-full h-[40px] p-2 font-bold tracking-wider text-neutral-500 text-base'
+                placeholder="First Name"
+                placeholderTextColor={'#a3a3a3'}
+                onFocus={() => setIsFirstNameFocused(true)}
+                onBlur={() => setIsFirstNameFocused(false)}
+                onChangeText={setFirstName}
+              />
+            </View>
+            <View className='flex-row gap-2 justify-center items-center border-b px-2 pb-6'>
+              <FontAwesome name='id-badge' size={25} color={isLastNameFocused ? '#6366f1' : '#f4f4f5'} />
+              <TextInput
+                className='w-full h-[40px] p-2 font-bold tracking-wider text-neutral-500 text-base'
+                placeholder="Last Name"
+                placeholderTextColor={'#a3a3a3'}
+                onFocus={() => setIsLastNameFocused(true)}
+                onBlur={() => setIsLastNameFocused(false)}
+                onChangeText={setLastName}
+              />
+            </View>
+            <View className='flex-row gap-2 justify-center items-center border-b px-2 pb-6'>
+              <FontAwesome name='user' size={25} color={isUsernameFocused ? '#6366f1' : '#f4f4f5'} />
+              <TextInput
+                className='w-full h-[40px] p-2 font-bold tracking-wider text-neutral-500 text-base'
                 placeholder="Username"
                 placeholderTextColor={'#a3a3a3'}
                 autoCapitalize="none"
-                keyboardType="email-address"
                 onFocus={() => setIsUsernameFocused(true)}
                 onBlur={() => setIsUsernameFocused(false)}
                 onChangeText={setUsername}
@@ -88,6 +111,7 @@ const Forms = ({ type, setEmail, setPassword, setUsername }) => {
                 secureTextEntry
                 onFocus={() => setIsRepeatPasswordFocused(true)}
                 onBlur={() => setIsRepeatPasswordFocused(false)}
+                onChangeText={setRepeatPassword}
               />
             </View>
           </>

@@ -4,6 +4,8 @@ import HomeScreen from '../screens/HomeScreen';
 import PortfolioScreen from '../screens/PortfolioScreen';
 import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native';
+import { StackNavigator, PortfolioStackScreen } from './AuthStackNavigator';
+import PortfolioStackNavigator from './PortfolioStackNavigator';
 
 const Tab = createBottomTabNavigator();
 
@@ -14,15 +16,15 @@ const BottomTabNavigator = () => {
                 tabBarIcon: ({ focused, color, size }) => {
                     let iconName;
 
-                    if (route.name === 'Home') {
+                    if (route.name === 'HomeTab') {
                         iconName = focused ? 'home' : 'home-outline';
-                    } else if (route.name === 'Portfolio') {
+                    } else if (route.name === 'PortfolioTab') {
                         iconName = focused ? 'briefcase' : 'briefcase-outline';
                     }
 
-                    // You can return any component that you like here!
                     return <Ionicons name={iconName} size={size} color={color} />;
                 },
+                headerShown: false,
                 headerStyle: {
                     backgroundColor: '#6200ee',
                 },
@@ -34,17 +36,17 @@ const BottomTabNavigator = () => {
                 tabBarInactiveTintColor: 'gray',
             })}
         >
-            <Tab.Screen name="Home" component={HomeScreen} />
+            <Tab.Screen name="HomeTab" component={HomeScreen} />
             <Tab.Screen
-                name="Portfolio"
-                component={PortfolioScreen}
+                name="PortfolioTab"
+                component={PortfolioStackNavigator}
                 options={({ navigation }) => ({
                     headerRight: () => (
                         <TouchableOpacity onPress={() => navigation.navigate('AddCoin')}>
-                            <Ionicons name="add" size={30} color="#fff" style={{marginRight:5}} />
+                            <Ionicons name="add" size={30} color="#fff" style={{ marginRight: 5 }} />
                         </TouchableOpacity>
                     ),
-                    title: 'Portfolio', // Ensure you have a title for aesthetics
+                    title: 'Portfolio',
                 })}
             />
         </Tab.Navigator>

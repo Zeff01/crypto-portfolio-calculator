@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useLayoutEffect } from 'react';
 import { View, Text, StyleSheet, Modal, AppState, TouchableOpacity, Dimensions } from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import CoinCard from '../components/CoinCard';
 import { fetchUsdToPhpRate, updatePortfolioWithCMC, updatePortfolioWithCoinGeckoData } from '../utils/api';
 import { supabase } from '../services/supabase';
 import useGlobalStore from '../store/useGlobalStore';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import PortfolioHeader from '../components/PortfiolioHeader';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import Spinner from 'react-native-loading-spinner-overlay';
@@ -47,6 +47,8 @@ const PortfolioScreen = () => {
         hideLoader();
         // setRefreshing(false);
     };
+
+
 
     //get dollar rate to php
     const getExchangeRate = async () => {
@@ -149,12 +151,20 @@ const PortfolioScreen = () => {
         );
     };
 
+
     const ListHeaderComponent = () => (
         <View style={styles.headerContainer}>
             <PortfolioHeader title="My Portfolio" totalHoldings={totalHoldings} fetchPortfolioData={fetchPortfolioData} />
-            <TouchableOpacity onPress={toggleViewMode} style={styles.toggleViewButton}>
-                <MaterialIcons name={simplifiedView ? 'view-agenda' : 'view-module'} size={24} color="violet" />
-            </TouchableOpacity>
+            <View style={styles.iconsContainer}>
+                <View style={{ flex: 1 }} />
+                <TouchableOpacity onPress={toggleViewMode} style={styles.toggleViewButton}>
+                    <MaterialIcons name={simplifiedView ? 'view-agenda' : 'view-module'} size={36} color="#6200ee" />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => navigation.navigate('Add New Coin')} style={styles.toggleViewButton}>
+                    <MaterialIcons name="add" size={36} color="#6200ee" />
+                </TouchableOpacity>
+            </View>
+
         </View>
     );
 
@@ -323,11 +333,12 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     headerContainer: {
-        // justifyContent: 'space-between',
-        // alignItems: 'center',
+        flexDirection: 'column',
+
     },
     toggleViewButton: {
         padding: 0,
+        marginHorizontal: 2,
     },
     itemSingleColumn: {
         flex: 1,
@@ -335,6 +346,14 @@ const styles = StyleSheet.create({
     itemTwoColumn: {
         width: Dimensions.get('window').width / 2 - 15,
         flex: 1 / 2,
+    },
+    iconsContainer: {
+        flexDirection: 'row',
+        alignItems: 'flex-end',
+
+        marginRight: 8,
+        display: 'flex',
+        flex: 1,
     },
 });
 
