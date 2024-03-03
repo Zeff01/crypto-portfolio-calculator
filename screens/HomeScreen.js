@@ -163,13 +163,13 @@ const HomeScreen = () => {
 
     return (
         <View style={dynamicStyles.container}>
-            <View style={dynamicStyles.topBar}>
+            {/* <View style={dynamicStyles.topBar}>
                 <Button title="Change Theme" onPress={() => console.log('Toggle theme')} color={colors.onPrimary} />
                 <Button title="Logout" onPress={handleLogout} color={colors.onPrimary} />
-            </View>
-            {<CryptoMetricsUI data={cryptoData} />}
+            </View> */}
+            {/* {<CryptoMetricsUI data={cryptoData} />} */}
 
-            <Text style={dynamicStyles.sectionTitle}>Categories</Text>
+            {/* <Text style={dynamicStyles.sectionTitle}>Categories</Text>
             <CategoriesList data={categories} />
             <FlatList
                 data={cryptoTrending}
@@ -188,7 +188,7 @@ const HomeScreen = () => {
                 renderItem={renderNewsItem}
                 keyExtractor={(item, index) => index.toString()}
                 style={styles.newsList}
-            />
+            /> */}
             <Banner username={'zeff'} />
             <CryptoMetricsUI data={cryptoData} />
             <News data={cryptoNews} />

@@ -1,6 +1,7 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import React,{ useState, useEffect} from 'react';
-import Carousel from 'react-native-snap-carousel';
+// import Carousel from 'react-native-snap-carousel';
+import { SwiperFlatList } from 'react-native-swiper-flatlist';
 import news1Image from '../../assets/images/news1.png';
 import { dateConverter } from '../../utils/dataConverter';
 // import news2Image from '../../assets/images/news2.png';
@@ -35,9 +36,15 @@ const styles = StyleSheet.create({
         backgroundColor: '#e5e5e5',
         borderRadius: 5,
         padding: 20,
-        marginHorizontal: 25, 
         elevation: 5,
-      },
+        width: 348,
+    },
+    firstItem: {
+        marginLeft: 25, 
+    },
+    lastItem: {
+        marginRight: 25, 
+    },
     textContainer: {
         flex: 1,
         justifyContent: 'space-between'
@@ -54,12 +61,27 @@ const styles = StyleSheet.create({
         height: 80,
         borderRadius: 5,
     },
+    
   });
 
 const News = ({ data }) => {
-    const renderItem = ({ item }) => {
+
+    const renderSeparator = () => {
+        return <View style={{ width: 45 }} />; // Adjust the width to your desired gap size
+    };
+
+    const renderItem = ({ item, index }) => {
+            const isFirstItem = index === 0;
+            const isLastItem = index === dummyNews.length - 1;
+
+            const contentStyles = [
+                styles.content,
+                isFirstItem && styles.firstItem,
+                isLastItem && styles.lastItem
+            ];
+
             return (
-                <TouchableOpacity style={styles.content} onPress={() => console.log('punta sa news page')}>
+                <TouchableOpacity style={[styles.content, contentStyles]} onPress={() => console.log('punta sa news page')}>
                     <View style={styles.textContainer}>
                     <Text style={styles.preview}>{item.title}</Text>
                     <Text style={styles.published}>{dateConverter(item.created_at)}</Text>
@@ -74,15 +96,14 @@ const News = ({ data }) => {
     
     return (
         <View style={styles.container}>
-            <Carousel
+            <SwiperFlatList
+            autoplay={true}
+            autoplayDelay={5}
+            autoplayLoop={true}
+            autoplayLoopKeepAnimation={true}
             data={dummyNews}
             renderItem={renderItem}
-            sliderWidth={400}
-            itemWidth={400}
-            autoplay={true}
-            autoplayInterval={5000}
-            loop={true}
-            layout={'default'}
+            ItemSeparatorComponent={renderSeparator}
             />
         </View>
     )
