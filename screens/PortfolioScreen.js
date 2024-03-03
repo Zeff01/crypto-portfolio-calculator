@@ -19,7 +19,7 @@ const PortfolioScreen = () => {
     const [loading, setLoading] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [simplifiedView, setSimplifiedView] = useState(false);
-
+    const navigation = useNavigation()
     const showLoader = () => setLoading(true);
     const hideLoader = () => setLoading(false);
     const toggleViewMode = () => setSimplifiedView(!simplifiedView);
@@ -160,7 +160,7 @@ const PortfolioScreen = () => {
                 <TouchableOpacity onPress={toggleViewMode} style={styles.toggleViewButton}>
                     <MaterialIcons name={simplifiedView ? 'view-agenda' : 'view-module'} size={36} color="#6200ee" />
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate('Add New Coin')} style={styles.toggleViewButton}>
+                <TouchableOpacity onPress={() => navigation.navigate('AddCoin')} style={styles.toggleViewButton}>
                     <MaterialIcons name="add" size={36} color="#6200ee" />
                 </TouchableOpacity>
             </View>

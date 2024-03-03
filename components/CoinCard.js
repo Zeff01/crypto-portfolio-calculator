@@ -31,7 +31,7 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
         : 0;
     const formattedTotalHoldingsUSD = totalHoldingsUSD.toFixed(2).toString();
     const formattedTotalHoldingsPHP = safeToFixed(data.currentPrice * parseInt(editedShares) * usdToPhpRate);
-    
+
 
     const dataTable = generateTableData(data, dataToParse, usdToPhpRate)
 
@@ -178,7 +178,7 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
 
     const RightIcon = () => {
         return (
-            
+
             <View style={{ flexDirection: 'row', alignItems: 'center', right: -15, gap: 5, }}>
                 <View style={{ gap: 5 }}>
                     <Text style={{ fontSize: 12, textAlign: 'left', fontWeight: '500', color: theme.colors.text }}>
@@ -192,7 +192,7 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
                     <TouchableOpacity onPress={handleDelete} style={{}}>
                         <AntDesign name="closecircleo" size={26} color="tomato" />
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => navigation.navigate('Coin', { data })} style={{}}>
+                    <TouchableOpacity onPress={() => navigation.navigate('CoinDetails', { data })} style={{}}>
                         <Entypo name="chevron-with-circle-right" size={26} color="violet" />
                     </TouchableOpacity>
 
@@ -220,14 +220,14 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
 
     if (simplifiedView) {
         return (
-            <TouchableOpacity onLongPress={() => handleDelete()} onPress={() => navigation.navigate('Coin', { data })} style={[simplifiedView && styles.simplifiedCard]}>
+            <TouchableOpacity onLongPress={() => handleDelete()} onPress={() => navigation.navigate('CoinDetails', { data })} style={[simplifiedView && styles.simplifiedCard]}>
                 <Image source={{ uri: data.coinImage }} style={styles.icon} />
                 <Text style={[styles.cardTitle, { color: theme.colors.text }]}>{data.coinName}</Text>
                 <Text style={{ color: theme.colors.text }}>
                     {/* sometimes current price is Null */}
                     Price: ${currentPriceNum.toFixed(2)}
                 </Text>
-                
+
                 < View style={{ flexDirection: 'row' }}>
                     <PriceChangeIcon />
                     <Text style={{ color: data?.priceChangeColor, marginLeft: 2 }}>
@@ -260,7 +260,7 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
                                 value={editedShares.toString()}
                                 onChangeText={setEditedShares}
                                 keyboardType="numeric"
-                                style={[styles.input, { color: theme.colors.text }]}                                
+                                style={[styles.input, { color: theme.colors.text }]}
                             />
                         ) : (
                             <View style={styles.tableRow}>
@@ -291,7 +291,7 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
                                 <View style={{ maxWidth: '40%', }}>
                                     <Text style={[styles.tableCellTitle, { color: theme.colors.text }]}>{data[0]}:</Text>
                                 </View>
-                                <View style={{maxWidth:'60%'}}>
+                                <View style={{ maxWidth: '60%' }}>
                                     {typeof value === 'string' && value.includes('|') ?
                                         <>
                                             <Text style={{ fontWeight: '400', textAlign: 'right', color: theme.colors.text }}>
@@ -394,8 +394,8 @@ const styles = StyleSheet.create({
         borderColor: '#ddd',
         borderRadius: 5,
         paddingVertical: 2,
-        paddingHorizontal:10,
-        marginVertical:10,
+        paddingHorizontal: 10,
+        marginVertical: 10,
         fontSize: 16,
         fontWeight: 'bold',
     },
