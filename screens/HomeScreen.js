@@ -57,9 +57,9 @@ const HomeScreen = () => {
     useEffect(() => {
         fetchCategory()
         fetchCategories()
-        // fetchLatestNews()
-        // fetchTrendingToken()
-        // fetchCryptoData();
+        fetchLatestNews()
+        fetchTrendingToken()
+        fetchCryptoData();
     }, []);
 
 
@@ -98,37 +98,37 @@ const HomeScreen = () => {
             elevation: 3,
         },
         cryptoIcon: {
-            width: 30, // Icon size
-            height: 30, // Icon size
-            marginRight: 10, // Margin to the right of the icon
+            width: 30,
+            height: 30,
+            marginRight: 10,
         },
         cryptoNameContainer: {
-            flexDirection: 'row', // Layout children in a row
-            alignItems: 'center', // Align items vertically
+            flexDirection: 'row',
+            alignItems: 'center',
         },
         cryptoName: {
-            fontSize: 18, // Larger font size for the name
-            fontWeight: '600', // Slightly bolder than normal
+            fontSize: 18,
+            fontWeight: '600',
             color: colors.text,
         },
         cryptoPrice: {
-            fontSize: 16, // Larger font size for the price
-            fontWeight: 'bold', // Bold font weight for the price
+            fontSize: 16,
+            fontWeight: 'bold',
             color: colors.text,
         },
         cryptoChange: {
-            fontSize: 14, // Smaller font size for the change percentage
+            fontSize: 14,
             fontWeight: '500', // Medium boldness
-            borderRadius: 5, // Rounded corners for the percentage change
-            paddingVertical: 2, // Vertical padding for the change percentage
-            paddingHorizontal: 6, // Horizontal padding for the change percentage
-            color: 'white', // White text color
+            borderRadius: 5,
+            paddingVertical: 2,
+            paddingHorizontal: 6,
+            color: 'white',
         },
         cryptoChangePositive: {
-            backgroundColor: 'green', // Green background for positive change
+            backgroundColor: 'green',
         },
         cryptoChangeNegative: {
-            backgroundColor: 'red', // Red background for negative change
+            backgroundColor: 'red',
         },
     });
 
