@@ -163,34 +163,9 @@ const HomeScreen = () => {
 
     return (
         <View style={dynamicStyles.container}>
-            {/* <View style={dynamicStyles.topBar}>
-                <Button title="Change Theme" onPress={() => console.log('Toggle theme')} color={colors.onPrimary} />
-                <Button title="Logout" onPress={handleLogout} color={colors.onPrimary} />
-            </View> */}
-            {/* {<CryptoMetricsUI data={cryptoData} />} */}
-
-            {/* <Text style={dynamicStyles.sectionTitle}>Categories</Text>
-            <CategoriesList data={categories} />
-            <FlatList
-                data={cryptoTrending}
-                renderItem={renderTrendingItem}
-                keyExtractor={(item) => item.id.toString()}
-                refreshControl={
-                    <RefreshControl
-                        refreshing={refreshing}
-                        onRefresh={onRefresh}
-                    />
-                }
-                contentContainerStyle={{ paddingBottom: 20 }}
-            />
-            <FlatList
-                data={cryptoNews}
-                renderItem={renderNewsItem}
-                keyExtractor={(item, index) => index.toString()}
-                style={styles.newsList}
-            /> */}
-            <Banner username={'zeff'} />
+           
             <CryptoMetricsUI data={cryptoData} />
+            <Banner username={'zeff'} />
             <News data={cryptoNews} />
             <Coins title={'trending coins'} data={cryptoTrending} />
             <Coins title={'new coins'} data={cryptoTrending} />

@@ -34,13 +34,12 @@ const styles = StyleSheet.create({
     content: {
         flexDirection: 'row', 
         backgroundColor: '#e5e5e5',
-        borderRadius: 5,
+        borderRadius: 10,
         padding: 20,
-        elevation: 5,
-        width: 348,
+        width: 350,
     },
     firstItem: {
-        marginLeft: 25, 
+        marginLeft: 20, 
     },
     lastItem: {
         marginRight: 25, 
@@ -67,7 +66,7 @@ const styles = StyleSheet.create({
 const News = ({ data }) => {
 
     const renderSeparator = () => {
-        return <View style={{ width: 45 }} />; // Adjust the width to your desired gap size
+        return <View style={{ width: 43 }} />; // Adjust the width to your desired gap size
     };
 
     const renderItem = ({ item, index }) => {

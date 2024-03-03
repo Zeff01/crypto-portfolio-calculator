@@ -11,7 +11,6 @@ const styles = StyleSheet.create({
         shadowColor: '#000',
         paddingHorizontal: 40,
         gap: 8,
-        marginTop: 10,
         overflow: 'hidden',
         elevation: 5,
         
