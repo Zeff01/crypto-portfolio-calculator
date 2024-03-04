@@ -1,7 +1,6 @@
 import { View, TextInput } from 'react-native'
 import React, { useState } from 'react'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
-import { useTheme} from 'react-native-paper'
 
 const Forms = ({ 
   type, 
@@ -20,7 +19,6 @@ const Forms = ({
   repeatPasswordValid,
 
 }) => {
-  const theme = useTheme()
 
   const [isUsernameFocused, setIsUsernameFocused] = useState(false);
   const [isFirstNameFocused, setIsFirstNameFocused] = useState(false);
@@ -129,7 +127,7 @@ const Forms = ({
                 onChangeText={setPassword}
               />
             </View>
-            <View className='flex-row gap-2 justify-center items-center px-2 py-3' style={{opacity:loading?0.5:1,  }}>
+            <View className='flex-row gap-2 justify-center items-center border-b px-2 py-3' style={{opacity:loading?0.5:1,  }}>
               <FontAwesome name='lock' size={25} color={repeatPasswordValid? 'green' : isRepeatPasswordFocused ? '#6366f1' : '#f4f4f5'} type='regular' />
               <TextInput
                 editable={!loading}
