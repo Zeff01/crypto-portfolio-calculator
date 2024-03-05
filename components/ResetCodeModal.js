@@ -1,17 +1,48 @@
-import { Modal, TouchableOpacity, Pressable, View, Text, TextInput} from 'react-native'
+import { Modal, TouchableOpacity, Pressable, View, Text, TextInput, ActivityIndicator} from 'react-native'
 import { useEffect, useState } from 'react'
 import { useTheme} from 'react-native-paper'
 
-export default function ResetCodeModal({showModal, setShowModal, email}) {
+export default function ResetCodeModal({showModal, setShowModal, email, setShowNewPasswordModal}) {
     const theme = useTheme()
     const [code, setCode] = useState('')
     const [loading, setLoading] = useState(false)
     const [canResend, setCanResend] = useState(false)
     const [resendCooldown, setResendCooldown]  = useState(10)
 
-    function resetCooldown() {
-        setCanResend(false)
-        setResendCooldown(10)
+    async function resendCode() {
+        try {
+            setLoading(true)
+            await new Promise((res)  => {
+                setTimeout(() => {
+                    setCanResend(false)
+                    setResendCooldown(10)
+                    res()
+                }, 2000)
+            })
+            
+        } catch (error) {
+            console.warn(error)
+        } finally {
+            setLoading(false)
+        }
+        
+    }
+
+    async function verify() {
+        setLoading(true)
+        try {
+            await new Promise(res => {
+                setTimeout(() => {
+                    setShowNewPasswordModal(true)
+                    setShowModal(false)
+                    res()
+                }, 2000)
+            })
+        } catch (error) {
+            
+        } finally {
+            setLoading(false)
+        }
     }
 
     useEffect(() => {
@@ -32,8 +63,8 @@ export default function ResetCodeModal({showModal, setShowModal, email}) {
 
 
     return (
-        <Modal transparent={true} visible={showModal}>
-      <Pressable style={{flex:1, backgroundColor:'rgba(0,0,0,0.5)', alignItems:'center', justifyContent:'center', padding:10}}>
+        <Modal transparent={true} visible={showModal}>            
+      <View style={{flex:1, backgroundColor:'rgba(0,0,0,0.5)', alignItems:'center', justifyContent:'center', padding:20}}>
         <View style={{width:'100%', height:250, backgroundColor:'white', borderRadius:20, elevation:5, padding:20, justifyContent:'space-between'}}>
           <View>
             <Text style={{fontSize:13, opacity:0.8}}>resetting password for:</Text>
@@ -45,7 +76,7 @@ export default function ResetCodeModal({showModal, setShowModal, email}) {
                 <TextInput
                     editable={!loading}
                     className='tracking-wider text-neutral-500 bg-gray-200'
-                    style={{borderWidth:2, borderColor:'gray', width:'60%', borderRadius:10, paddingHorizontal:15, paddingVertical:5}}
+                    style={{borderWidth:2, borderColor:'gray', width:'70%', borderRadius:10, paddingHorizontal:15, paddingVertical:5}}
                     placeholder="enter the code here..."
                     placeholderTextColor={'#a3a3a3'}
                     autoCapitalize="none"
@@ -56,8 +87,10 @@ export default function ResetCodeModal({showModal, setShowModal, email}) {
                 <Text style={{color:theme.colors.text, fontSize:13}}>did not receive code?</Text>
                 {
                 canResend ?
-                <TouchableOpacity onPress={resetCooldown} style={{justifyContent:'center'}}>
-                    <Text style={{color:'rgba(255,0,0,0.7)', fontSize:13}}>resend code</Text>
+                <TouchableOpacity onPress={resendCode} style={{justifyContent:'center', opacity:loading?0.6:1}} disabled={loading}>
+                    {loading ?
+                    <ActivityIndicator size={13} color={theme.colors.text} /> :
+                    <Text style={{color:'rgba(255,0,0,0.7)', fontSize:13}}>resend code</Text>}
                 </TouchableOpacity> :
                 <Text style={{color: theme.colors.text, fontSize:13, opacity:0.5}}>resend code in {resendCooldown} seconds</Text>    
                 }
@@ -65,7 +98,8 @@ export default function ResetCodeModal({showModal, setShowModal, email}) {
           </View>
           
           <View style={{flexDirection:'row', columnGap:40}}> 
-          <TouchableOpacity onPress={() => setShowModal(false)}
+          <TouchableOpacity 
+          onPress={verify}
           disabled={code.length < 6 || loading}
           style={{
             backgroundColor:theme.colors.primary, 
@@ -73,9 +107,11 @@ export default function ResetCodeModal({showModal, setShowModal, email}) {
             paddingVertical:5, 
             borderRadius:10, 
             elevation:5,
-            opacity: (code.length < 6|| loading) ? 0.6 : 1
+            opacity: (code.length < 6|| loading) ? 0.6 : 1,
+            position:'relative'
         }}
           >
+            <ActivityIndicator size={14} color={theme.colors.text} style={{position:'absolute', top:8, left:20}} animating={loading} /> 
             <Text style={{color: 'white'}}>Verify</Text>
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setShowModal(false)}
@@ -84,15 +120,19 @@ export default function ResetCodeModal({showModal, setShowModal, email}) {
             paddingVertical:5, 
             borderRadius:10, 
             borderWidth:1,
-            borderColor: 'rgba(255,0,0,0.5)'
+            borderColor: 'rgba(255,0,0,0.5)',
+            opacity:loading?0.6:1
         }}
+            disabled={loading}
           >
-            <Text style={{color: 'rgba(255,0,0,0.5)'}}>Cancel</Text>
+            <Text style={{color: 'rgba(255,0,0,0.5)'}}>
+                Cancel
+            </Text>
           </TouchableOpacity>
           </View>
           
         </View>
-      </Pressable>
+      </View>
     </Modal>
     )
 }
