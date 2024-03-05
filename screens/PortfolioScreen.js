@@ -94,7 +94,6 @@ const PortfolioScreen = () => {
     };
 
 
-console.log({portfolioEntries})
     //to fetch portfolio data
     useFocusEffect(
         React.useCallback(() => {
@@ -148,6 +147,7 @@ console.log({portfolioEntries})
     }, []);
 
 
+    // this sorts the portfolio based on sortBy state
     useEffect(() => {
         const portfolioCopy = cloneDeep(portfolioEntries)
         if (sortBy === sortOptions.default) {
@@ -195,7 +195,7 @@ console.log({portfolioEntries})
             <PortfolioHeader title="My Portfolio" totalHoldings={totalHoldings} fetchPortfolioData={fetchPortfolioData} />
             
             <View style={styles.iconsContainer}>
-                <TouchableOpacity 
+                <TouchableOpacity // need to encapsulate to picker component to style it
                 style={{
                     overflow:'hidden', 
                     alignItems:'center', 
