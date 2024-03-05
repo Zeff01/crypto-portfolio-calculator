@@ -164,14 +164,15 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
         () => <AntDesign name="up" size={14} color="green" /> :
         () => <AntDesign name="down" size={14} color="red" />
 
-
+    // some shitcoins with 0.000000112 cannot be recorded when tofixed
+    const currentPrice = typeof data?.currentPrice !== 'number' ? 0 : data.currentPrice < 1 ? data.currentPrice.toFixed(6) : data.currentPrice.toFixed(2)
 
     const AccordionTitle = () => {
         return (
             <View style={{flexDirection:'row', columnGap:3, top:-10}}>
                 {/* added fixed with so it won't move */}
                 <View style={{ rowGap: 5, width:65, overflow:'hidden'}}> 
-                    <Text style={{fontSize:12,}} >${data.currentPrice?.toFixed(2)}</Text>
+                    <Text style={{fontSize:12,}} >${currentPrice}</Text>
                     < View style={{ flexDirection: 'row', alignItems:'center' }}>
                         <PriceChangeIcon />
                         <Text style={{ color: data?.priceChangeColor, marginLeft: 2, fontSize:12 }}>
@@ -294,10 +295,11 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
                         </View>
                         {/* removes the shares because it is redundant */}
                         {dataTable && dataTable?.slice(1).map((data, i) => {
+                            const property = data[0]
                             const value = data[1]
                             return (<View style={styles.tableRow} key={i}>
                                 <View style={{ maxWidth: '40%', }}>
-                                    <Text style={[styles.tableCellTitle, { color: theme.colors.text }]}>{data[0]}:</Text>
+                                    <Text style={[styles.tableCellTitle, { color: theme.colors.text }]}>{property}:</Text>
                                 </View>
                                 <View style={{ maxWidth: '60%' }}>
                                     {typeof value === 'string' && value.includes('|') ?
