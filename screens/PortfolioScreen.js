@@ -11,6 +11,17 @@ import DraggableFlatList from 'react-native-draggable-flatlist';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { RefreshControl } from 'react-native-gesture-handler'
 import { useTheme} from 'react-native-paper'
+import {Picker} from '@react-native-picker/picker';
+import { cloneDeep } from 'lodash';
+
+const sortOptions = {
+    default: 'default',
+    percentDesc: 'percentDesc',
+    percentAsc: 'percentAsc',
+    gainsDesc: 'gainsDesc',
+    gainsAsc: 'gainsAsc',    
+}
+
 const PortfolioScreen = () => {
     const theme = useTheme()
     const { setUsdToPhpRate } = useGlobalStore();
@@ -20,6 +31,8 @@ const PortfolioScreen = () => {
     const [loading, setLoading] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [simplifiedView, setSimplifiedView] = useState(false);
+    const [sortBy, setSortBy] = useState('default')
+    const [sortedPortfolioEntries, setSortedPortfolioEntries] = useState(portfolioEntries)
     const navigation = useNavigation()
     const showLoader = () => setLoading(true);
     const hideLoader = () => setLoading(false);
@@ -81,7 +94,7 @@ const PortfolioScreen = () => {
     };
 
 
-
+console.log({portfolioEntries})
     //to fetch portfolio data
     useFocusEffect(
         React.useCallback(() => {
@@ -135,6 +148,30 @@ const PortfolioScreen = () => {
     }, []);
 
 
+    useEffect(() => {
+        const portfolioCopy = cloneDeep(portfolioEntries)
+        if (sortBy === sortOptions.default) {
+            setSortedPortfolioEntries(portfolioCopy)
+        }
+        else if (sortBy === sortOptions.percentDesc) {
+            portfolioCopy.sort((a,b) => b.priceChangePercentage - a.priceChangePercentage)
+            setSortedPortfolioEntries(portfolioCopy)
+        }
+        else if (sortBy === sortOptions.percentAsc) {
+            portfolioCopy.sort((a,b) => a.priceChangePercentage - b.priceChangePercentage)
+            setSortedPortfolioEntries(portfolioCopy)
+        }
+        else if (sortBy === sortOptions.gainsDesc) {
+            portfolioCopy.sort((a,b) => b.totalHoldings - a.totalHoldings)
+            setSortedPortfolioEntries(portfolioCopy)
+        }
+        else if (sortBy === sortOptions.gainsAsc) {
+            portfolioCopy.sort((a,b) => a.totalHoldings - b.totalHoldings)
+            setSortedPortfolioEntries(portfolioCopy)
+        }
+
+    }, [sortBy])
+
     const renderItem = ({ item, index, drag, isActive }) => {
 
         const itemStyle = simplifiedView ? styles.itemTwoColumn : styles.itemSingleColumn;
@@ -156,8 +193,43 @@ const PortfolioScreen = () => {
     const ListHeaderComponent = () => (
         <View style={styles.headerContainer}>
             <PortfolioHeader title="My Portfolio" totalHoldings={totalHoldings} fetchPortfolioData={fetchPortfolioData} />
+            
             <View style={styles.iconsContainer}>
-                <View style={{ flex: 1 }} />
+                <TouchableOpacity 
+                style={{
+                    overflow:'hidden', 
+                    alignItems:'center', 
+                    justifyContent:'center', 
+                    width:180, 
+                    height:35,
+                    marginRight:'auto',
+                    borderRadius:10,
+                    backgroundColor:theme.colors.primary,
+                    elevation:3
+                }}
+                itemStyle={{
+                    fontSize:12,
+                    backgroundColor:'red'
+                }}
+                >
+
+                <Picker 
+                selectedValue={sortBy}                    
+                onValueChange={(item) => {
+                    setSortBy(item)
+                }}
+                mode='dropdown'
+                style={{width:180,   color: 'white'}}
+                dropdownIconColor={'white'}
+                dropdownIconRippleColor={theme.colors.primary}                                
+                >
+                    <Picker.Item label="default" value={sortOptions.default} style={{backgroundColor:theme.colors.primary, fontSize:15, color: 'white',}} />
+                    <Picker.Item label="percent desc" value={sortOptions.percentDesc} style={{backgroundColor:theme.colors.primary, fontSize:15, color: 'white',}} />
+                    <Picker.Item label="percent asc" value={sortOptions.percentAsc} style={{backgroundColor:theme.colors.primary, fontSize:15, color: 'white',}} />
+                    <Picker.Item label="total desc" value={sortOptions.gainsDesc} style={{backgroundColor:theme.colors.primary, fontSize:15, color: 'white',}} />
+                    <Picker.Item label="total asc" value={sortOptions.gainsAsc} style={{backgroundColor:theme.colors.primary, fontSize:15, color: 'white',}} />
+                </Picker>
+                </TouchableOpacity>
                 <TouchableOpacity onPress={toggleViewMode} style={styles.toggleViewButton}>
                     <MaterialIcons name={simplifiedView ? 'view-agenda' : 'view-module'} size={36} color="#6200ee" />
                 </TouchableOpacity>
@@ -165,7 +237,7 @@ const PortfolioScreen = () => {
                     <MaterialIcons name="add" size={36} color="#6200ee" />
                 </TouchableOpacity>
             </View>
-
+            
         </View>
     );
 
@@ -245,7 +317,7 @@ const PortfolioScreen = () => {
             ) :
                 <View style={styles.container}>
                     <DraggableFlatList
-                        data={portfolioEntries}
+                        data={sortedPortfolioEntries}
                         renderItem={renderItem}
                         keyExtractor={(item, index) => `draggable-item-${item.id}`}
                         onDragEnd={onDragEnd}
@@ -365,7 +437,7 @@ const styles = StyleSheet.create({
     },
     iconsContainer: {
         flexDirection: 'row',
-        alignItems: 'flex-end',
+        alignItems: 'center',
 
         marginRight: 8,
         display: 'flex',

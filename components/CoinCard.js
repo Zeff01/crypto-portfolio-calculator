@@ -168,7 +168,6 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
 
     // some shitcoins with 0.000000112 cannot be recorded when tofixed
     const currentPrice = typeof data?.currentPrice !== 'number' ? 0 : data.currentPrice < 1 ? data.currentPrice.toFixed(10) : data.currentPrice.toFixed(2)
-    console.log({currentPrice})
     const AccordionTitle = () => {
         return (
             <View style={{flexDirection:'column', rowGap:10, paddingVertical:5}}>
