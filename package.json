@@ -41,6 +41,7 @@
     "react-native-swiper-flatlist": "^3.2.3",
     "react-native-url-polyfill": "^2.0.0",
     "react-native-vector-icons": "^10.0.3",
+    "zod": "^3.22.4",
     "zustand": "^4.5.1"
   },
   "devDependencies": {

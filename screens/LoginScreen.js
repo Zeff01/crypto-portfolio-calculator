@@ -52,7 +52,14 @@ const LoginScreen = ({ navigation }) => {
                     <Text
                         className='font-bold text-lg text-neutral-600 tracking-wider'
                         onPress={handleForget}>Forgot?</Text>
-                    <ButtonArrow onPress={handleLogin} title={'login'} />
+                    <ButtonArrow 
+                    onPress={handleLogin} 
+                    title={'login'} 
+                    disabled={Boolean(loading||!password||!email)}
+                    loading={loading}
+                    style={{opacity: (!loading&&password&&email)?1:0.5}}
+
+                    />
                 </View>
                 <View className='w-full flex-col justify-between items-center mt-10  py-10'>
                     <Text className='font-bold text-lg text-neutral-600 tracking-wider capitalize'>
