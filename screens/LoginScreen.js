@@ -21,8 +21,8 @@ const LoginScreen = ({ navigation }) => {
             password,
         });
         setLoading(false);
-
-        if (error) {
+        console.log({email, password, error})
+        if (error) {            
             Alert.alert('Login Failed', error.message);
         } else {
             useAuthStore.getState().login(session);

@@ -35,6 +35,10 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
 
     const dataTable = generateTableData(data, dataToParse, usdToPhpRate)
 
+    function editSharesHelper(share) {
+        setEditedShares(Number(share))
+    }
+
     const handleDelete = () => {
         Alert.alert(
             "Delete Coin",
@@ -157,30 +161,25 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
     const handleExpand = () => setExpanded(!expanded);
 
     const PriceChangeIcon = data.priceChangeIcon === 'arrow-up' ?
-        () => <AntDesign name="up" size={16} color="green" /> :
-        () => <AntDesign name="down" size={16} color="red" />
+        () => <AntDesign name="up" size={14} color="green" /> :
+        () => <AntDesign name="down" size={14} color="red" />
 
 
 
     const AccordionTitle = () => {
         return (
-            <View style={{ gap: 5, width: 200, top: -10 }}>
-                <Text >${data.currentPrice?.toFixed(2)}</Text>
-                < View style={{ flexDirection: 'row' }}>
-                    <PriceChangeIcon />
-                    <Text style={{ color: data?.priceChangeColor, marginLeft: 2 }}>
-                        {formattedPriceChangePercentage}%
-                    </Text>
-                </View >
-            </View>
-        )
-    };
-
-    const RightIcon = () => {
-        return (
-
-            <View style={{ flexDirection: 'row', alignItems: 'center', right: -15, gap: 5, }}>
-                <View style={{ gap: 5 }}>
+            <View style={{flexDirection:'row', columnGap:3, top:-10}}>
+                {/* added fixed with so it won't move */}
+                <View style={{ rowGap: 5, width:65, overflow:'hidden'}}> 
+                    <Text style={{fontSize:12,}} >${data.currentPrice?.toFixed(2)}</Text>
+                    < View style={{ flexDirection: 'row', alignItems:'center' }}>
+                        <PriceChangeIcon />
+                        <Text style={{ color: data?.priceChangeColor, marginLeft: 2, fontSize:12 }}>
+                            {formattedPriceChangePercentage}%
+                        </Text>
+                    </View >
+                </View>
+                <View style={{ rowGap: 5, width:115, overflow:'hidden', }}>
                     <Text style={{ fontSize: 12, textAlign: 'left', fontWeight: '500', color: theme.colors.text }}>
                         $ {Number(formattedTotalHoldingsUSD).toLocaleString()}
                     </Text>
@@ -188,7 +187,16 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
                         ₱ {Number(formattedTotalHoldingsPHP).toLocaleString()}
                     </Text>
                 </View>
-                <View style={{ gap: 5 }}>
+            </View>
+        )
+    };
+
+    const RightIcon = () => {
+        return (
+
+            <View style={{ flexDirection: 'row', alignItems: 'center', right: -15, columnGap: 5}}>
+                
+                <View style={{ rowGap: 5 }}>
                     <TouchableOpacity onPress={handleDelete} style={{}}>
                         <AntDesign name="closecircleo" size={26} color="tomato" />
                     </TouchableOpacity>
@@ -206,7 +214,7 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
     }
 
     const LeftIcon = () => (
-        <View style={{ alignItems: 'center', flexDirection: 'row', gap: 5, width: 90 }}>
+        <View style={{ alignItems: 'center', flexDirection: 'row', columnGap: 5 }}>
             <Image source={{ uri: data.coinImage }}
                 style={styles.icon}
             />
@@ -258,7 +266,7 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
                         {isEditing ? (
                             <TextInput
                                 value={editedShares.toString()}
-                                onChangeText={setEditedShares}
+                                onChangeText={editSharesHelper}
                                 keyboardType="numeric"
                                 style={[styles.input, { color: theme.colors.text }]}
                             />

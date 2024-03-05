@@ -10,8 +10,9 @@ import PortfolioHeader from '../components/PortfiolioHeader';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import Spinner from 'react-native-loading-spinner-overlay';
 import { RefreshControl } from 'react-native-gesture-handler'
+import { useTheme} from 'react-native-paper'
 const PortfolioScreen = () => {
-
+    const theme = useTheme()
     const { setUsdToPhpRate } = useGlobalStore();
     const [modalVisible, setModalVisible] = useState(false);
     const [portfolioEntries, setPortfolioEntries] = useState([]);
@@ -223,8 +224,23 @@ const PortfolioScreen = () => {
             </Modal>
             {portfolioEntries.length === 0 && <PortfolioHeader title="My Portfolio" totalHoldings={totalHoldings} fetchPortfolioData={fetchPortfolioData} />}
             {portfolioEntries.length === 0 ? (
-                <View style={[styles.container, styles.placeholderContainer]}>
-                    <Text>No coins added yet. Use the '+' button to add coins.</Text>
+                <View style={[styles.container, styles.placeholderContainer, {rowGap:10}]}>
+                    <Text style={{color:theme.colors.text}}>No coins added yet.</Text>
+                    <TouchableOpacity onPress={() => navigation.navigate('AddCoin')} 
+                    style={[styles.toggleViewButton, 
+                        {
+                            flexDirection:'row', 
+                            alignItems:'center',
+                            backgroundColor: theme.colors.primary,
+                            paddingHorizontal:10,
+                            paddingVertical:4, 
+                            borderRadius:10,
+                            elevation:5
+                        }]}
+                    >  
+                        <Text style={{color:'white'}}>ADD COIN</Text>
+                        <MaterialIcons name="add" size={32} color="#6200ee" />
+                    </TouchableOpacity>
                 </View>
             ) :
                 <View style={styles.container}>
@@ -234,7 +250,7 @@ const PortfolioScreen = () => {
                         keyExtractor={(item, index) => `draggable-item-${item.id}`}
                         onDragEnd={onDragEnd}
                         numColumns={simplifiedView ? 2 : 1}
-                        ListHeaderComponent={ListHeaderComponent}
+                        ListHeaderComponent={ListHeaderComponent}   
                         key={simplifiedView ? 'two-columns' : 'one-column'}
                         refreshControl={
                             <RefreshControl
@@ -291,7 +307,7 @@ const styles = StyleSheet.create({
     placeholderContainer: {
         flex: 1,
         alignItems: 'center',
-        justifyContent: 'center',
+        justifyContent: 'flex-start',
     },
     budgetText: {
         fontSize: 16,
