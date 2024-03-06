@@ -18,7 +18,6 @@ export const dataToParse = {
 }
 const formats = {
     isMoneyWithConversion: [
-        'currentPrice',
         'allTimeHigh',
         'allTimeLow',
         'totalHoldings',
@@ -41,6 +40,12 @@ export function generateTableData(data, dataToParse, exchangeRate) {
     for (const k in dataToParse) {
         if (k === 'maxSupply' && data[k] === 0) {
             result.push([dataToParse[k], 'Unlimited']);
+            continue;
+        }
+        else if (k === 'currentPrice') {            
+            const price = Number(data[k])
+            const item = price < 1 ? price.toFixed(10) : Number(price.toFixed(2)).toLocaleString()
+            result.push([dataToParse[k],item])
             continue;
         }
 

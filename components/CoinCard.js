@@ -13,6 +13,8 @@ import { useTheme } from 'react-native-paper';
 
 
 const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedView }) => {
+    
+
     const theme = useTheme()
     const [isEditing, setIsEditing] = useState(false);
     const [editedShares, setEditedShares] = useState(data.shares.toString());
@@ -34,6 +36,10 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
 
 
     const dataTable = generateTableData(data, dataToParse, usdToPhpRate)
+
+    function editSharesHelper(share) {
+        setEditedShares(Number(share)) // fixed the NaN shares when textinput is empty
+    }
 
     const handleDelete = () => {
         Alert.alert(
@@ -157,21 +163,33 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
     const handleExpand = () => setExpanded(!expanded);
 
     const PriceChangeIcon = data.priceChangeIcon === 'arrow-up' ?
-        () => <AntDesign name="up" size={16} color="green" /> :
-        () => <AntDesign name="down" size={16} color="red" />
+        () => <AntDesign name="up" size={14} color="green" /> :
+        () => <AntDesign name="down" size={14} color="red" />
 
-
-
+    // some shitcoins with 0.000000112 cannot be recorded when tofixed
+    const currentPrice = typeof data?.currentPrice !== 'number' ? 0 : data.currentPrice < 1 ? data.currentPrice.toFixed(10) : data.currentPrice.toFixed(2)
     const AccordionTitle = () => {
         return (
-            <View style={{ gap: 5, width: 200, top: -10 }}>
-                <Text >${data.currentPrice?.toFixed(2)}</Text>
-                < View style={{ flexDirection: 'row' }}>
-                    <PriceChangeIcon />
-                    <Text style={{ color: data?.priceChangeColor, marginLeft: 2 }}>
-                        {formattedPriceChangePercentage}%
+            <View style={{flexDirection:'column', rowGap:10, paddingVertical:5}}>
+                {/* added fixed with so it won't move */}
+                <View> 
+                    < View style={{ flexDirection: 'row', alignItems:'center' }}>
+                        <Text style={{fontSize:12}}>24h Change: </Text>
+                        <PriceChangeIcon />
+                        <Text style={{ color: data?.priceChangeColor, marginLeft: 2, fontSize:12 }}>
+                            {formattedPriceChangePercentage}%
+                        </Text>
+                    </View >
+                    <Text style={{fontSize:12,}} >Price:  ${currentPrice}</Text>
+                </View>
+                <View style={{   }}>
+                    <Text style={{ fontSize: 13, textAlign: 'left', fontWeight: '500', color: theme.colors.text }}>
+                        $ {Number(formattedTotalHoldingsUSD).toLocaleString()}
                     </Text>
-                </View >
+                    <Text style={{ fontSize: 13, textAlign: 'left', fontWeight: '500', color: theme.colors.text }}>
+                        ₱ {Number(formattedTotalHoldingsPHP).toLocaleString()}
+                    </Text>
+                </View>
             </View>
         )
     };
@@ -179,16 +197,9 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
     const RightIcon = () => {
         return (
 
-            <View style={{ flexDirection: 'row', alignItems: 'center', right: -15, gap: 5, }}>
-                <View style={{ gap: 5 }}>
-                    <Text style={{ fontSize: 12, textAlign: 'left', fontWeight: '500', color: theme.colors.text }}>
-                        $ {Number(formattedTotalHoldingsUSD).toLocaleString()}
-                    </Text>
-                    <Text style={{ fontSize: 12, textAlign: 'left', fontWeight: '500', color: theme.colors.text }}>
-                        ₱ {Number(formattedTotalHoldingsPHP).toLocaleString()}
-                    </Text>
-                </View>
-                <View style={{ gap: 5 }}>
+            <View style={{ right: -15, columnGap: 5, height:80}}>
+                
+                <View style={{ justifyContent:'space-around',  height:'100%'}}>
                     <TouchableOpacity onPress={handleDelete} style={{}}>
                         <AntDesign name="closecircleo" size={26} color="tomato" />
                     </TouchableOpacity>
@@ -206,7 +217,7 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
     }
 
     const LeftIcon = () => (
-        <View style={{ alignItems: 'center', flexDirection: 'row', gap: 5, width: 90 }}>
+        <View style={{ alignItems: 'center', flexDirection: 'row', columnGap: 5 }}>
             <Image source={{ uri: data.coinImage }}
                 style={styles.icon}
             />
@@ -258,7 +269,7 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
                         {isEditing ? (
                             <TextInput
                                 value={editedShares.toString()}
-                                onChangeText={setEditedShares}
+                                onChangeText={editSharesHelper}
                                 keyboardType="numeric"
                                 style={[styles.input, { color: theme.colors.text }]}
                             />
@@ -286,10 +297,11 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
                         </View>
                         {/* removes the shares because it is redundant */}
                         {dataTable && dataTable?.slice(1).map((data, i) => {
+                            const property = data[0]
                             const value = data[1]
                             return (<View style={styles.tableRow} key={i}>
                                 <View style={{ maxWidth: '40%', }}>
-                                    <Text style={[styles.tableCellTitle, { color: theme.colors.text }]}>{data[0]}:</Text>
+                                    <Text style={[styles.tableCellTitle, { color: theme.colors.text }]}>{property}:</Text>
                                 </View>
                                 <View style={{ maxWidth: '60%' }}>
                                     {typeof value === 'string' && value.includes('|') ?

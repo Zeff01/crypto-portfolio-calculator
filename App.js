@@ -32,7 +32,6 @@ export default function App() {
   });
 
 
-
   const scheme = useThemeStore((state) => state.theme) || 'light';
   const theme = scheme === 'dark' ? CustomDarkTheme : CustomLightTheme;
 
