@@ -162,7 +162,7 @@ const HomeScreen = () => {
 
     return (
         <ScrollView
-            contentContainerStyle={dynamicStyles.container}
+            contentContainerStyle={[dynamicStyles.container, { backgroundColor: '#f9f9f9' }]}
             refreshControl={
                 <RefreshControl
                     refreshing={refreshing}
@@ -175,6 +175,7 @@ const HomeScreen = () => {
             <Banner username={'zeff'} />
             <News data={cryptoNews} />
             <Coins title={'trending coins'} data={cryptoTrending} />
+            
             <Coins title={'new coins'} data={cryptoTrending} />
         </ScrollView>
     );

@@ -167,14 +167,14 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
         () => <AntDesign name="down" size={14} color="red" />
 
     // some shitcoins with 0.000000112 cannot be recorded when tofixed
-    const currentPrice = typeof data?.currentPrice !== 'number' ? 0 : data.currentPrice < 1 ? data.currentPrice.toFixed(10) : data.currentPrice.toFixed(2)
+    const currentPrice = typeof data?.currentPrice !== 'number' ? 0 : data.currentPrice < 1 ? data.currentPrice.toFixed(2) : data.currentPrice.toFixed(2)
     const AccordionTitle = () => {
         return (
             <View style={{flexDirection:'column', rowGap:10, paddingVertical:5}}>
                 {/* added fixed with so it won't move */}
                 <View> 
                     < View style={{ flexDirection: 'row', alignItems:'center' }}>
-                        <Text style={{fontSize:12}}>24h Change: </Text>
+                        <Text style={{fontSize:12, marginRight: 8,}}>24h Change: </Text>
                         <PriceChangeIcon />
                         <Text style={{ color: data?.priceChangeColor, marginLeft: 2, fontSize:12 }}>
                             {formattedPriceChangePercentage}%
@@ -182,14 +182,19 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
                     </View >
                     <Text style={{fontSize:12,}} >Price:  ${currentPrice}</Text>
                 </View>
-                <View style={{   }}>
-                    <Text style={{ fontSize: 13, textAlign: 'left', fontWeight: '500', color: theme.colors.text }}>
-                        $ {Number(formattedTotalHoldingsUSD).toLocaleString()}
-                    </Text>
-                    <Text style={{ fontSize: 13, textAlign: 'left', fontWeight: '500', color: theme.colors.text }}>
-                        ₱ {Number(formattedTotalHoldingsPHP).toLocaleString()}
-                    </Text>
-                </View>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <View style={{ flexDirection: 'column' }}>
+    <Text style={{ fontSize: 12, fontWeight: '500', color: theme.colors.text }}>
+        $ {Number(formattedTotalHoldingsUSD).toLocaleString()}
+    </Text>
+    <Text style={{ fontSize: 12, fontWeight: '500', color: theme.colors.text }}>
+        ₱ {Number(formattedTotalHoldingsPHP).toLocaleString()}
+    </Text>
+</View>
+
+</View>
+
+
             </View>
         )
     };
@@ -201,10 +206,10 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
                 
                 <View style={{ justifyContent:'space-around',  height:'100%'}}>
                     <TouchableOpacity onPress={handleDelete} style={{}}>
-                        <AntDesign name="closecircleo" size={26} color="tomato" />
+                        <AntDesign name="closecircleo" size={20} color="tomato" />
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => navigation.navigate('CoinDetails', { data })} style={{}}>
-                        <Entypo name="chevron-with-circle-right" size={26} color="violet" />
+                        <Entypo name="chevron-with-circle-right" size={20} color="violet" />
                     </TouchableOpacity>
 
                 </View>
@@ -217,7 +222,7 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
     }
 
     const LeftIcon = () => (
-        <View style={{ alignItems: 'center', flexDirection: 'row', columnGap: 5 }}>
+        <View style={{ alignItems: 'center', flexDirection: 'row', columnGap: 12 }}>
             <Image source={{ uri: data.coinImage }}
                 style={styles.icon}
             />
@@ -233,7 +238,7 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
         return (
             <TouchableOpacity onLongPress={() => handleDelete()} onPress={() => navigation.navigate('CoinDetails', { data })} style={[simplifiedView && styles.simplifiedCard]}>
                 <Image source={{ uri: data.coinImage }} style={styles.icon} />
-                <Text style={[styles.cardTitle, { color: theme.colors.text }]}>{data.coinName}</Text>
+                <Text style={[styles.cardTitle, { color: theme.colors.text, fontSize: 12 }]}>{data.coinName}</Text>
                 <Text style={{ color: theme.colors.text }}>
                     {/* sometimes current price is Null */}
                     Price: ${currentPriceNum.toFixed(2)}
@@ -254,16 +259,16 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
         return (
 
             <View style={styles.mainContainer}>
-                <List.Accordion
-                    style={[styles.card, isActive && styles.activeCard]}
-                    title={<AccordionTitle />}
-                    right={() => <RightIcon />}
-                    left={() => <LeftIcon />}
-                    expanded={expanded}
-                    onPress={handleExpand}
-                    onLongPress={onLongPress}
-                    pointerEvents='auto'
-                >
+    <List.Accordion
+        style={[styles.card, isActive && styles.activeCard, { height: 80, justifyContent: 'center', marginTop:5 }]}
+        title={<AccordionTitle />}
+        right={() => <RightIcon />}
+        left={() => <LeftIcon />}
+        expanded={expanded}
+        onPress={handleExpand}
+        onLongPress={onLongPress}
+        pointerEvents='auto'
+    >
                     <View style={styles.table}>
                         {/* Number of Shares */}
                         {isEditing ? (
@@ -332,7 +337,7 @@ const styles = StyleSheet.create({
     mainContainer: {
         // backgroundColor: 'white',
         position: 'relative',
-        paddingVertical: 10,
+        paddingVertical: 3,
         marginHorizontal: 2,
     },
     deleteButton: {
@@ -345,15 +350,15 @@ const styles = StyleSheet.create({
         borderRadius: 10,
     },
     card: {
-        backgroundColor: '#fff',
+        backgroundColor: '#ececec',
         borderRadius: 10,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 2,
-        padding: 3,
-        paddingVertical: 0,
+        // shadowColor: '#000',
+        // shadowOffset: { width: 0, height: 2 },
+        // shadowOpacity: 0.1,
+        // shadowRadius: 4,
+        // elevation: 2,
+        padding: 8,
+        paddingVertical: 0.1,
     },
     simplifiedCard: {
         padding: 10,

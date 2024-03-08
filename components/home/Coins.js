@@ -70,7 +70,7 @@ dummyCoins = [
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        marginLeft: 25,
+        marginLeft: 20,
     },
     title: {
         fontSize: 16,
@@ -81,10 +81,10 @@ const styles = StyleSheet.create({
     item: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 20,
-        height: 110,
-        elevation: 5,
-        backgroundColor: '#f5f5f5',
+        paddingHorizontal: 15,
+        height: 100,
+        // elevation: 5,
+        backgroundColor: '#ececec',
         borderRadius: 10,
         marginRight: 10
     },
@@ -92,22 +92,22 @@ const styles = StyleSheet.create({
         marginRight: 10,
     },
     icon: {
-        width: 50,
-        height: 50,
+        width: 40,
+        height: 40,
     },
     coinNameContainer: {
         flex: 1,
-        marginRight: 10,
+        marginRight: 7,
     },
     coinName: {
-        fontSize: 16,
+        fontSize: 13,
         fontWeight: 'bold',
     },
     priceContainer: {
-        marginRight: 10,
+        marginRight: 9,
     },
     price: {
-        fontSize: 16,
+        fontSize: 13,
     },
     growth: {
         color: 'green', // Adjust color as per growth status

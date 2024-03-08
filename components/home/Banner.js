@@ -22,16 +22,16 @@ const styles = StyleSheet.create({
 
     },
     title: {
-        fontSize: 14,
+        fontSize: 18,
         letterSpacing: 0.8,
     },
     subTitle: {
-        fontSize: 18,
+        fontSize: 14,
         letterSpacing: 0.4
     },
     image: {
         position: 'absolute',
-        top: 50,
+        top: 5,
         right: -10,
         zIndex: -1,
         opacity: 0.1,
@@ -44,7 +44,7 @@ const Banner = ({ username }) => {
   return (
     <View style={ styles.container }>
       <Text style={[styles.text, styles.title ] }>welcome {username}</Text>
-      <Text style={[styles.text, styles.subTitle ] }>monitor you wallet's growth today</Text>
+      <Text style={[styles.text, styles.subTitle ] }>monitor your wallet's growth today</Text>
       <Image
         source={require('../../assets/images/Union.png')}
         style={styles.image}

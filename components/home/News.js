@@ -32,16 +32,18 @@ const itemWidth = windowWidth - 35;
 
 const styles = StyleSheet.create({
     container: {
-        height: 120,
+        height: 90,
         alignItems: 'center',
         justifyContent: 'center',
+        
     },
     content: {
         flexDirection: 'row',
-        backgroundColor: '#e5e5e5',
+        backgroundColor: '#dee2e5',
         borderRadius: 10,
         padding: 10,
         width: itemWidth,
+        alignItems: 'center',
     },
     firstItem: {
         marginLeft: 20,
@@ -61,10 +63,12 @@ const styles = StyleSheet.create({
         color: 'gray',
     },
     image: {
-        width: 80,
-        height: 80,
+        width: 70,
+        height: 70,
         borderRadius: 5,
     },
+
+
 
 });
 
@@ -72,7 +76,7 @@ const News = ({ data }) => {
 
 
     const renderSeparator = () => {
-        return <View style={{ width: 43 }} />; // Adjust the width to your desired gap size
+        return <View style={{ width: 33 }} />; // Adjust the width to your desired gap size
     };
 
     const renderItem = ({ item, index }) => {

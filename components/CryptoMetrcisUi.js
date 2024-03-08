@@ -100,9 +100,10 @@ const styles = StyleSheet.create({
         position: 'relative',
         paddingVertical: 10,
         width : '24%',
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#ececec',
         elevation: 5,
-        justifyContent : 'center'
+        justifyContent : 'center',
+        borderRadius: 10,
 
         
     },

@@ -278,7 +278,7 @@ const PortfolioScreen = () => {
                 overlayColor={'rgba(0,0,0,0.75)'}
             />
 
-            <Modal
+            {/* <Modal
                 animationType="slide"
                 transparent={true}
                 visible={modalVisible}
@@ -293,7 +293,7 @@ const PortfolioScreen = () => {
                         <Text>Please contact the admin to complete your payment.</Text>
                     </View>
                 </View>
-            </Modal>
+            </Modal> */}
             {portfolioEntries.length === 0 && <PortfolioHeader title="My Portfolio" totalHoldings={totalHoldings} fetchPortfolioData={fetchPortfolioData} />}
             {portfolioEntries.length === 0 ? (
                 <View style={[styles.container, styles.placeholderContainer, {rowGap:10}]}>
@@ -342,7 +342,7 @@ const PortfolioScreen = () => {
 
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: 'white',
+        backgroundColor: '#f9f9f9',
         padding: 10,
         flex: 1,
     },
