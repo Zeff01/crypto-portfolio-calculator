@@ -37,6 +37,7 @@ const PortfolioScreen = () => {
     const showLoader = () => setLoading(true);
     const hideLoader = () => setLoading(false);
     const toggleViewMode = () => setSimplifiedView(!simplifiedView);
+  
 
     //fetch portfolio data
     const fetchPortfolioData = async () => {
@@ -172,7 +173,9 @@ const PortfolioScreen = () => {
 
     }, [sortBy])
 
-    const renderItem = ({ item, index, drag, isActive }) => {
+    
+
+    const renderItem = ({ item, index, drag, isActive, navigate }) => {
 
         const itemStyle = simplifiedView ? styles.itemTwoColumn : styles.itemSingleColumn;
         return (
@@ -182,7 +185,7 @@ const PortfolioScreen = () => {
                 data={item}
                 fetchPortfolioData={fetchPortfolioData}
                 simplifiedView={simplifiedView}
-                onLongPress={drag}
+                // onLongPress={() => handleDelete()}
                 isActive={isActive}
             />
 
@@ -204,7 +207,7 @@ const PortfolioScreen = () => {
                     height:35,
                     marginRight:'auto',
                     borderRadius:10,
-                    backgroundColor:theme.colors.primary,
+                    backgroundColor:"#98CAFF",
                     elevation:3
                 }}
                 itemStyle={{
@@ -254,8 +257,8 @@ const PortfolioScreen = () => {
 
 
     const onDragEnd = async ({ data }) => {
-        setPortfolioEntries(data);
-
+        // Update the database with the new order index for each item
+        
         for (let i = 0; i < data.length; i++) {
             const item = data[i];
             await supabase
@@ -263,8 +266,11 @@ const PortfolioScreen = () => {
                 .update({ orderIndex: i })
                 .match({ id: item.id });
         }
-
+        
+        // After updating the database, update the state to reflect the new order
+        setPortfolioEntries(data);
     };
+    
 
 
 
@@ -422,6 +428,8 @@ const styles = StyleSheet.create({
     },
     headerContainer: {
         flexDirection: 'column',
+     
+
 
     },
     toggleViewButton: {
@@ -438,7 +446,7 @@ const styles = StyleSheet.create({
     iconsContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-
+      
         marginRight: 8,
         display: 'flex',
         flex: 1,

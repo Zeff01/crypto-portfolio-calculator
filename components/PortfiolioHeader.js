@@ -158,7 +158,7 @@ const PortfolioHeader = ({ title, totalHoldings, fetchPortfolioData }) => {
                 </>
             ) : (
                 <View style={styles.budgetContainer}>
-                    <Text style={styles.holdings}>Your Budget:</Text>
+                    <Text style={styles.subholdings}>Your Budget:</Text>
                     <Text style={styles.budget}> {formattedBudget} / ₱{phpBudget}</Text>
                     <TouchableOpacity onPress={toggleEdit} style={styles.iconButton}>
                         <FontAwesome name="pencil-square-o" size={16} color="#585c58" />
@@ -204,6 +204,12 @@ const styles = StyleSheet.create({
     holdings: {
         fontSize: 16,
         color: '#666',
+        marginBottom: 2,
+    },
+    subholdings: {
+        fontSize: 12,
+        color: '#666',
+        marginBottom: 2,
     },
     budgetContainer: {
         display: 'flex',
@@ -212,7 +218,7 @@ const styles = StyleSheet.create({
         gap: 2
     },
     budget: {
-        fontSize: 14,
+        fontSize: 12,
         color: 'green',
         fontWeight: 'bold',
         textAlign: 'center',
