@@ -148,7 +148,7 @@ const PortfolioScreen = () => {
     }, []);
 
 
-    // this sorts the portfolio based on sortBy state
+    
     useEffect(() => {
         const sortedEntries = [...portfolioEntries]; // Shallow copy the array
     
