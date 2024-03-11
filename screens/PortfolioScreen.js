@@ -150,28 +150,28 @@ const PortfolioScreen = () => {
 
     // this sorts the portfolio based on sortBy state
     useEffect(() => {
-        const portfolioCopy = cloneDeep(portfolioEntries)
-        if (sortBy === sortOptions.default) {
-            setSortedPortfolioEntries(portfolioCopy)
+        const sortedEntries = [...portfolioEntries]; // Shallow copy the array
+    
+        switch (sortBy) {
+            case sortOptions.percentDesc:
+                sortedEntries.sort((a, b) => b.priceChangePercentage - a.priceChangePercentage);
+                break;
+            case sortOptions.percentAsc:
+                sortedEntries.sort((a, b) => a.priceChangePercentage - b.priceChangePercentage);
+                break;
+            case sortOptions.gainsDesc:
+                sortedEntries.sort((a, b) => b.totalHoldings - a.totalHoldings);
+                break;
+            case sortOptions.gainsAsc:
+                sortedEntries.sort((a, b) => a.totalHoldings - b.totalHoldings);
+                break;
+            default:
+                // Default to no sorting
+                break;
         }
-        else if (sortBy === sortOptions.percentDesc) {
-            portfolioCopy.sort((a,b) => b.priceChangePercentage - a.priceChangePercentage)
-            setSortedPortfolioEntries(portfolioCopy)
-        }
-        else if (sortBy === sortOptions.percentAsc) {
-            portfolioCopy.sort((a,b) => a.priceChangePercentage - b.priceChangePercentage)
-            setSortedPortfolioEntries(portfolioCopy)
-        }
-        else if (sortBy === sortOptions.gainsDesc) {
-            portfolioCopy.sort((a,b) => b.totalHoldings - a.totalHoldings)
-            setSortedPortfolioEntries(portfolioCopy)
-        }
-        else if (sortBy === sortOptions.gainsAsc) {
-            portfolioCopy.sort((a,b) => a.totalHoldings - b.totalHoldings)
-            setSortedPortfolioEntries(portfolioCopy)
-        }
-
-    }, [sortBy])
+    
+        setSortedPortfolioEntries(sortedEntries);
+    }, [sortBy, portfolioEntries]);
 
     
 

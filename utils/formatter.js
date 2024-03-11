@@ -29,11 +29,20 @@ const formats = {
     isBigNums: ['totalSupply', 'circulatingSupply', 'maxSupply',]
 }
 export function generateTableData(data, dataToParse, exchangeRate) {
+    const truncateDescription = (description, maxLength) => {
+        if (description) {
+            const words = description.split(' ');
+            if (words.length > maxLength) {
+                return words.slice(0, maxLength).join(' ') + '...';
+            }
+        }
+        return description;
+    };
 
     const result = [
-        ['', ''],
-        ['Coin Name', data.coinName ?? 'N/A'],
-        ['Coin Description', data.coinDescription ?? 'N/A'],
+        // ['', ''],
+        // ['Coin Name', data.coinName ?? 'N/A'],
+        // ['Coin Description', truncateDescription(data.coinDescription, 15) ?? 'N/A'],
         ['Shares', data.shares]
     ];
 

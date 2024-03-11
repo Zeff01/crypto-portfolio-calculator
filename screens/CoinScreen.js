@@ -1,66 +1,95 @@
-import { View, Text, Image, ScrollView, } from 'react-native'
-import React from 'react'
+import React, { useState } from 'react';
+import { View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { useTheme } from 'react-native-paper';
 import useGlobalStore from '../store/useGlobalStore';
-import { useTheme } from 'react-native-paper'
 import { dataToParse, generateTableData } from '../utils/formatter';
 
-
 export default function CoinScreen({ route }) {
-    const { usdToPhpRate } = useGlobalStore()
-    const theme = useTheme()
+    const { usdToPhpRate } = useGlobalStore();
+    const theme = useTheme();
 
-    const data = route.params.data
-    const tableData = generateTableData(data, dataToParse, usdToPhpRate)
+    const data = route.params.data;
+    const tableData = generateTableData(data, dataToParse, usdToPhpRate);
 
+    const [showFullDescription, setShowFullDescription] = useState(false);
 
+    const truncatedDescription = data.coinDescription ? truncateDescription(data.coinDescription, 15) : '';
+    const fullDescription = data.coinDescription;
+
+    function toggleDescription() {
+        setShowFullDescription(!showFullDescription);
+    }
+
+    function truncateDescription(description, maxLength) {
+        const words = description.split(' ');
+        if (words.length > maxLength) {
+            return words.slice(0, maxLength).join(' ') + '...';
+        }
+        return description;
+    }
 
     return (
-        <ScrollView style={{ paddingHorizontal: 10, paddingBottom: 10, }}>
-            <View style={{ alignItems: 'center', padding: 12 }}>
-                <Image source={{ uri: data.coinImage }} style={{ width: 70, height: 70 }} />
-                <Text style={{ fontWeight: 'bold', fontSize: 24, color: theme.colors.text }}>{data.coinName}</Text>
+        <ScrollView style={{ flex: 1, backgroundColor: theme.colors.background }}>
+            <View style={{ alignItems: 'center', paddingVertical: 20 }}>
+                <Image source={{ uri: data.coinImage }} style={{ width: 100, height: 100, borderRadius: 50 }} />
+                <Text style={{ fontWeight: 'bold', fontSize: 28, color: theme.colors.text, marginTop: 10 }}>{data.coinName}</Text>
+                {data.coinDescription && (
+                    <>
+                        <Text style={{ fontSize: 16, color: theme.colors.text, marginTop: 10, marginLeft: 30, marginRight: 30, textAlign: 'center' }}>
+                            {showFullDescription ? fullDescription : truncatedDescription}
+                        </Text>
+                        {data.coinDescription.split(' ').length > 15 && (
+                            <TouchableOpacity onPress={toggleDescription} style={{ marginTop: 10 }}>
+                                <Text style={{ color: theme.colors.primary }}>
+                                    {showFullDescription ? 'Show Less' : 'Show More'}
+                                </Text>
+                            </TouchableOpacity>
+                        )}
+                    </>
+                )}
             </View>
 
-            {tableData.map(r => {
-                const value = r[1]
+            {tableData.map((r, index) => {
+                const value = r[1];
 
                 return (
                     <View
-                        key={r[0]}
+                        key={index}
                         style={{
                             flexDirection: 'row',
-                            padding: 8,
+                            paddingVertical: 12,
                             paddingHorizontal: 20,
-                            marginVertical: 4,
-                            width: '100%',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            borderBottomColor: 'gray',
-                            borderBottomWidth: 0.5,
-                            backgroundColor: theme.colors.backdrop,
-                            borderRadius: 10
+                            marginHorizontal: 20,
+                            marginVertical: 8,
+                            backgroundColor: theme.colors.surface,
+                            borderRadius: 12,
+                            shadowColor: '#000',
+                            shadowOffset: {
+                                width: 0,
+                                height: 2,
+                            },
+                            shadowOpacity: 0.25,
+                            shadowRadius: 3.84,
+                            elevation: 5,
                         }}
                     >
-                        <View
-                            style={{ maxWidth: '40%' }}>
-                            <Text style={{ fontWeight: '700', fontSize: 16, color: theme.colors.text }}>{r[0]}</Text>
+                        <View style={{ flex: 1 }}>
+                            <Text style={{ fontWeight: '600', fontSize: 16, color: theme.colors.primary }}>{r[0]}</Text>
                         </View>
-                        <View style={{maxWidth:'58%'}}>
-                            {typeof value === 'string' && value.includes('|') ?
-                                <>
-                                    <Text style={{ fontWeight: '500', textAlign: 'right', color: theme.colors.text }}>
-                                        {value.substring(0, value.indexOf('|'))}
+                        <View style={{ flex: 1, alignItems: 'flex-end' }}>
+                            {typeof value === 'string' && value.includes('|') ? (
+                                value.split('|').map((item, idx) => (
+                                    <Text key={idx} style={{ fontWeight: '500', color: theme.colors.text }}>
+                                        {item}
                                     </Text>
-                                    <Text style={{ fontWeight: '500', textAlign: 'right', color: theme.colors.text }}>
-                                        {value.substring(value.indexOf('|') + 2)}
-                                    </Text>
-                                </> :
-                                <Text style={{ fontWeight: '500', textAlign: 'right', color: theme.colors.text }}>{value}</Text>
-                            }
+                                ))
+                            ) : (
+                                <Text style={{ fontWeight: '500', color: theme.colors.text }}>{value}</Text>
+                            )}
                         </View>
                     </View>
-                )
+                );
             })}
         </ScrollView>
-    )
+    );
 }
