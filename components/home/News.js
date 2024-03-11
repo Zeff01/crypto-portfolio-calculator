@@ -32,7 +32,7 @@ const itemWidth = windowWidth - 35;
 
 const styles = StyleSheet.create({
     container: {
-        height: 90,
+        height: 120,
         alignItems: 'center',
         justifyContent: 'center',
         
@@ -76,7 +76,7 @@ const News = ({ data }) => {
 
 
     const renderSeparator = () => {
-        return <View style={{ width: 33 }} />; // Adjust the width to your desired gap size
+        return <View style={{ width: 33 }} />; 
     };
 
     const renderItem = ({ item, index }) => {

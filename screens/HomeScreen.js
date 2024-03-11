@@ -70,7 +70,7 @@ const HomeScreen = () => {
 
     const dynamicStyles = StyleSheet.create({
         container: {
-            // flex: 1, don't undo this, or the ui will break
+            flex: 1, 
             backgroundColor: colors.background,
             alignItems: 'center',
             gap: 10,
