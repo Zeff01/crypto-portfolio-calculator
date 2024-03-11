@@ -15,7 +15,8 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.zeff01.cryptoportfolio"
     },
     "android": {
       "adaptiveIcon": {
@@ -32,7 +33,7 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "5c6be5fc-ab8c-4994-8f15-5dad3522ec59"
+        "projectId": "6e436939-4e54-4527-9b59-06bb6d73ec0b"
       }
     }
   }

@@ -117,11 +117,23 @@ export const fetchSearchResults = async (query) => {
 };
 
 export const fetchUsdToPhpRate = async () => {
+    const headers = {
+        'X-CMC_PRO_API_KEY': process.env.EXPO_PUBLIC_CMCKEY,
+        'Accept': 'application/json',
+    };
 
+    // COINMARKET CAP USDT TO PHP
+    const searchUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest?symbol=usdt&convert=PHP`
+    
+    
     // const apiUrl = 'https://api.exchangerate-api.com/v4/latest/USD';
     const apiUrl = process.env.EXPO_PUBLIC_EXCHANGERATE_API_URL
     try {
-        const response = await fetch(apiUrl);
+    // const searchResponse = await fetch(searchUrl, { headers });
+    // const searchData = await searchResponse.json();
+    // return searchData.data.USDT[0].quote.PHP.price
+
+    const response = await fetch(apiUrl);
         const data = await response.json();
         // return data.rates.PHP;
         return data.conversion_rate;
