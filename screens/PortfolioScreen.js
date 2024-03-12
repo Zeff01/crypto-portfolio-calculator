@@ -41,11 +41,9 @@ const PortfolioScreen = () => {
 
     //fetch portfolio data
     const fetchPortfolioData = async () => {
-        // setRefreshing(true);
         showLoader()
 
         const { data: userData, error: userError } = await supabase.auth.getUser();
-        console.log("zz  fetchPortfolioData  userData:", userData.user.id)
         if (userError) console.error('Error fetching user:', userError);
         if (!userData) return; 
         
@@ -54,8 +52,9 @@ const PortfolioScreen = () => {
             const { data: portfolioData, error } = await supabase
                 .from('portfolio')
                 .select('*')
-                .eq('userId', user.id)
+                .eq('userId', userData.user.id)
                 .order('orderIndex', { ascending: true });
+            console.log("zz  fetchPortfolioData  data:", data)
 
             if (error) {
                 console.error('Error fetching portfolio data:', error);
@@ -64,7 +63,6 @@ const PortfolioScreen = () => {
             }
         }
         hideLoader();
-        // setRefreshing(false);
     };
 
 
