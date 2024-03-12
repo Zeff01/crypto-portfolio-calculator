@@ -201,7 +201,7 @@ export const fetchCMCSearchResultsWithDetails = async (query) => {
         const percentIncreaseFromAtl = ((currentPrice / atlPrice) - 1) * 100;
         const priceChangeIcon = quoteUSD.percent_change >= 0 ? 'arrow-up' : 'arrow-down';
         const priceChangeColor = quoteUSD.percent_change >= 0 ? 'green' : 'red';
-console.log('hh', detail.quote.USD.percent_change_24h)
+
         return [{
             id: coin.id,
             name: coin.name,
@@ -262,18 +262,43 @@ async function fetchLatestCoinData(coinId) {
 }
 
 export async function updatePortfolioWithCMC() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return;
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+ 
+    if (userError) {
+        console.error('Error fetching user:', userError);
+        return;
+    }
+    if (!userData) {
+        console.log('No user found');
+        return;
+    }
+
+     // Fetch budget from the subscription table
+  const { data: subscriptionData, error: subscriptionError } = await supabase
+  .from('subscription')
+  .select('budget')
+  .eq('userId', userData.user.id)
+  .single();
+
+if (subscriptionError || !subscriptionData) {
+  console.error('Error fetching subscription data:', subscriptionError);
+  return;
+}
+
+const userBudget = subscriptionData.budget || 0;
+
 
     const { data: portfolioEntries, error: portfolioError } = await supabase
         .from('portfolio')
         .select('*')
-        .eq('userId', user.id);
+        .eq('userId', userData.user.id)
 
     if (portfolioError) {
         console.error('Error fetching portfolio:', portfolioError);
         return;
     }
+
+
 
     for (const entry of portfolioEntries) {
         // Assume fetchLatestCoinData is adjusted similarly to fetchCMCSearchResultsWithDetails
@@ -294,8 +319,6 @@ export async function updatePortfolioWithCMC() {
 
         const allTimePeriodData = coinDetail.periods.all_time;
         const quoteUSD = allTimePeriodData.quote.USD;
-        console.log('bbb', detail.quote.USD)
-        console.log('zzgggyyy',detail.quote.USD.percent_change_24h)
 
         const currentPrice = detail.quote.USD.price;
         const athPrice = quoteUSD.high;
@@ -308,7 +331,7 @@ export async function updatePortfolioWithCMC() {
         const totalHoldings = currentPrice * entry.shares;
         const trueBudgetPerCoin = totalHoldings / entry.shares; // This line seems to have a logical error in the original snippet.
         const projectedRoi = trueBudgetPerCoin * 70;
-        const additionalBudget = data.budget - trueBudgetPerCoin;
+        const additionalBudget = userBudget - trueBudgetPerCoin;
 
         const updateResponse = await supabase.from('portfolio').update({
             coinImage: logoInfo.logo,
@@ -337,7 +360,7 @@ export async function updatePortfolioWithCMC() {
             console.error(`Error updating portfolio entry for coin ${entry.coinId}:`, updateResponse.error);
         }
     }
-        console.log("zz  updatePortfolioWithCMC  detail.quote.USD:", detail.quote.USD)
+        
 }
 
 

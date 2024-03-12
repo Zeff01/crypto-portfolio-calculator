@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useLayoutEffect } from 'react';
-import { View, Text, StyleSheet, Modal, AppState, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Modal, AppState, TouchableOpacity, Dimensions} from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import CoinCard from '../components/CoinCard';
 import { fetchUsdToPhpRate, updatePortfolioWithCMC, updatePortfolioWithCoinGeckoData } from '../utils/api';
@@ -44,8 +44,15 @@ const PortfolioScreen = () => {
         showLoader()
 
         const { data: userData, error: userError } = await supabase.auth.getUser();
-        if (userError) console.error('Error fetching user:', userError);
-        if (!userData) return; 
+        if (userError) {
+            console.error('Error fetching user:', userError);
+            return;
+        }
+        if (!userData) {
+            console.log('No user found');
+            return;
+        }
+    
         
 
         if (userData) {
@@ -54,7 +61,6 @@ const PortfolioScreen = () => {
                 .select('*')
                 .eq('userId', userData.user.id)
                 .order('orderIndex', { ascending: true });
-            console.log("zz  fetchPortfolioData  data:", data)
 
             if (error) {
                 console.error('Error fetching portfolio data:', error);
@@ -126,7 +132,7 @@ const PortfolioScreen = () => {
     }, []);
 
     const refreshData = async () => {
-        await fetchPortfolioData();
+        // await fetchPortfolioData();
         // await updatePortfolioWithCoinGeckoData();
 
     };
@@ -261,22 +267,7 @@ const PortfolioScreen = () => {
         setRefreshing(false);
     }, []);
 
-
-    const onDragEnd = async ({ data }) => {
-        // Update the database with the new order index for each item
-        
-        for (let i = 0; i < data.length; i++) {
-            const item = data[i];
-            await supabase
-                .from('portfolio')
-                .update({ orderIndex: i })
-                .match({ id: item.id });
-        }
-        
-        // After updating the database, update the state to reflect the new order
-        setPortfolioEntries(data);
-    };
-    
+  
 
 
 
@@ -332,7 +323,6 @@ const PortfolioScreen = () => {
                         data={sortedPortfolioEntries}
                         renderItem={renderItem}
                         keyExtractor={(item, index) => `draggable-item-${item.id}`}
-                        onDragEnd={onDragEnd}
                         numColumns={simplifiedView ? 2 : 1}
                         ListHeaderComponent={ListHeaderComponent}   
                         key={simplifiedView ? 'two-columns' : 'one-column'}
