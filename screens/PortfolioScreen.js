@@ -44,9 +44,13 @@ const PortfolioScreen = () => {
         // setRefreshing(true);
         showLoader()
 
-        const { data: { user } } = await supabase.auth.getUser()
+        const { data: userData, error: userError } = await supabase.auth.getUser();
+        console.log("zz  fetchPortfolioData  userData:", userData.user.id)
+        if (userError) console.error('Error fetching user:', userError);
+        if (!userData) return; 
+        
 
-        if (user) {
+        if (userData) {
             const { data: portfolioData, error } = await supabase
                 .from('portfolio')
                 .select('*')
@@ -68,6 +72,10 @@ const PortfolioScreen = () => {
     //get dollar rate to php
     const getExchangeRate = async () => {
         const rate = await fetchUsdToPhpRate();
+        if (!rate) {
+            console.error('Failed to fetch exchange rate');
+            return;
+        }
         setUsdToPhpRate(rate);
     };
 
