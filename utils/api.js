@@ -162,7 +162,7 @@ export const fetchCMCSearchResultsWithDetails = async (query) => {
     // Fetch Detailed Information and Logos
     const detailsUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest?id=${coinIds}`;
     const logosUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/info?id=${coinIds}`;
-    const performanceUrl = `https://sandbox-api.coinmarketcap.com/v2/cryptocurrency/price-performance-stats/latest?id=${coinIds}&time_period=all_time`;
+    const performanceUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/price-performance-stats/latest?id=${coinIds}&time_period=all_time`;
 
     // New: Fetch price performance stats
     const [detailsResponse, logosResponse, performanceResponse] = await Promise.all([
@@ -229,7 +229,7 @@ async function fetchLatestCoinData(coinId) {
     try {
         const detailsUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest?id=${coinId}`;
         const logosUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/info?id=${coinId}`;
-        const performanceUrl = `https://sandbox-api.coinmarketcap.com/v2/cryptocurrency/price-performance-stats/latest?id=${coinId}&time_period=all_time`;
+        const performanceUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/price-performance-stats/latest?id=${coinId}&time_period=all_time`;
 
         // New: Fetch price performance stats
         const [detailsResponse, logosResponse, performanceResponse] = await Promise.all([
@@ -329,7 +329,7 @@ export async function fetchCMCGlobalMetrics() {
         'X-CMC_PRO_API_KEY': process.env.EXPO_PUBLIC_CMCKEY,
         'Accept': 'application/json',
     };
-    const globalMetricsUrl = 'https://sandbox-api.coinmarketcap.com/v1/global-metrics/quotes/latest';
+    const globalMetricsUrl = 'https://pro-api.coinmarketcap.com/v1/global-metrics/quotes/latest';
 
 
     try {
@@ -352,7 +352,7 @@ export async function fetchTrendingTokens() {
         'Accept': 'application/json',
     };
 
-    const trendingTokenUrl = 'https://sandbox-api.coinmarketcap.com/v1/community/trending/token';
+    const trendingTokenUrl = 'https://pro-api.coinmarketcap.com/v1/community/trending/token';
 
     try {
         const response = await fetch(trendingTokenUrl, { headers });
@@ -374,7 +374,7 @@ export async function fetchLatestContent() {
         'Accept': 'application/json',
     };
 
-    const latestContentUrl = 'https://sandbox-api.coinmarketcap.com/v1/content/latest';
+    const latestContentUrl = 'https://pro-api.coinmarketcap.com/v1/content/latest';
 
     try {
         const response = await fetch(latestContentUrl, { headers });
@@ -396,7 +396,7 @@ export async function fetchCryptocurrencyCategory(categoryId) {
         'Accept': 'application/json',
     };
 
-    const categoryUrl = `https://sandbox-api.coinmarketcap.com/v1/cryptocurrency/category?id=${categoryId}`;
+    const categoryUrl = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/category?id=${categoryId}`;
 
     try {
         const response = await fetch(categoryUrl, { headers });
@@ -418,7 +418,7 @@ export async function fetchCryptocurrencyCategories() {
         'Accept': 'application/json',
     };
 
-    const categoriesUrl = 'https://sandbox-api.coinmarketcap.com/v1/cryptocurrency/categories';
+    const categoriesUrl = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/categories';
 
     try {
         const response = await fetch(categoriesUrl, { headers });
