@@ -402,6 +402,49 @@ export async function fetchTrendingTokens() {
     }
 }
 
+export async function fetchGainersAndLosers() {
+    const headers = {
+        'X-CMC_PRO_API_KEY': process.env.EXPO_PUBLIC_CMCKEY,
+        'Accept': 'application/json',
+    };
+
+    const gainersLosersUrl = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/trending/gainers-losers';
+
+    try {
+        const response = await fetch(gainersLosersUrl, { headers });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+
+        // The structure of the response for gainers and losers might differ from the listings endpoint.
+        // Assuming it has a similar structure where data contains an array of tokens
+        // You might need to adjust the path to tokens based on the actual response structure
+        const coinIds = data.data.map(token => token.id).join(',');
+
+        // Fetch icons' URLs
+        const logosUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/info?id=${coinIds}`;
+        const logosResponse = await fetch(logosUrl, { headers });
+        if (!logosResponse.ok) {
+            throw new Error(`HTTP error! status: ${logosResponse.status}`);
+        }
+        const logosData = await logosResponse.json();
+
+        // Add icon URLs to each trending token
+        const tokensWithIcons = data.data.map(token => {
+            const tokenInfo = logosData.data[token.id];
+            const iconUrl = tokenInfo.logo; // Assuming 'logo' is the correct field for the icon URL.
+            return { ...token, iconUrl };
+        });
+
+        return tokensWithIcons;
+    } catch (error) {
+        console.error('Error fetching Trending Gainers and Losers data:', error);
+        return null;
+    }
+}
+
+
 
 export async function fetchLatestContent() {
     const headers = {

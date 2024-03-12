@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, FlatList, StyleSheet, RefreshControl, Button, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { TextInput, useTheme } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
-import { fetchCMCGlobalMetrics, fetchLatestContent, fetchTrendingTokens } from '../utils/api';
+import { fetchCMCGlobalMetrics, fetchLatestContent, fetchTrendingTokens, fetchGainersAndLosers } from '../utils/api';
 import CryptoMetricsUI from '../components/CryptoMetrcisUi';
 import { CategoriesList } from '../components/CategoryList';
 import Banner from '../components/home/Banner';
@@ -16,6 +16,8 @@ const HomeScreen = () => {
     const [cryptoData, setCryptoData] = useState([]);
     const [cryptoNews, setCryptoNews] = useState()
     const [cryptoTrending, setCryptoTrending] = useState()
+    // const [cryptoGainers, setCryptoGainers] = useState()
+    // console.log("zz  HomeScreen  cryptoGainers:", cryptoGainers)
     const [refreshing, setRefreshing] = useState(false);
     const [username, setUserName] = useState('')
 
@@ -35,13 +37,20 @@ const HomeScreen = () => {
         }
     };
 
+    // const fetchGainersLosers = async () => {
+    //     const data = await fetchTrendingTokens();
+    //     if (data) {
+    //         setCryptoGainers(data);
+    //     }
+    // };
+
     
-    const fetchLatestNews = async () => {
-        const data = await fetchLatestContent();
-        if (data) {
-            setCryptoNews(data.data);
-        }
-    };
+    // const fetchLatestNews = async () => {
+    //     const data = await fetchLatestContent();
+    //     if (data) {
+    //         setCryptoNews(data.data);
+    //     }
+    // };
 
     // const fetchCategory = async () => {
     //     const data = await fetchLatestContent();
@@ -79,6 +88,7 @@ const HomeScreen = () => {
         // fetchCategory()
         // fetchCategories()
         // fetchLatestNews()
+        // fetchGainersLosers()
         fetchTrendingToken()
         fetchCryptoData();
         checkUserPaymentStatus()
@@ -173,7 +183,7 @@ const HomeScreen = () => {
             {/* <News data={cryptoNews} /> */}
             <Coins title={'trending coins'} data={cryptoTrending} />
             
-            {/* <Coins title={'new coins'} data={cryptoTrending} /> */}
+            {/* <Coins title={'Gainers'} data={cryptoGainers} /> */}
         </ScrollView>
     );
 };
