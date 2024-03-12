@@ -163,6 +163,7 @@ export const fetchCMCSearchResultsWithDetails = async (query) => {
     const detailsUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest?id=${coinIds}`;
     const logosUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/info?id=${coinIds}`;
     const performanceUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/price-performance-stats/latest?id=${coinIds}&time_period=all_time`;
+    
 
     // New: Fetch price performance stats
     const [detailsResponse, logosResponse, performanceResponse] = await Promise.all([
@@ -175,17 +176,32 @@ export const fetchCMCSearchResultsWithDetails = async (query) => {
     const detailsData = await detailsResponse.json();
     const logosData = await logosResponse.json();
     const performanceData = await performanceResponse.json();
+    
 
     // Compile Detailed Results including Logos
     const detailedResults = searchData.data.map(coin => {
+        console.log("zz  detailedResults  coin:", coin)
+
+    const allTimePeriodData = performanceData.data[coin.id]?.periods?.all_time;
+    
+
+
+    if (!allTimePeriodData) {
+        console.error(`Missing all_time period data for coin ${coin.id}`);
+        return null; // or handle this case as needed
+    }
+    const quoteUSD = allTimePeriodData.quote?.USD;
+   
 
         const detail = detailsData.data[coin.id];
+        console.log("aaaa", detail)
         const logoInfo = logosData.data[coin.id];
-        const performanceStats = performanceData.data[coin.id].quote.USD;
-        const quoteUSD = detail.quote.USD;
-        const athPrice = performanceStats.high;
-        const atlPrice = performanceStats.low;
-        const currentPrice = quoteUSD.price;
+        // const performanceStats = performanceData.data[coin.id].quote.USD;
+        // const quoteUSD = detail.quote.USD;
+        const athPrice = quoteUSD.high;
+        const atlPrice = quoteUSD.low;
+        const currentPrice = detail.quote.USD.price;
+        console.log ("current price", currentPrice)
 
 
 

@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
     fearGreedPercent: {
         position: 'absolute',
         top: 50,
-        left: 50,
+        left: 55,
         fontSize: 18,
         fontWeight: 'bold',
         color: '#333',
