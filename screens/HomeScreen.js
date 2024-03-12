@@ -8,6 +8,7 @@ import { CategoriesList } from '../components/CategoryList';
 import Banner from '../components/home/Banner';
 import News from '../components/home/News';
 import Coins from '../components/home/Coins';
+import { supabase } from '../services/supabase';
 
 const HomeScreen = () => {
     const { colors } = useTheme();
@@ -16,6 +17,7 @@ const HomeScreen = () => {
     const [cryptoNews, setCryptoNews] = useState()
     const [cryptoTrending, setCryptoTrending] = useState()
     const [refreshing, setRefreshing] = useState(false);
+    const [username, setUserName] = useState('')
 
     const [category, setCategory] = useState()
     const [categories, setCategories] = useState()
@@ -52,12 +54,32 @@ const HomeScreen = () => {
         }
     };
 
+      //check if paid already
+      const checkUserPaymentStatus = async () => {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (user) {
+            const { data, error } = await supabase
+                .from('subscription')
+                .select('username')
+                .eq('userId', user.id)
+                .single();
+                setUserName( data.username)
+
+
+            if (error) {
+                console.error('Error fetching user data:', error);
+                return;
+            }
+        }
+    };
+
     useEffect(() => {
         fetchCategory()
         fetchCategories()
         fetchLatestNews()
         fetchTrendingToken()
         fetchCryptoData();
+        checkUserPaymentStatus()
     }, []);
 
 
@@ -131,34 +153,7 @@ const HomeScreen = () => {
         },
     });
 
-    const handleLogout = async () => {
-        try {
-            const { error } = await supabase.auth.signOut();
-            if (error) throw error;
-
-            navigation.navigate('Login');
-        } catch (error) {
-            console.error('Logout error:', error.message);
-        }
-    };
-    const renderTrendingItem = ({ item }) => (
-        <TouchableOpacity style={styles.trendingItem} onPress={() => console.log('Trending coin pressed', item)}>
-            <Text style={styles.trendingName}>{item.name}</Text>
-            <Text style={styles.trendingSymbol}>{item.symbol}</Text>
-            <Text style={styles.trendingRank}>Rank: {item.cmc_rank}</Text>
-        </TouchableOpacity>
-    );
-
-    const renderNewsItem = ({ item }) => (
-        <View style={styles.newsItem}>
-            <Image source={{ uri: item.cover }} style={styles.newsImage} />
-            <View style={styles.newsContent}>
-                <Text style={styles.newsTitle}>{item.title}</Text>
-                <Text style={styles.newsSubtitle}>{item.subtitle}</Text>
-                <Text style={styles.newsSource}>Source: {item.source_name}</Text>
-            </View>
-        </View>
-    );
+ 
 
     return (
         <ScrollView
@@ -172,7 +167,7 @@ const HomeScreen = () => {
         >
 
             <CryptoMetricsUI data={cryptoData} />
-            <Banner username={'zeff'} />
+            <Banner username={username} />
             <News data={cryptoNews} />
             <Coins title={'trending coins'} data={cryptoTrending} />
             

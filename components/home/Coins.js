@@ -116,7 +116,6 @@ const styles = StyleSheet.create({
 });
 
 const Coins = ({ title, data }) => {
-    console.log("data:", data)
     const renderCoin = ({ item }) => {
 
         return (

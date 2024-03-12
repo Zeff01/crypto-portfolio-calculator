@@ -352,7 +352,7 @@ export async function fetchTrendingTokens() {
         'Accept': 'application/json',
     };
 
-    const trendingTokenUrl = 'https://pro-api.coinmarketcap.com/v1/community/trending/token';
+    const trendingTokenUrl = 'https://sandbox-api.coinmarketcap.com/v1/community/trending/token';
 
     try {
         const response = await fetch(trendingTokenUrl, { headers });
@@ -374,7 +374,7 @@ export async function fetchLatestContent() {
         'Accept': 'application/json',
     };
 
-    const latestContentUrl = 'https://pro-api.coinmarketcap.com/v1/content/latest';
+    const latestContentUrl = 'https://sandbox-api.coinmarketcap.com/v1/content/latest';
 
     try {
         const response = await fetch(latestContentUrl, { headers });
