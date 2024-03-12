@@ -352,7 +352,7 @@ export async function fetchTrendingTokens() {
         'Accept': 'application/json',
     };
 
-    const trendingTokenUrl = 'https://sandbox-api.coinmarketcap.com/v1/community/trending/token';
+    const trendingTokenUrl = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest';
 
     try {
         const response = await fetch(trendingTokenUrl, { headers });
@@ -361,12 +361,31 @@ export async function fetchTrendingTokens() {
         }
         const data = await response.json();
 
-        return data;
+        // Extract IDs from trending tokens
+        const coinIds = data.data.map(token => token.id).join(',');
+
+        // Fetch icons' URLs
+        const logosUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/info?id=${coinIds}`;
+        const logosResponse = await fetch(logosUrl, { headers });
+        if (!logosResponse.ok) {
+            throw new Error(`HTTP error! status: ${logosResponse.status}`);
+        }
+        const logosData = await logosResponse.json();
+
+        // Add icon URLs to each trending token
+        const tokensWithIcons = data.data.map(token => {
+            const tokenInfo = logosData.data[token.id];
+            const iconUrl = tokenInfo.logo; // Assuming 'logo' is the correct field for the icon URL.
+            return { ...token, iconUrl };
+        });
+    
+        return tokensWithIcons;
     } catch (error) {
-        console.error('Error fetching Trending Token data:', error.message);
+        console.error('Error fetching Trending Token data:', error);
         return null;
     }
 }
+
 
 export async function fetchLatestContent() {
     const headers = {

@@ -1,71 +1,5 @@
-import { SafeAreaView, View, Text, StyleSheet, Image, FlatList, TouchableOpacity } from 'react-native';
 import React from 'react';
-import icon1 from '../../assets/images/bitcoin.png';
-import icon2 from '../../assets/images/ethereum.png';
-// import { FlatList } from 'react-native-gesture-handler';
-
-dummyCoins = [
-    {
-        name: 'Bitcoin',
-        price: 2509.75,
-        growth: 9.77,
-        icon: icon1
-    },
-    {
-        name: 'Ethereum',
-        price: 2509.75,
-        growth: 9.77,
-        icon: icon2
-    },
-    {
-        name: 'Tether',
-        price: 2509.75,
-        growth: 9.77,
-        icon: icon1
-    },
-    {
-        name: 'Solana',
-        price: 2509.75,
-        growth: 9.77,
-        icon: icon1
-    },
-    {
-        name: 'Binance Coin',
-        price: 2509.75,
-        growth: 9.77,
-        icon: icon1
-    },
-    {
-        name: 'XRP',
-        price: 2509.75,
-        growth: 9.77,
-        icon: icon1
-    },
-    {
-        name: 'U.S Dollar Coin',
-        price: 2509.75,
-        growth: 9.77,
-        icon: icon1
-    },
-    {
-        name: 'Cardano',
-        price: 2509.75,
-        growth: 9.77,
-        icon: icon1
-    },
-    {
-        name: 'Avalanche',
-        price: 2509.75,
-        growth: 9.77,
-        icon: icon1
-    },
-    {
-        name: 'Dogecoin',
-        price: 2509.75,
-        growth: 9.77,
-        icon: icon1
-    },
-]
+import { SafeAreaView, View, Text, StyleSheet, Image, FlatList, TouchableOpacity } from 'react-native';
 
 const styles = StyleSheet.create({
     container: {
@@ -76,17 +10,16 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
         marginVertical: 10,
-        textTransform: 'capitalize'
+        textTransform: 'capitalize',
     },
     item: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 15,
         height: 100,
-        // elevation: 5,
         backgroundColor: '#ececec',
         borderRadius: 10,
-        marginRight: 10
+        marginRight: 10,
     },
     iconContainer: {
         marginRight: 10,
@@ -97,10 +30,9 @@ const styles = StyleSheet.create({
     },
     coinNameContainer: {
         flex: 1,
-        marginRight: 7,
     },
     coinName: {
-        fontSize: 13,
+        fontSize: 15,
         fontWeight: 'bold',
     },
     priceContainer: {
@@ -110,41 +42,49 @@ const styles = StyleSheet.create({
         fontSize: 13,
     },
     growth: {
-        color: 'green', // Adjust color as per growth status
+        // This will be set dynamically based on growth
         fontSize: 16,
     },
+    growthContainer: {
+        flex: 1,
+        alignItems: 'flex-end', // Align growth to the right
+    }
 });
 
 const Coins = ({ title, data }) => {
     const renderCoin = ({ item }) => {
-
+        const growthColor = item.quote.USD.percent_change_1h > 0 ? 'green' : 'red';
         return (
-            <TouchableOpacity style={styles.item} onPress={() => console.log('punta sa coin data page')}>
+            <TouchableOpacity style={styles.item} onPress={() => console.log('Navigate to coin data page')}>
                 <View style={styles.iconContainer}>
                     <Image
-                        source={item.icon}
+                        source={{ uri: item.iconUrl }}
                         style={styles.icon}
                     />
-                    <Text style={styles.coinName}>{item.name}</Text>
-                    <Text style={styles.price}>{item.price}</Text>
                 </View>
-                <View style={styles.growthContainer}>
-                    <Text style={styles.growth}>{item.growth}</Text>
+                <View style={styles.coinNameContainer}>
+                    <Text style={styles.coinName}>{item.name}</Text>
+                    <Text style={styles.price}>${item.quote.USD.price.toFixed(2)}</Text>
+                    <Text style={[styles.growth, { color: growthColor }]}>
+                        {item.quote.USD.percent_change_1h.toFixed(2)}%
+                    </Text>
                 </View>
             </TouchableOpacity>
-        )
-    }
+        );
+    };
+
     return (
         <SafeAreaView style={styles.container}>
             <Text style={styles.title}>{title}</Text>
             <FlatList
-                data={dummyCoins}
+                data={data}
                 renderItem={renderCoin}
+                keyExtractor={(item) => item.id.toString()}
                 horizontal
                 showsHorizontalScrollIndicator={false}
             />
         </SafeAreaView>
-    )
-}
+    );
+};
 
-export default Coins
+export default Coins;

@@ -31,9 +31,11 @@ const HomeScreen = () => {
     const fetchTrendingToken = async () => {
         const data = await fetchTrendingTokens();
         if (data) {
-            setCryptoTrending(data.data);
+            setCryptoTrending(data);
         }
     };
+
+    
     const fetchLatestNews = async () => {
         const data = await fetchLatestContent();
         if (data) {
@@ -41,18 +43,18 @@ const HomeScreen = () => {
         }
     };
 
-    const fetchCategory = async () => {
-        const data = await fetchLatestContent();
-        if (data) {
-            setCategory(data.data);
-        }
-    };
-    const fetchCategories = async () => {
-        const data = await fetchLatestContent();
-        if (data) {
-            setCategories(data.data);
-        }
-    };
+    // const fetchCategory = async () => {
+    //     const data = await fetchLatestContent();
+    //     if (data) {
+    //         setCategory(data.data);
+    //     }
+    // };
+    // const fetchCategories = async () => {
+    //     const data = await fetchLatestContent();
+    //     if (data) {
+    //         setCategories(data.data);
+    //     }
+    // };
 
       //check if paid already
       const checkUserPaymentStatus = async () => {
@@ -74,9 +76,9 @@ const HomeScreen = () => {
     };
 
     useEffect(() => {
-        fetchCategory()
-        fetchCategories()
-        fetchLatestNews()
+        // fetchCategory()
+        // fetchCategories()
+        // fetchLatestNews()
         fetchTrendingToken()
         fetchCryptoData();
         checkUserPaymentStatus()
@@ -168,10 +170,10 @@ const HomeScreen = () => {
 
             <CryptoMetricsUI data={cryptoData} />
             <Banner username={username} />
-            <News data={cryptoNews} />
+            {/* <News data={cryptoNews} /> */}
             <Coins title={'trending coins'} data={cryptoTrending} />
             
-            <Coins title={'new coins'} data={cryptoTrending} />
+            {/* <Coins title={'new coins'} data={cryptoTrending} /> */}
         </ScrollView>
     );
 };
