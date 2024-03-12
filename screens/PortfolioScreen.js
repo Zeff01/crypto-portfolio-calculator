@@ -89,7 +89,7 @@ const PortfolioScreen = () => {
             }
 
             if (data?.isPaid) {
-                setModalVisible(true);
+                setModalVisible(false);
             }
         }
     };
