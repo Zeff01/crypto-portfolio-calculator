@@ -25,7 +25,7 @@ const sortOptions = {
 const PortfolioScreen = () => {
     const theme = useTheme()
     const { setUsdToPhpRate } = useGlobalStore();
-    const [modalVisible, setModalVisible] = useState(false);
+    const [modalVisible, setModalVisible] = useState(true);
     const [portfolioEntries, setPortfolioEntries] = useState([]);
     const [totalHoldings, setTotalHoldings] = useState(0);
     const [loading, setLoading] = useState(false);
@@ -88,7 +88,7 @@ const PortfolioScreen = () => {
                 return;
             }
 
-            if (!data?.isPaid) {
+            if (data?.isPaid) {
                 setModalVisible(true);
             }
         }
@@ -284,7 +284,7 @@ const PortfolioScreen = () => {
                 overlayColor={'rgba(0,0,0,0.75)'}
             />
 
-            {/* <Modal
+            <Modal
                 animationType="slide"
                 transparent={true}
                 visible={modalVisible}
@@ -299,7 +299,7 @@ const PortfolioScreen = () => {
                         <Text>Please contact the admin to complete your payment.</Text>
                     </View>
                 </View>
-            </Modal> */}
+            </Modal>
             {portfolioEntries.length === 0 && <PortfolioHeader title="My Portfolio" totalHoldings={totalHoldings} fetchPortfolioData={fetchPortfolioData} />}
             {portfolioEntries.length === 0 ? (
                 <View style={[styles.container, styles.placeholderContainer, {rowGap:10}]}>
