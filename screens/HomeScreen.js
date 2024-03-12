@@ -16,8 +16,8 @@ const HomeScreen = () => {
     const [cryptoData, setCryptoData] = useState([]);
     const [cryptoNews, setCryptoNews] = useState()
     const [cryptoTrending, setCryptoTrending] = useState()
-    const [cryptoGainers, setCryptoGainers] = useState()
-    console.log("zz  HomeScreen  cryptoGainers:", cryptoGainers)
+    // const [cryptoGainers, setCryptoGainers] = useState()
+    // console.log("zz  HomeScreen  cryptoGainers:", cryptoGainers)
     const [refreshing, setRefreshing] = useState(false);
     const [username, setUserName] = useState('')
 
@@ -88,7 +88,7 @@ const HomeScreen = () => {
         // fetchCategory()
         // fetchCategories()
         // fetchLatestNews()
-        fetchGainersLosers()
+        // fetchGainersLosers()
         fetchTrendingToken()
         fetchCryptoData();
         checkUserPaymentStatus()
