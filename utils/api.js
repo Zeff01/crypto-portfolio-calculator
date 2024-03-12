@@ -163,63 +163,55 @@ export const fetchCMCSearchResultsWithDetails = async (query) => {
     const detailsUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest?id=${coinIds}`;
     const logosUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/info?id=${coinIds}`;
     const performanceUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/price-performance-stats/latest?id=${coinIds}&time_period=all_time`;
-    
 
-    // New: Fetch price performance stats
+    // Fetch price performance stats
     const [detailsResponse, logosResponse, performanceResponse] = await Promise.all([
         fetch(detailsUrl, { headers }),
         fetch(logosUrl, { headers }),
         fetch(performanceUrl, { headers }),
-
     ]);
 
     const detailsData = await detailsResponse.json();
     const logosData = await logosResponse.json();
     const performanceData = await performanceResponse.json();
-    
 
     // Compile Detailed Results including Logos
-    const detailedResults = searchData.data.map(coin => {
-        console.log("zz  detailedResults  coin:", coin)
+    const detailedResults = searchData.data.flatMap(coin => {
+        const coinDetail = performanceData.data[coin.id];
+        if (!coinDetail || !coinDetail.periods || !coinDetail.periods.all_time || !coinDetail.periods.all_time.quote) {
+            console.error(`Missing all_time period data for coin ${coin.id}`);
+            return []; // Use flatMap with empty array to skip processing this coin
+        }
 
-    const allTimePeriodData = performanceData.data[coin.id]?.periods?.all_time;
-    
-
-
-    if (!allTimePeriodData) {
-        console.error(`Missing all_time period data for coin ${coin.id}`);
-        return null; // or handle this case as needed
-    }
-    const quoteUSD = allTimePeriodData.quote?.USD;
-   
+        const allTimePeriodData = coinDetail.periods.all_time;
+        const quoteUSD = allTimePeriodData.quote.USD;
 
         const detail = detailsData.data[coin.id];
-        console.log("aaaa", detail)
+        if (!detail) {
+            console.error(`Detail data missing for coin ${coin.id}`);
+            return [];
+        }
+
         const logoInfo = logosData.data[coin.id];
-        // const performanceStats = performanceData.data[coin.id].quote.USD;
-        // const quoteUSD = detail.quote.USD;
+        const currentPrice = detail.quote.USD.price;
+
         const athPrice = quoteUSD.high;
         const atlPrice = quoteUSD.low;
-        const currentPrice = detail.quote.USD.price;
-        console.log ("current price", currentPrice)
-
-
-
-        const athRoi = (athPrice / atlPrice)
+        const athRoi = (athPrice / atlPrice);
         const percentIncreaseFromAtl = ((currentPrice / atlPrice) - 1) * 100;
-        const priceChangeIcon = quoteUSD.percent_change_24h >= 0 ? 'arrow-up' : 'arrow-down';
-        const priceChangeColor = quoteUSD.percent_change_24h >= 0 ? 'green' : 'red';
-
-        return {
+        const priceChangeIcon = quoteUSD.percent_change >= 0 ? 'arrow-up' : 'arrow-down';
+        const priceChangeColor = quoteUSD.percent_change >= 0 ? 'green' : 'red';
+console.log('hh', detail.quote.USD.percent_change_24h)
+        return [{
             id: coin.id,
             name: coin.name,
             symbol: coin.symbol,
             logo: logoInfo.logo,
             description: logoInfo.description,
             marketCapRank: detail.cmc_rank,
-            currentPrice: currentPrice,
-            tradingVolume: quoteUSD.volume_24h,
-            marketCap: quoteUSD.market_cap,
+            currentPrice,
+            tradingVolume: detail.quote.USD.volume_24h,
+            marketCap: detail.quote.USD.market_cap,
             circulatingSupply: detail.circulating_supply,
             totalSupply: detail.total_supply,
             maxSupply: detail.max_supply === 'null' ? -1 : detail.max_supply,
@@ -229,10 +221,9 @@ export const fetchCMCSearchResultsWithDetails = async (query) => {
             percentIncreaseFromAtl,
             priceChangeIcon,
             priceChangeColor,
-            priceChangePercentage: quoteUSD.percent_change_24h,
-        };
+            priceChangePercentage: detail.quote.USD.percent_change_24h,
+        }];
     });
-
 
     return detailedResults;
 };
@@ -271,7 +262,7 @@ async function fetchLatestCoinData(coinId) {
 }
 
 export async function updatePortfolioWithCMC() {
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
     const { data: portfolioEntries, error: portfolioError } = await supabase
@@ -279,66 +270,76 @@ export async function updatePortfolioWithCMC() {
         .select('*')
         .eq('userId', user.id);
 
-    const { data } = await supabase.from('subscription').select('budget').eq('userId', user.id).single()
-
     if (portfolioError) {
         console.error('Error fetching portfolio:', portfolioError);
         return;
     }
 
     for (const entry of portfolioEntries) {
-
+        // Assume fetchLatestCoinData is adjusted similarly to fetchCMCSearchResultsWithDetails
         const { detailsData, logosData, performanceData } = await fetchLatestCoinData(entry.coinId);
+        if (!detailsData || !logosData || !performanceData) {
+            console.error(`Data fetching error for coin ${entry.coinId}`);
+            continue; // Skip this entry if any data is missing
+        }
+
         const detail = detailsData.data[entry.coinId];
-        const performanceStats = performanceData.data[entry.coinId].quote.USD;
-        const quoteUSD = detail.quote.USD;
-        const athPrice = performanceStats.high;
-        const atlPrice = performanceStats.low;
-        const currentPrice = quoteUSD.price;
+        const logoInfo = logosData.data[entry.coinId];
+        const coinDetail = performanceData.data[entry.coinId];
+        
+        if (!coinDetail || !coinDetail.periods || !coinDetail.periods.all_time || !coinDetail.periods.all_time.quote) {
+            console.error(`Missing all_time period data for coin ${entry.coinId}`);
+            continue; // Skip this entry if performance data is missing
+        }
 
+        const allTimePeriodData = coinDetail.periods.all_time;
+        const quoteUSD = allTimePeriodData.quote.USD;
+        console.log('bbb', detail.quote.USD)
+        console.log('zzgggyyy',detail.quote.USD.percent_change_24h)
 
-
-        const athRoi = (athPrice / atlPrice)
+        const currentPrice = detail.quote.USD.price;
+        const athPrice = quoteUSD.high;
+        const atlPrice = quoteUSD.low;
+        const athRoi = athPrice / atlPrice;
         const percentIncreaseFromAtl = ((currentPrice / atlPrice) - 1) * 100;
-        const priceChangeIcon = quoteUSD.percent_change_24h >= 0 ? 'arrow-up' : 'arrow-down';
-        const priceChangeColor = quoteUSD.percent_change_24h >= 0 ? 'green' : 'red';
+        const priceChangeIcon = detail.quote.USD.percent_change_24h >= 0 ? 'arrow-up' : 'arrow-down';
+        const priceChangeColor = detail.quote.USD.percent_change_24h >= 0 ? 'green' : 'red';
 
         const totalHoldings = currentPrice * entry.shares;
-        const trueBudgetPerCoin = totalHoldings / (currentPrice / atlPrice);
+        const trueBudgetPerCoin = totalHoldings / entry.shares; // This line seems to have a logical error in the original snippet.
         const projectedRoi = trueBudgetPerCoin * 70;
-        const additionalBudget = data.budget - trueBudgetPerCoin
+        const additionalBudget = data.budget - trueBudgetPerCoin;
 
-        const { error: updateError } = await supabase
-            .from('portfolio')
-            .update({
-                totalHoldings: totalHoldings,
-                currentPrice: currentPrice,
-                //self caulculation
-                athRoi: athRoi,
-                increaseFromATL: percentIncreaseFromAtl,
-                totalHoldings: totalHoldings,
-                trueBudgetPerCoin: trueBudgetPerCoin,
-                additionalBudget: additionalBudget,
-                projectedRoi: projectedRoi,
-                priceChangeIcon: priceChangeIcon,
-                priceChangeColor: priceChangeColor,
-                allTimeHigh: athPrice,
-                allTimeLow: atlPrice,
-                priceChangePercentage: quoteUSD.percent_change_24h,
-                tradingVolume: quoteUSD.volume_24h,
-                marketCap: quoteUSD.market_cap,
-                maxSupply: detail.max_supply === 'null' ? -1 : detail.max_supply,
-                totalSupply: detail.total_supply,
-                circulatingSupply: detail.circulating_supply,
+        const updateResponse = await supabase.from('portfolio').update({
+            coinImage: logoInfo.logo,
+            coinName: detail.name,
+            currentPrice: currentPrice,
+            //self calculation
+            athRoi: athRoi,
+            increaseFromATL: percentIncreaseFromAtl,
+            totalHoldings: totalHoldings,
+            trueBudgetPerCoin: trueBudgetPerCoin,
+            additionalBudget: additionalBudget,
+            projectedRoi: projectedRoi,
+            priceChangeIcon: priceChangeIcon,
+            priceChangeColor: priceChangeColor,
+            allTimeHigh: athPrice,
+            allTimeLow: atlPrice,
+            priceChangePercentage: detail.quote.USD.percent_change_24h,
+            tradingVolume: detail.quote.USD.volume_24h,
+            marketCap: detail.quote.USD.market_cap,
+            maxSupply: detail.max_supply === 'null' ? -1 : detail.max_supply,
+            totalSupply: detail.total_supply,
+            circulatingSupply: detail.circulating_supply,
+        }).match({ id: entry.id });
 
-            })
-            .match({ id: entry.id });
-
-        if (updateError) {
-            console.error(`Error updating portfolio entry for coin ${entry.coinId}:`, updateError);
+        if (updateResponse.error) {
+            console.error(`Error updating portfolio entry for coin ${entry.coinId}:`, updateResponse.error);
         }
     }
+        console.log("zz  updatePortfolioWithCMC  detail.quote.USD:", detail.quote.USD)
 }
+
 
 export async function fetchCMCGlobalMetrics() {
     const headers = {
