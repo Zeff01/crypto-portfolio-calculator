@@ -1,4 +1,4 @@
-import { View, TextInput } from 'react-native'
+import { View, TextInput, Text } from 'react-native'
 import React, { useState } from 'react'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 
@@ -32,27 +32,24 @@ const Forms = ({
       {
         type === 'login' ? (
           <>
-            <View className='flex-row gap-2 justify-center items-center border-b px-2 py-3' style={{opacity:loading?0.5:1}}>
-              <FontAwesome name='envelope-o' size={25} color={isEmailFocused ? '#6366f1' : '#242222'} type='regular' />
+            <View className='flex flex-col gap-2 justify-center items-start py-3' style={{opacity:loading?0.5:1}}>
+              <Text>Email</Text>
               <TextInput
                 editable={!loading}
-                className='w-full h-[40px] p-2 font-bold tracking-wider text-neutral-500 text-base '
-                placeholder="Email"
+                className='w-full h-[40px] p-2 font-bold tracking-wider text-neutral-500 text-base border-b '
                 placeholderTextColor={'#a3a3a3'}
                 autoCapitalize="none"
                 keyboardType="email-address"
                 onFocus={() => setIsEmailFocused(true)}
                 onBlur={() => setIsEmailFocused(false)}
                 onChangeText={setEmail}
-                
               />
             </View>
-            <View className='flex-row gap-2 justify-center items-center px-2 py-3' style={{opacity:loading?0.5:1}}>
-              <FontAwesome name='lock' size={25} color={isPasswordFocused ? '#6366f1' : '#242222'} type='regular' />
+            <View className='flex flex-col gap-2 justify-center items-start py-3' style={{opacity:loading?0.5:1}}>
+              <Text>Password</Text>
               <TextInput
                 editable={!loading}
-                className='w-full h-[40px] p-2 font-bold tracking-wider text-neutral-500 text-base'
-                placeholder="Password"
+                className='w-full h-[40px] p-2 font-bold tracking-wider text-neutral-500 text-base border-b'
                 placeholderTextColor={'#a3a3a3'}
                 secureTextEntry
                 onFocus={() => setIsPasswordFocused(true)}
@@ -63,36 +60,33 @@ const Forms = ({
           </>
         ) : (
           <>
-            <View className='flex-row gap-2 justify-center items-center border-b px-2 py-3' style={{opacity:loading?0.5:1,  }}>
-              <FontAwesome name='id-card-o' size={25} color={firstNameValid? 'green' : isFirstNameFocused ? '#6366f1' : '#f4f4f5'} />
+            <View className='flex flex-col justify-center items-start py-3' style={{opacity:loading?0.5:1}}>
+              <Text>First Name</Text>
               <TextInput
                 editable={!loading}
-                className='w-full h-[40px] p-2 font-bold tracking-wider text-neutral-500 text-base'
-                placeholder="First Name"
+                className='w-full h-[40px] p-2 font-bold tracking-wider text-neutral-500 text-base border-b'
                 placeholderTextColor={'#a3a3a3'}
                 onFocus={() => setIsFirstNameFocused(true)}
                 onBlur={() => setIsFirstNameFocused(false)}
                 onChangeText={setFirstName}
               />
             </View>
-            <View className='flex-row gap-2 justify-center items-center border-b px-2 py-3' style={{opacity:loading?0.5:1,  }}>
-              <FontAwesome name='id-badge' size={25} color={lastNameValid? 'green' : isLastNameFocused ? '#6366f1' : '#f4f4f5'} />
+            <View className='flex flex-col justify-center items-start py-3' style={{opacity:loading?0.5:1}}>
+              <Text>Last Name</Text>
               <TextInput
                 editable={!loading}
-                className='w-full h-[40px] p-2 font-bold tracking-wider text-neutral-500 text-base'
-                placeholder="Last Name"
+                className='w-full h-[40px] p-2 font-bold tracking-wider text-neutral-500 text-base border-b'
                 placeholderTextColor={'#a3a3a3'}
                 onFocus={() => setIsLastNameFocused(true)}
                 onBlur={() => setIsLastNameFocused(false)}
                 onChangeText={setLastName}
               />
             </View>
-            <View className='flex-row gap-2 justify-center items-center border-b px-2 py-3' style={{opacity:loading?0.5:1,  }}>
-              <FontAwesome name='user' size={25} color={usernameValid? 'green' : isUsernameFocused ? '#6366f1' : '#f4f4f5'} />
+            <View className='flex flex-col justify-center items-start py-3' style={{opacity:loading?0.5:1}}>
+              <Text>Username</Text>
               <TextInput
                 editable={!loading}
-                className='w-full h-[40px] p-2 font-bold tracking-wider text-neutral-500 text-base'
-                placeholder="Username"
+                className='w-full h-[40px] p-2 font-bold tracking-wider text-neutral-500 text-base border-b'
                 placeholderTextColor={'#a3a3a3'}
                 autoCapitalize="none"
                 onFocus={() => setIsUsernameFocused(true)}
@@ -100,12 +94,11 @@ const Forms = ({
                 onChangeText={setUsername}
               />
             </View>
-            <View className='flex-row gap-2 justify-center items-center border-b px-2 py-3' style={{opacity:loading?0.5:1,  }}>
-              <FontAwesome name='envelope-o' size={25} color={emailValid? 'green' : isEmailFocused ? '#6366f1' : '#f4f4f5'} type='regular' />
+            <View className='flex flex-col justify-center items-start py-3' style={{opacity:loading?0.5:1}}>
+              <Text>Email</Text>
               <TextInput
                 editable={!loading}
-                className='w-full h-[40px] p-2 font-bold tracking-wider text-neutral-500 text-base '
-                placeholder="Email"
+                className='w-full h-[40px] p-2 font-bold tracking-wider text-neutral-500 text-base border-b'
                 placeholderTextColor={'#a3a3a3'}
                 autoCapitalize="none"
                 keyboardType="email-address"
@@ -114,12 +107,11 @@ const Forms = ({
                 onChangeText={setEmail}
               />
             </View>
-            <View className='flex-row gap-2 justify-center items-center border-b px-2 py-3' style={{opacity:loading?0.5:1,  }}>
-              <FontAwesome name='lock' size={25} color={passwordValid? 'green' : isPasswordFocused ? '#6366f1' : '#f4f4f5'} type='regular' />
+            <View className='flex flex-col gap-2 justify-center items-start py-3' style={{opacity:loading?0.5:1}}>
+              <Text>Password</Text>
               <TextInput
                 editable={!loading}
-                className='w-full h-[40px] p-2 font-bold tracking-wider text-neutral-500 text-base'
-                placeholder="Password"
+                className='w-full h-[40px] p-2 font-bold tracking-wider text-neutral-500 text-base border-b'
                 placeholderTextColor={'#a3a3a3'}
                 secureTextEntry
                 onFocus={() => setIsPasswordFocused(true)}
@@ -127,7 +119,7 @@ const Forms = ({
                 onChangeText={setPassword}
               />
             </View>
-            <View className='flex-row gap-2 justify-center items-center border-b px-2 py-3' style={{opacity:loading?0.5:1,  }}>
+            {/* <View className='flex flex-col gap-2 justify-center items-start py-3' style={{opacity:loading?0.5:1}}>
               <FontAwesome name='lock' size={25} color={repeatPasswordValid? 'green' : isRepeatPasswordFocused ? '#6366f1' : '#f4f4f5'} type='regular' />
               <TextInput
                 editable={!loading}
@@ -139,7 +131,7 @@ const Forms = ({
                 onBlur={() => setIsRepeatPasswordFocused(false)}
                 onChangeText={setRepeatPassword}
               />
-            </View>
+            </View> */}
           </>
         )
       }
