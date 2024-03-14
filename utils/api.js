@@ -1,10 +1,13 @@
 import { supabase } from "../services/supabase";
 
 // utils/api.js
+const sandboxApiKey = 'b54bcf4d-1bca-4e8e-9a24-22ff2c3d462c'
+const sandboxApi = 'https://sandbox-api.coinmarketcap.com'
 
 export const fetchUsdToPhpRate = async () => {
     const headers = {
-        'X-CMC_PRO_API_KEY': process.env.EXPO_PUBLIC_CMCKEY,
+        // 'X-CMC_PRO_API_KEY': process.env.EXPO_PUBLIC_CMCKEY, // for production key only 
+        'X-CMC_PRO_API_KEY': sandboxApiKey, // for dev key only
         'Accept': 'application/json',
     };
 
@@ -13,7 +16,10 @@ export const fetchUsdToPhpRate = async () => {
     
     
     // const apiUrl = 'https://api.exchangerate-api.com/v4/latest/USD';
-    const apiUrl = process.env.EXPO_PUBLIC_EXCHANGERATE_API_URL
+    // const apiUrl = process.env.EXPO_PUBLIC_EXCHANGERATE_API_URL // for production use only
+    const apiUrl = 'https://v6.exchangerate-api.com/v6/2432b70bb7517c672d0ecde8/pair/USD/PHP' // for dev use only
+
+    
     try {
     // const searchResponse = await fetch(searchUrl, { headers });
     // const searchData = await searchResponse.json();
@@ -31,12 +37,14 @@ export const fetchUsdToPhpRate = async () => {
 
 export const fetchCMCSearchResultsWithDetails = async (query) => {
     const headers = {
-        'X-CMC_PRO_API_KEY': process.env.EXPO_PUBLIC_CMCKEY,
+        // 'X-CMC_PRO_API_KEY': process.env.EXPO_PUBLIC_CMCKEY, // for production key only
+        'X-CMC_PRO_API_KEY': sandboxApiKey, // for dev key only
         'Accept': 'application/json',
     };
 
     // Initial Coin Search
-    const searchUrl = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/map?symbol=${query}`;
+    // const searchUrl = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/map?symbol=${query}`; // for production key only
+    const searchUrl = `${sandboxApi}/v1/cryptocurrency/map?symbol=${query}`; // for dev key only
     const searchResponse = await fetch(searchUrl, { headers });
     const searchData = await searchResponse.json();
     if (!searchData.data || searchData.data.length === 0) {
@@ -46,9 +54,13 @@ export const fetchCMCSearchResultsWithDetails = async (query) => {
     const coinIds = searchData.data.map(coin => coin.id).join(',');
 
     // Fetch Detailed Information and Logos
-    const detailsUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest?id=${coinIds}`;
-    const logosUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/info?id=${coinIds}`;
-    const performanceUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/price-performance-stats/latest?id=${coinIds}&time_period=all_time`;
+    // const detailsUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest?id=${coinIds}`; // for production api only
+    // const logosUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/info?id=${coinIds}`;  // for production api only
+    // const performanceUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/price-performance-stats/latest?id=${coinIds}&time_period=all_time`;  // for production api only
+
+    const detailsUrl = `${sandboxApi}/v2/cryptocurrency/quotes/latest?id=${coinIds}`; //for dev api only
+    const logosUrl = `${sandboxApi}/v2/cryptocurrency/info?id=${coinIds}`; //for dev api only
+    const performanceUrl = `${sandboxApi}/v2/cryptocurrency/price-performance-stats/latest?id=${coinIds}&time_period=all_time`; //for dev api only
 
     // Fetch price performance stats
     const [detailsResponse, logosResponse, performanceResponse] = await Promise.all([
@@ -116,13 +128,21 @@ export const fetchCMCSearchResultsWithDetails = async (query) => {
 
 async function fetchLatestCoinData(coinId) {
     const headers = {
-        'X-CMC_PRO_API_KEY': process.env.EXPO_PUBLIC_CMCKEY,
+        // 'X-CMC_PRO_API_KEY': process.env.EXPO_PUBLIC_CMCKEY,
+        'X-CMC_PRO_API_KEY': sandboxApiKey, // for dev key only
         'Accept': 'application/json',
     };
     try {
-        const detailsUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest?id=${coinId}`;
-        const logosUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/info?id=${coinId}`;
-        const performanceUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/price-performance-stats/latest?id=${coinId}&time_period=all_time`;
+        // const detailsUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest?id=${coinId}`; // for production api only
+        // const logosUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/info?id=${coinId}`; // for production api only
+        // const performanceUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/price-performance-stats/latest?id=${coinId}&time_period=all_time`; // for production api only
+
+        const detailsUrl = `${sandboxApi}/v2/cryptocurrency/quotes/latest?id=${coinId}`; //for dev api only
+        const logosUrl = `${sandboxApi}/v2/cryptocurrency/info?id=${coinId}`; //for dev api only
+        const performanceUrl = `${sandboxApi}/v2/cryptocurrency/price-performance-stats/latest?id=${coinId}&time_period=all_time`; //for dev api only
+
+
+
 
         // New: Fetch price performance stats
         const [detailsResponse, logosResponse, performanceResponse] = await Promise.all([
@@ -252,9 +272,12 @@ const userBudget = subscriptionData.budget || 0;
 export async function fetchCMCGlobalMetrics() {
     const headers = {
         'X-CMC_PRO_API_KEY': process.env.EXPO_PUBLIC_CMCKEY,
+        'X-CMC_PRO_API_KEY': sandboxApiKey, // for dev key only
         'Accept': 'application/json',
     };
-    const globalMetricsUrl = 'https://pro-api.coinmarketcap.com/v1/global-metrics/quotes/latest';
+    // const globalMetricsUrl = 'https://pro-api.coinmarketcap.com/v1/global-metrics/quotes/latest'; //for production keys only
+    const globalMetricsUrl = `${sandboxApi}/v1/global-metrics/quotes/latest`; //for dev keys only
+
 
 
     try {
@@ -273,11 +296,13 @@ export async function fetchCMCGlobalMetrics() {
 
 export async function fetchTrendingTokens() {
     const headers = {
-        'X-CMC_PRO_API_KEY': process.env.EXPO_PUBLIC_CMCKEY,
+        // 'X-CMC_PRO_API_KEY': process.env.EXPO_PUBLIC_CMCKEY, // for production key only
+        'X-CMC_PRO_API_KEY': sandboxApiKey, // for dev key only
         'Accept': 'application/json',
     };
 
-    const trendingTokenUrl = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest';
+    // const trendingTokenUrl = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest'; // for production api only
+    const trendingTokenUrl = `${sandboxApi}/v1/cryptocurrency/listings/latest`; // for dev api only
 
     try {
         const response = await fetch(trendingTokenUrl, { headers });
@@ -290,7 +315,9 @@ export async function fetchTrendingTokens() {
         const coinIds = data.data.map(token => token.id).join(',');
 
         // Fetch icons' URLs
-        const logosUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/info?id=${coinIds}`;
+        // const logosUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/info?id=${coinIds}`;
+        const logosUrl = `${sandboxApi}/v2/cryptocurrency/info?id=${coinIds}`;
+
         const logosResponse = await fetch(logosUrl, { headers });
         if (!logosResponse.ok) {
             throw new Error(`HTTP error! status: ${logosResponse.status}`);
@@ -355,11 +382,14 @@ export async function fetchGainersAndLosers() {
 
 export async function fetchLatestContent() {
     const headers = {
-        'X-CMC_PRO_API_KEY': process.env.EXPO_PUBLIC_CMCKEY,
+        // 'X-CMC_PRO_API_KEY': process.env.EXPO_PUBLIC_CMCKEY, // for production key only
+        'X-CMC_PRO_API_KEY': sandboxApiKey, // for dev key only
         'Accept': 'application/json',
     };
 
-    const latestContentUrl = 'https://sandbox-api.coinmarketcap.com/v1/content/latest';
+    // const latestContentUrl = 'https://sandbox-api.coinmarketcap.com/v1/content/latest'; // for production api only
+    const latestContentUrl = `${sandboxApi}/v1/content/latest`; // for dev api only
+
 
     try {
         const response = await fetch(latestContentUrl, { headers });
@@ -377,11 +407,13 @@ export async function fetchLatestContent() {
 
 export async function fetchCryptocurrencyCategory(categoryId) {
     const headers = {
-        'X-CMC_PRO_API_KEY': process.env.EXPO_PUBLIC_CMCKEY,
+        // 'X-CMC_PRO_API_KEY': process.env.EXPO_PUBLIC_CMCKEY, // for production key only
+        'X-CMC_PRO_API_KEY': sandboxApiKey, // for dev key only
         'Accept': 'application/json',
     };
 
-    const categoryUrl = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/category?id=${categoryId}`;
+    // const categoryUrl = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/category?id=${categoryId}`; // for production api only
+    const categoryUrl = `${sandboxApi}/v1/cryptocurrency/category?id=${categoryId}`; // for dev api only
 
     try {
         const response = await fetch(categoryUrl, { headers });
@@ -399,11 +431,15 @@ export async function fetchCryptocurrencyCategory(categoryId) {
 
 export async function fetchCryptocurrencyCategories() {
     const headers = {
-        'X-CMC_PRO_API_KEY': process.env.EXPO_PUBLIC_CMCKEY,
+        // 'X-CMC_PRO_API_KEY': process.env.EXPO_PUBLIC_CMCKEY, // for production key only
+        'X-CMC_PRO_API_KEY': sandboxApiKey, // for dev key only
         'Accept': 'application/json',
     };
+   
+    // const categoriesUrl = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/categories';  // for production api only
+    const categoriesUrl = `${sandboxApi}/v1/cryptocurrency/categories`;   // for dev api only
 
-    const categoriesUrl = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/categories';
+    
 
     try {
         const response = await fetch(categoriesUrl, { headers });

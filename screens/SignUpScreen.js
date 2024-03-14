@@ -8,6 +8,7 @@ import Forms from '../components/Forms';
 import ButtonArrow from '../components/ButtonArrow';
 
 import { firstNameSchema, lastNameSchema, usernameSchema, passwordSchema, emailSchema } from '../utils/formValidator';
+import Button from '../components/Button';
 
 const SignUpScreen = ({ navigation }) => {
     
@@ -105,8 +106,6 @@ const SignUpScreen = ({ navigation }) => {
                 .insert([
                     { isPaid: false, userId: data.user.id, email: email, firstName: firstName, lastName: lastName,      username: username,}
                 ]);
-
-
         }
 
         if (error) {
@@ -118,20 +117,24 @@ const SignUpScreen = ({ navigation }) => {
         }
     };
 
-
-
     const handleLogin = () => {
         navigation.navigate('Login');
     }
 
     return (
-        <ScrollView contentContainerStyle={{ justifyContent: 'center', paddingHorizontal: 6, backgroundColor: 'white', paddingTop: 20, flex: 1 }}>
-            <View style={{flex:1, justifyContent:'flex-start', alignItems:'center', paddingHorizontal:10}}>
-                <View style={{width:'100%', marginVertical:10}}>
-                    <Logo size={80} />
+        <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingHorizontal: 6, backgroundColor: 'white' }}>
+            <View className='flex h-full w-full justify-top items-center px-6'>
+                <View className='flex flex-row w-full items-end justify-center  text-start mb-[20px] mt-3 relative'>
+                    <View className='absolute top-[-50%] left-[0%] translate-x-[-50%] translate-y-[-50%]'>
+                        <Logo size={33.47} />
+                    </View>
+                    <Text className='text-[16px] font-[400] leading-[24px] tracking-[1.5px]'>Crypto Profit</Text>
+                </View>
+                <View className='flex w-full mb-4'>
+                    <Text className='text-[24px] w-[500] leading-8'>Register</Text>
                 </View>
                 <View 
-                className='w-full bg-gray-200 rounded-lg px-6 py-4' 
+                className='w-full rounded-lg' 
                 >
                     <Forms 
                     setEmail={setEmail} 
@@ -149,21 +152,21 @@ const SignUpScreen = ({ navigation }) => {
                     repeatPasswordValid={repeatPasswordValid}
                     />
                 </View>
-                <View className='w-full flex-row justify-end items-center mt-5'>
-                    <ButtonArrow 
+                <View className='w-full  mt-5'>
+                    <Button
                     onPress={handleSignUp} 
                     title={'Signup'} 
-                    style={{opacity: (formValid&&!loading)?1:0.5}}
+                    // style={{opacity: (formValid&&!loading)?1:0.5}}
                     disabled={!formValid || loading}
                     loading={loading}
                     />
                 </View>
                 <View className='w-full flex-col justify-between items-center mt-10 '>
-                    <Text className='font-bold text-lg text-neutral-600 tracking-wider capitalize'>
+                    <Text className='font-[500] text-[14px] text-[#B4B4B4] tracking-wider capitalize mb-4 '>
                         Already have an account?
                     </Text>
                     <Text
-                        className='font-bold text-lg text-indigo-500 tracking-wider capitalize'
+                        className='font-[500] text-[14px] text-[#1E1E1E] tracking-wider capitalize'
                         onPress={handleLogin}>
                         Login
                     </Text>
