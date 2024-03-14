@@ -1,120 +1,6 @@
 import { supabase } from "../services/supabase";
 
 // utils/api.js
-export const fetchCoinDataCoinGecko = async (coinId) => {
-    const url = `${process.env.EXPO_PUBLIC_COIN_GECKO_URL}/coins/${coinId}`;
-
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        if (!data) {
-            console.error('Coin data not found');
-            return null;
-        }
-
-        return {
-            id: data.id,
-            icon: data.image.small,
-            name: data.name,
-            currentPrice: data.market_data.current_price.usd,
-            allTimeHigh: data.market_data.ath.usd,
-            allTimeLow: data.market_data.atl.usd,
-            athDate: data.market_data.ath_date.usd,
-            atlDate: data.market_data.atl_date.usd,
-            marketCap: data.market_data.market_cap.usd,
-            totalSupply: data.market_data.total_supply,
-            circulatingSupply: data.market_data.circulating_supply,
-            maxSupply: data.market_data.max_supply,
-            tradingVolume: data.market_data.total_volume.usd,
-            priceChangePercentage: data.market_data.price_change_percentage_24h,
-
-        };
-    } catch (error) {
-        console.error('Failed to fetch coin data:', error);
-        return null;
-    }
-};
-export async function updatePortfolioWithCoinGeckoData() {
-    const { data: portfolioEntries, error: portfolioError } = await supabase
-        .from('portfolio')
-        .select('*');
-
-    if (portfolioError) {
-        console.error('Error fetching portfolio:', portfolioError);
-        return;
-    }
-
-    const coinDataPromises = portfolioEntries.map(entry =>
-        fetch(`https://api.coingecko.com/api/v3/coins/${entry.coinId}`)
-            .then(response => response.json())
-            .catch(error => {
-                console.error(`Error fetching data for coin ${entry.coinId}:`, error);
-                return null;
-            })
-    );
-
-    try {
-        const coinDatas = await Promise.all(coinDataPromises);
-
-        for (let i = 0; i < portfolioEntries.length; i++) {
-            const entry = portfolioEntries[i];
-            const coinData = coinDatas[i]
-
-            // Perform your calculations here
-            const athRoi = (coinData.market_data.ath.usd ?? 0) / (coinData.market_data.atl.usd ?? 1);
-            const percentIncreaseFromAtl = ((coinData.market_data.current_price.usd ?? 0) / (coinData.market_data.atl.usd ?? 1) - 1) * 100;
-            const totalHoldings = coinData.market_data.current_price.usd * entry.shares;
-            const trueBudgetPerCoin = totalHoldings / entry.shares;
-            const projectedRoi = trueBudgetPerCoin * 70;
-            const additionalBudget = Math.max(entry.budget - trueBudgetPerCoin, 0);
-            const priceChangeIcon = coinData.market_data.price_change_percentage_24h >= 0 ? 'arrow-up' : 'arrow-down';
-            const priceChangeColor = coinData.market_data.price_change_percentage_24h >= 0 ? 'green' : 'red';
-
-            // Update the entry in Supabase
-            const updateResponse = await supabase
-                .from('portfolio')
-                .update({
-                    coinImage: coinData.image.small,
-                    coinName: coinData.name,
-                    allTimeHigh: coinData.market_data.ath.usd,
-                    allTimeLow: coinData.market_data.atl.usd,
-                    athRoi,
-                    increaseFromATL: percentIncreaseFromAtl,
-                    totalHoldings: totalHoldings,
-                    trueBudgetPerCoin: trueBudgetPerCoin,
-                    additionalBudget: additionalBudget,
-                    projectedRoi: projectedRoi,
-                    marketCap: coinData.market_data.market_cap.usd,
-                    totalSupply: coinData.market_data.total_supply,
-                    circulatingSupply: coinData.market_data.circulating_supply,
-                    maxSupply: coinData.market_data.max_supply,
-                    tradingVolume: coinData.market_data.total_volume.usd,
-                    marketCapRank: coinData.market_cap_rank,
-                    currentPrice: coinData.market_data.current_price.usd,
-                    priceChangePercentage: coinData.market_data.price_change_percentage_24h,
-                    priceChangeIcon,
-                    priceChangeColor
-                })
-                .match({ id: entry.id });
-
-            if (updateResponse.error) {
-                console.error(`Error updating portfolio entry for coin ${entry.coinId}:`, updateResponse.error);
-            }
-        }
-    } catch (error) {
-
-        console.error('Error updating portfolio with CoinGecko data:', error);
-    }
-}
-
-export const fetchSearchResults = async (query) => {
-    const url = `${process.env.EXPO_PUBLIC_COIN_GECKO_URL}/search?query=${query}`;
-
-
-    const response = await fetch(url);
-    const data = await response.json();
-    return data.coins;
-};
 
 export const fetchUsdToPhpRate = async () => {
     const headers = {
@@ -329,7 +215,7 @@ const userBudget = subscriptionData.budget || 0;
         const priceChangeColor = detail.quote.USD.percent_change_24h >= 0 ? 'green' : 'red';
 
         const totalHoldings = currentPrice * entry.shares;
-        const trueBudgetPerCoin = totalHoldings / entry.shares; // This line seems to have a logical error in the original snippet.
+        const trueBudgetPerCoin = totalHoldings / (currentPrice / atlPrice);
         const projectedRoi = trueBudgetPerCoin * 70;
         const additionalBudget = userBudget - trueBudgetPerCoin;
 
@@ -362,7 +248,6 @@ const userBudget = subscriptionData.budget || 0;
     }
         
 }
-
 
 export async function fetchCMCGlobalMetrics() {
     const headers = {
@@ -467,8 +352,6 @@ export async function fetchGainersAndLosers() {
         return null;
     }
 }
-
-
 
 export async function fetchLatestContent() {
     const headers = {
