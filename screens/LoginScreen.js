@@ -66,7 +66,7 @@ const LoginScreen = ({ navigation }) => {
                         title={'login'} 
                         disabled={Boolean(loading||!password||!email)}
                         loading={loading}
-                        // style={{opacity: (!loading&&password&&email)?1:0.9}}
+                        style={{opacity: (!loading&&password&&email)?1:0.9}}
                         />
                 </View>
                 <View className='w-full flex-col justify-between items-center mt-10  py-10'>
