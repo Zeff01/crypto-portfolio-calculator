@@ -15,12 +15,10 @@ import { Swipeable } from 'react-native-gesture-handler';
 
 
 const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedView }) => {
-
-    
-
+    const initialValue = data.shares !== null && data.shares !== undefined ? data.shares.toString() : '';
     const theme = useTheme()
     const [isEditing, setIsEditing] = useState(false);
-    const [editedShares, setEditedShares] = useState(data.shares.toString());
+    const [editedShares, setEditedShares] = useState(initialValue);
     const [budgetPerCoin, setBudgetPerCoin] = useState(0)
     const [trueBudgetPerCoin, setTrueBudgetPerCoin] = useState(0)
     const deleteCoin = useCoinDataStore((state) => state.deleteCoin);
