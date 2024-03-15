@@ -156,7 +156,7 @@ const SignUpScreen = ({ navigation }) => {
                     <Button
                     onPress={handleSignUp} 
                     title={'Signup'} 
-                    // style={{opacity: (formValid&&!loading)?1:0.5}}
+                    style={{opacity: (formValid&&!loading)?1:0.5}}
                     disabled={!formValid || loading}
                     loading={loading}
                     />

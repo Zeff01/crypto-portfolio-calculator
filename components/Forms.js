@@ -119,19 +119,6 @@ const Forms = ({
                 onChangeText={setPassword}
               />
             </View>
-            {/* <View className='flex flex-col gap-2 justify-center items-start py-3' style={{opacity:loading?0.5:1}}>
-              <FontAwesome name='lock' size={25} color={repeatPasswordValid? 'green' : isRepeatPasswordFocused ? '#6366f1' : '#f4f4f5'} type='regular' />
-              <TextInput
-                editable={!loading}
-                className='w-full h-[40px] p-2 font-bold tracking-wider text-neutral-500 text-base'
-                placeholder="Repeat password"
-                placeholderTextColor={'#a3a3a3'}
-                secureTextEntry
-                onFocus={() => setIsRepeatPasswordFocused(true)}
-                onBlur={() => setIsRepeatPasswordFocused(false)}
-                onChangeText={setRepeatPassword}
-              />
-            </View> */}
           </>
         )
       }
