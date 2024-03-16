@@ -25,7 +25,7 @@ const sortOptions = {
 const PortfolioScreen = () => {
     const theme = useTheme()
     const { setUsdToPhpRate } = useGlobalStore();
-    const [modalVisible, setModalVisible] = useState(true);
+    const [modalVisible, setModalVisible] = useState(false);
     const [portfolioEntries, setPortfolioEntries] = useState([]);
     const [totalHoldings, setTotalHoldings] = useState(0);
     const [loading, setLoading] = useState(false);
@@ -100,8 +100,8 @@ const PortfolioScreen = () => {
                 return;
             }
 
-            if (data?.isPaid) {
-                setModalVisible(false);
+            if (!data?.isPaid) {
+                setModalVisible(true);
             }
         }
     };
@@ -121,9 +121,6 @@ const PortfolioScreen = () => {
         const total = portfolioEntries.reduce((acc, entry) => acc + entry.totalHoldings, 0);
         setTotalHoldings(total.toFixed(2));
     }, [portfolioEntries]);
-
-
-
 
     //initial fetch
     useEffect(() => {
