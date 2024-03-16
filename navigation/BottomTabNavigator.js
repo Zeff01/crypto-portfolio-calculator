@@ -36,7 +36,6 @@ const BottomTabNavigator = () => {
                 tabBarInactiveTintColor: 'gray',
             })}
         >
-            <Tab.Screen name="HomeTab" component={HomeScreen} />
             <Tab.Screen
                 name="PortfolioTab"
                 component={PortfolioStackNavigator}
@@ -49,6 +48,7 @@ const BottomTabNavigator = () => {
                     title: 'Portfolio',
                 })}
             />
+            <Tab.Screen name="HomeTab" component={HomeScreen} />
         </Tab.Navigator>
     );
 };

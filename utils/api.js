@@ -364,7 +364,6 @@ const userBudget = subscriptionData.budget || 0;
         
 }
 
-
 export async function fetchCMCGlobalMetrics() {
     const headers = {
         'X-CMC_PRO_API_KEY': process.env.EXPO_PUBLIC_CMCKEY,
@@ -468,9 +467,6 @@ export async function fetchGainersAndLosers() {
         return null;
     }
 }
-
-
-
 export async function fetchLatestContent() {
     const headers = {
         'X-CMC_PRO_API_KEY': process.env.EXPO_PUBLIC_CMCKEY,
