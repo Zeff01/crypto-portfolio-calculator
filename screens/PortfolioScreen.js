@@ -13,6 +13,9 @@ import { RefreshControl } from 'react-native-gesture-handler'
 import { useTheme} from 'react-native-paper'
 import {Picker} from '@react-native-picker/picker';
 import { cloneDeep } from 'lodash';
+import { useHandleTheme } from '../hooks/useTheme';
+import { LinearGradient } from 'expo-linear-gradient';
+
 
 const sortOptions = {
     default: 'default',
@@ -24,6 +27,7 @@ const sortOptions = {
 
 const PortfolioScreen = () => {
     const theme = useTheme()
+    const { colors } = useHandleTheme()
     const { setUsdToPhpRate } = useGlobalStore();
     const [modalVisible, setModalVisible] = useState(false);
     const [portfolioEntries, setPortfolioEntries] = useState([]);
@@ -202,56 +206,61 @@ const PortfolioScreen = () => {
     };
 
 
-    const ListHeaderComponent = () => (
-        <View style={styles.headerContainer}>
-            <PortfolioHeader title="My Portfolio" totalHoldings={totalHoldings} fetchPortfolioData={fetchPortfolioData} />
-            
-            <View style={styles.iconsContainer}>
-                <TouchableOpacity // need to encapsulate to picker component to style it
-                style={{
-                    overflow:'hidden', 
-                    alignItems:'center', 
-                    justifyContent:'center', 
-                    width:180, 
-                    height:35,
-                    marginRight:'auto',
-                    borderRadius:10,
-                    backgroundColor:"#98CAFF",
-                    elevation:3
-                }}
-                itemStyle={{
-                    fontSize:12,
-                    backgroundColor:'red'
-                }}
-                >
+    const ListHeaderComponent = () => {
+        const { colors } = useHandleTheme();
 
-                <Picker 
-                selectedValue={sortBy}                    
-                onValueChange={(item) => {
-                    setSortBy(item)
-                }}
-                mode='dropdown'
-                style={{width:180,   color: 'white'}}
-                dropdownIconColor={'white'}
-                dropdownIconRippleColor={theme.colors.primary}                                
-                >
-                    <Picker.Item label="default" value={sortOptions.default} style={{backgroundColor:theme.colors.primary, fontSize:15, color: 'white',}} />
-                    <Picker.Item label="percent desc" value={sortOptions.percentDesc} style={{backgroundColor:theme.colors.primary, fontSize:15, color: 'white',}} />
-                    <Picker.Item label="percent asc" value={sortOptions.percentAsc} style={{backgroundColor:theme.colors.primary, fontSize:15, color: 'white',}} />
-                    <Picker.Item label="total desc" value={sortOptions.gainsDesc} style={{backgroundColor:theme.colors.primary, fontSize:15, color: 'white',}} />
-                    <Picker.Item label="total asc" value={sortOptions.gainsAsc} style={{backgroundColor:theme.colors.primary, fontSize:15, color: 'white',}} />
-                </Picker>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={toggleViewMode} style={styles.toggleViewButton}>
-                    <MaterialIcons name={simplifiedView ? 'view-agenda' : 'view-module'} size={36} color="#6200ee" />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate('AddCoin')} style={styles.toggleViewButton}>
-                    <MaterialIcons name="add" size={36} color="#6200ee" />
-                </TouchableOpacity>
+        return (
+            <View className={`flex flex-col bg-[${colors.card}]`}>
+                <PortfolioHeader title="Balance" totalHoldings={totalHoldings} fetchPortfolioData={fetchPortfolioData} />
+                <View style={styles.iconsContainer}>
+                    <TouchableOpacity // need to encapsulate to picker component to style it
+                    style={{
+                        overflow:'hidden', 
+                        alignItems:'center', 
+                        justifyContent:'center', 
+                        width:180, 
+                        height:35,
+                        marginRight:'auto',
+                        borderRadius:10,
+                        backgroundColor:"#98CAFF",
+                        elevation:3
+                    }}
+                    itemStyle={{
+                        fontSize:12,
+                        backgroundColor:'red'
+                    }}
+                    >
+
+                    <Picker 
+                    selectedValue={sortBy}                    
+                    onValueChange={(item) => {
+                        setSortBy(item)
+                    }}
+                    mode='dropdown'
+                    style={{width:180,   color: 'white'}}
+                    dropdownIconColor={'white'}
+                    dropdownIconRippleColor={colors.primary}                                
+                    >
+                        <Picker.Item label="default" value={sortOptions.default} style={{backgroundColor:colors.primary, fontSize:15, color: 'white',}} />
+                        <Picker.Item label="percent desc" value={sortOptions.percentDesc} style={{backgroundColor:colors.primary, fontSize:15, color: 'white',}} />
+                        <Picker.Item label="percent asc" value={sortOptions.percentAsc} style={{backgroundColor:colors.primary, fontSize:15, color: 'white',}} />
+                        <Picker.Item label="total desc" value={sortOptions.gainsDesc} style={{backgroundColor:colors.primary, fontSize:15, color: 'white',}} />
+                        <Picker.Item label="total asc" value={sortOptions.gainsAsc} style={{backgroundColor:colors.primary, fontSize:15, color: 'white',}} />
+                    </Picker>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={toggleViewMode} style={styles.toggleViewButton}>
+                        <MaterialIcons name={simplifiedView ? 'view-agenda' : 'view-module'} size={36} color={colors.icon} />
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => navigation.navigate('AddCoin')} style={styles.toggleViewButton}>
+                        <View className='flex flex-row py-[10px] px-[20px] rounded-full justify-center items-center bg-black'>
+                            <MaterialIcons name="add" size={16} color="#02F5C3" />
+                            <Text className='text-[#FFFFFF] capitalize text-[10px] font-[500] ml-1'>add</Text>
+                        </View>
+                    </TouchableOpacity>
+                </View>
             </View>
-            
-        </View>
-    );
+        )
+    };
 
     const onRefresh = React.useCallback(async () => {
         setRefreshing(true);
@@ -264,87 +273,84 @@ const PortfolioScreen = () => {
         setRefreshing(false);
     }, []);
 
-  
-
-
-
     return (
-        <View style={styles.container}>
-            <Spinner
-                visible={loading}
-                textContent={'Fetching Portfolio data'}
-                textStyle={styles.spinnerTextStyle}
-                color={'#FFF'}
-                overlayColor={'rgba(0,0,0,0.75)'}
-            />
+        <>
+            <LinearGradient
+                colors={[`${colors.background}`,`${colors.background}`,`${colors.background}`]}
+                className='flex flex-1'
+            > 
+                <View className={`p-[10px] flex flex-1`}>
+                        <Spinner
+                            visible={loading}
+                            textContent={'Fetching Portfolio data'}
+                            textStyle={styles.spinnerTextStyle}
+                            color={'#FFF'}
+                            overlayColor={'rgba(0,0,0,0.75)'}
+                        />
+                        <Modal
+                            animationType="slide"
+                            transparent={true}
+                            visible={modalVisible}
+                            onRequestClose={() => {
 
-            <Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => {
-
-                }}
-            >
-                <View style={styles.centeredView}>
-                    <View style={styles.modalView}>
-                        <Ionicons name="warning" size={30} color="red" />
-                        <Text style={styles.modalText}>Access Denied</Text>
-                        <Text>Please contact the admin to complete your payment.</Text>
-                    </View>
-                </View>
-            </Modal>
-            {portfolioEntries.length === 0 && <PortfolioHeader title="My Portfolio" totalHoldings={totalHoldings} fetchPortfolioData={fetchPortfolioData} />}
-            {portfolioEntries.length === 0 ? (
-                <View style={[styles.container, styles.placeholderContainer, {rowGap:10}]}>
-                    <Text style={{color:theme.colors.text}}>No coins added yet.</Text>
-                    <TouchableOpacity onPress={() => navigation.navigate('AddCoin')} 
-                    style={[styles.toggleViewButton, 
-                        {
-                            flexDirection:'row', 
-                            alignItems:'center',
-                            backgroundColor: theme.colors.primary,
-                            paddingHorizontal:10,
-                            paddingVertical:4, 
-                            borderRadius:10,
-                            elevation:5
-                        }]}
-                    >  
-                        <Text style={{color:'white'}}>ADD COIN</Text>
-                        <MaterialIcons name="add" size={32} color="#6200ee" />
-                    </TouchableOpacity>
-                </View>
-            ) :
-                <View style={styles.container}>
-                    <DraggableFlatList
-                        data={sortedPortfolioEntries}
-                        renderItem={renderItem}
-                        keyExtractor={(item, index) => `draggable-item-${item.id}`}
-                        numColumns={simplifiedView ? 2 : 1}
-                        ListHeaderComponent={ListHeaderComponent}   
-                        key={simplifiedView ? 'two-columns' : 'one-column'}
-                        refreshControl={
-                            <RefreshControl
-                                refreshing={refreshing}
-                                onRefresh={onRefresh}
-                            />
+                            }}
+                        >
+                            <View style={styles.centeredView}>
+                                <View style={styles.modalView}>
+                                    <Ionicons name="warning" size={30} color="red" />
+                                    <Text style={styles.modalText}>Access Denied</Text>
+                                    <Text>Please contact the admin to complete your payment.</Text>
+                                </View>
+                            </View>
+                        </Modal>
+                        {portfolioEntries.length === 0 && <PortfolioHeader title="Balance" totalHoldings={totalHoldings} fetchPortfolioData={fetchPortfolioData} />}
+                        {portfolioEntries.length === 0 ? (
+                            <View style={[styles.container, styles.placeholderContainer, {rowGap:10}]}>
+                                <Text style={{color:theme.colors.text}}>No coins added yet.</Text>
+                                <TouchableOpacity onPress={() => navigation.navigate('AddCoin')} 
+                                style={[styles.toggleViewButton, 
+                                    {
+                                        flexDirection:'row', 
+                                        alignItems:'center',
+                                        backgroundColor: theme.colors.primary,
+                                        paddingHorizontal:10,
+                                        paddingVertical:4, 
+                                        borderRadius:10,
+                                        elevation:5
+                                    }]}
+                                >  
+                                    <Text style={{color:'white'}}>ADD COIN</Text>
+                                    <MaterialIcons name="add" size={32} color="#6200ee" />
+                                </TouchableOpacity>
+                            </View>
+                        ) :
+                            <View className={`p-[10px] flex flex-1`}>
+                                <Text className={`text-[16px] font-[600] uppercase leading-6 pl-[20px] mb-[20px] text-[${colors.text}]`}>dashboard account</Text>
+                                <DraggableFlatList
+                                    data={sortedPortfolioEntries}
+                                    renderItem={renderItem}
+                                    keyExtractor={(item, index) => `draggable-item-${item.id}`}
+                                    numColumns={simplifiedView ? 2 : 1}
+                                    ListHeaderComponent={ListHeaderComponent}   
+                                    key={simplifiedView ? 'two-columns' : 'one-column'}
+                                    refreshControl={
+                                        <RefreshControl
+                                            refreshing={refreshing}
+                                            onRefresh={onRefresh}
+                                        />
+                                    }
+                                />
+                            </View>
                         }
 
-
-                    />
                 </View>
-            }
-
-        </View>
+            </LinearGradient> 
+        </>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {
-        backgroundColor: '#f9f9f9',
-        padding: 10,
-        flex: 1,
-    },
+    
     rateAndBudgetContainer: {
         flexDirection: 'column',
         justifyContent: 'space-between',
@@ -421,9 +427,6 @@ const styles = StyleSheet.create({
     },
     headerContainer: {
         flexDirection: 'column',
-     
-
-
     },
     toggleViewButton: {
         padding: 0,
@@ -439,7 +442,7 @@ const styles = StyleSheet.create({
     iconsContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-      
+        marginBottom: 10,
         marginRight: 8,
         display: 'flex',
         flex: 1,

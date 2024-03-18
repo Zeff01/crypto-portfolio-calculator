@@ -10,6 +10,8 @@ import { List } from 'react-native-paper';
 import { dataToParse, generateTableData } from '../utils/formatter'
 import { useTheme } from 'react-native-paper';
 import { Swipeable } from 'react-native-gesture-handler';
+import { useHandleTheme } from '../hooks/useTheme';
+
 
 
 
@@ -24,7 +26,8 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
     const deleteCoin = useCoinDataStore((state) => state.deleteCoin);
     const { usdToPhpRate } = useGlobalStore();
     const [expanded, setExpanded] = useState(false);
-    const navigation = useNavigation()
+    const navigation = useNavigation();
+    const { colors } = useHandleTheme();
 
     const editedSharesNum = Number(editedShares);
     const currentPriceNum = Number(data.currentPrice);
@@ -281,22 +284,20 @@ const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedV
 
         return (
             <Swipeable renderRightActions={renderRightActions}>
-
-            <View style={styles.mainContainer}>
-    <List.Accordion
-        style={[styles.card, isActive && styles.activeCard, { height: 80, justifyContent: 'center', marginTop:5 }]}
-        title={<AccordionTitle />}
-        right={() => <RightIcon />}
-        left={() => <LeftIcon />}
-        expanded={expanded}
-        onPress={() => navigation.navigate('CoinDetails', { data })}
-        // onPress={handleExpand}
-        onLongPress={onLongPress}
-        pointerEvents='auto'
-    >
-                    
-                </List.Accordion>
-            </View>
+                <View style={styles.mainContainer}>
+                    <List.Accordion
+                        style={[styles.card, isActive && styles.activeCard, { height: 80, justifyContent: 'center', marginTop:5 , backgroundColor: colors.coin }]}
+                        title={<AccordionTitle />}
+                        right={() => <RightIcon />}
+                        left={() => <LeftIcon />}
+                        expanded={expanded}
+                        onPress={() => navigation.navigate('CoinDetails', { data })}
+                        // onPress={handleExpand}
+                        onLongPress={onLongPress}
+                        pointerEvents='auto'
+                    >
+                    </List.Accordion>
+                </View>
             </Swipeable>
           
 
