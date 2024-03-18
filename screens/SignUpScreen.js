@@ -161,8 +161,8 @@ const SignUpScreen = ({ navigation }) => {
                     loading={loading}
                     />
                 </View>
-                <View className='w-full flex-col justify-between items-center mt-10 '>
-                    <Text className='font-[500] text-[14px] text-[#B4B4B4] tracking-wider capitalize mb-4 '>
+                <View className='w-full flex-col justify-between items-center mt-4 '>
+                    <Text className='font-[500] text-[14px] text-[#B4B4B4] tracking-wider capitalize mb-2 '>
                         Already have an account?
                     </Text>
                     <Text
