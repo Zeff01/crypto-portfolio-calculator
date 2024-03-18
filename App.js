@@ -15,8 +15,7 @@ import { CustomLightTheme, CustomDarkTheme } from './constants/Theme'
 import useThemeStore from './store/useThemeStore';
 import RootNavigation from './navigation/RootNavigation';
 import { supabase } from './services/supabase';
-import * as SplashScreen from 'expo-splash-screen'
-
+import * as SplashScreen from 'expo-splash-screen';
 // Keep the splash screen visible while we fetch resources
 SplashScreen.preventAutoHideAsync();
 

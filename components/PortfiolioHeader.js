@@ -3,12 +3,13 @@ import { View, Text, StyleSheet, TouchableOpacity, TextInput } from 'react-nativ
 import { FontAwesome, Foundation, Ionicons } from '@expo/vector-icons';
 import useGlobalStore from '../store/useGlobalStore';
 import { supabase } from '../services/supabase';
+import { useHandleTheme } from '../hooks/useTheme';
 const PortfolioHeader = ({ title, totalHoldings, fetchPortfolioData }) => {
+    const { colors, theme } = useHandleTheme();
     const [holdingsVisible, setHoldingsVisible] = useState(true);
     const [isEditingBudget, setIsEditingBudget] = useState(false);
     const [budget, setBudget] = useState(0);
     const { usdToPhpRate } = useGlobalStore();
-
 
     useEffect(() => {
         fetchBudget();
@@ -80,9 +81,6 @@ const PortfolioHeader = ({ title, totalHoldings, fetchPortfolioData }) => {
         setBudget(numericValue);
     };
 
-
-
-
     //edit budget input
     const toggleEdit = () => {
         setIsEditingBudget(!isEditingBudget);
@@ -114,27 +112,32 @@ const PortfolioHeader = ({ title, totalHoldings, fetchPortfolioData }) => {
 
     const phpBudget = (numericBudget * usdToPhpRate).toFixed(2);
 
-
     return (
-        <View style={styles.card}>
+        <View className={`mb-[20px] p-[30] rounded-[8px]`} style={{ backgroundColor: colors.card }}>
             <View style={styles.content}>
-                <Text style={styles.title}>{title}</Text>
+                <Text className={`text-[16px] font-[500] mb-[20px] leading-[24px] text-[${colors.text}]`}>{title}</Text>
                 <View style={styles.buttonContainer}>
                     <TouchableOpacity onPress={() => setHoldingsVisible(!holdingsVisible)}>
-                        <FontAwesome name={holdingsVisible ? 'eye' : 'eye-slash'} size={20} color="#6200ee" />
+                        <FontAwesome name={holdingsVisible ? 'eye' : 'eye-slash'} size={20} color={colors.icon} />
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => { }}>
-                        <Foundation name="graph-pie" size={20} color="#6200ee" />
+                        <Foundation name="graph-pie" size={20} color={colors.icon} />
                     </TouchableOpacity>
                 </View>
             </View>
             {holdingsVisible ? (
                 <View style={styles.holdingsContainer}>
-                    <Text style={styles.holdings}>{`USD: $${totalHoldings}`}</Text>
-                    <Text style={styles.holdings}>{`PHP: ₱${(parseFloat(totalHoldings) * usdToPhpRate).toFixed(2)}`}</Text>
+                    <View className='flex flex-row gap-2 items-end'>
+                        <Text className={`text-[24px] font-[500] text-[${colors.text}]`}>{totalHoldings}</Text>
+                        <Text className={`text-[10px] font-[400]  text-[#B4B4B4] uppercase tracking-[2px]`}>usd</Text>
+                    </View>
+                    <View className='flex flex-row gap-2 items-end'>
+                        <Text className={`text-[24px] font-[500] text-[${colors.text}]`}>{(parseFloat(totalHoldings) * usdToPhpRate).toFixed(2)}</Text>
+                        <Text className='text-[10px] font-[400]  text-[#B4B4B4] uppercase tracking-[2px]'>php</Text>
+                    </View>
                 </View>
             ) : (
-                <Text style={styles.holdings}>******</Text>
+                <Text className={`text-[16px] text-[${colors.text}] mb-10`}>******</Text>
             )}
             {isEditingBudget ? (
                 <>
@@ -158,11 +161,13 @@ const PortfolioHeader = ({ title, totalHoldings, fetchPortfolioData }) => {
                 </>
             ) : (
                 <View style={styles.budgetContainer}>
-                    <Text style={styles.subholdings}>Your Budget:</Text>
-                    <Text style={styles.budget}> {formattedBudget} / ₱{phpBudget}</Text>
-                    <TouchableOpacity onPress={toggleEdit} style={styles.iconButton}>
-                        <FontAwesome name="pencil-square-o" size={16} color="#585c58" />
-                    </TouchableOpacity>
+                    <Text className={` text-[14px] text-[${colors.text}] mb-2 font-[500] leading-[21px]`}>Your Budget:</Text>
+                    <View className='flex flex-row'>
+                        <Text className={` text-[14px] text-[${colors.text}] font-[500] text-center`}> {formattedBudget} / ₱{phpBudget}</Text>
+                        <TouchableOpacity onPress={toggleEdit} style={styles.iconButton}>
+                            <FontAwesome name="pencil-square-o" size={16} color={colors.icon} />
+                        </TouchableOpacity>
+                    </View>
                 </View>
             )}
         </View>
@@ -170,22 +175,11 @@ const PortfolioHeader = ({ title, totalHoldings, fetchPortfolioData }) => {
 };
 
 const styles = StyleSheet.create({
-    card: {
-        backgroundColor: '#fff',
-        padding: 10,
-        borderRadius: 8,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 5,
-        marginVertical: 10,
-        marginHorizontal: 2,
-    },
     title: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        marginBottom: 10,
+        fontSize: 16,
+        fontWeight: '500',
+        lineHeight: 24,
+        marginBottom: 20,
     },
     buttonContainer: {
         flexDirection: 'row',
@@ -199,7 +193,7 @@ const styles = StyleSheet.create({
     holdingsContainer: {
         flexDirection: 'column',
         gap: 4,
-        marginBottom: 2
+        marginBottom: 35
     },
     holdings: {
         fontSize: 16,
@@ -207,20 +201,23 @@ const styles = StyleSheet.create({
         marginBottom: 2,
     },
     subholdings: {
-        fontSize: 12,
-        color: '#666',
+        fontSize: 14,
+        color: '#1E1E1E',
         marginBottom: 2,
+        fontWeight: '500',
+        lineHeight: 21
     },
     budgetContainer: {
         display: 'flex',
         flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
         gap: 2
     },
     budget: {
-        fontSize: 12,
-        color: 'green',
-        fontWeight: 'bold',
+        fontSize: 14,
+        color: '#1E1E1E',
+        fontWeight: '500',
         textAlign: 'center',
     },
     iconButton: {
