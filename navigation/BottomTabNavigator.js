@@ -6,10 +6,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { TouchableOpacity } from 'react-native';
 import { StackNavigator, PortfolioStackScreen } from './AuthStackNavigator';
 import PortfolioStackNavigator from './PortfolioStackNavigator';
+import { useTheme } from 'react-native-paper';
 
 const Tab = createBottomTabNavigator();
 
 const BottomTabNavigator = () => {
+    const theme = useTheme(); // Use the hook to get the theme
+
     return (
         <Tab.Navigator
             screenOptions={({ route }) => ({
@@ -26,17 +29,17 @@ const BottomTabNavigator = () => {
                 },
                 headerShown: false,
                 headerStyle: {
-                    backgroundColor: '#6200ee',
+                    backgroundColor: theme.colors.card, // Use colors.card for background color
                 },
                 headerTintColor: '#fff',
                 headerTitleStyle: {
                     fontWeight: 'bold',
                 },
-                tabBarActiveTintColor: 'tomato',
+                tabBarActiveTintColor: theme.colors.icon,
                 tabBarInactiveTintColor: 'gray',
+                tabBarStyle: { backgroundColor: theme.colors.background }, // Apply background color to the tabBar as well
             })}
         >
-            <Tab.Screen name="HomeTab" component={HomeScreen} />
             <Tab.Screen
                 name="PortfolioTab"
                 component={PortfolioStackNavigator}
@@ -49,6 +52,7 @@ const BottomTabNavigator = () => {
                     title: 'Portfolio',
                 })}
             />
+            <Tab.Screen name="HomeTab" component={HomeScreen}  />
         </Tab.Navigator>
     );
 };

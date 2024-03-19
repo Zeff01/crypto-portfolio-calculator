@@ -22,7 +22,9 @@ const PortfolioStackNavigator = () => {
             <PortfolioStack.Screen
                 name="Portfolio"
                 component={PortfolioScreen}
-                options={{ title: 'My Portfolio' }}
+                options={{ 
+                    title: 'My Portfolio',
+                }}
             />
             <PortfolioStack.Screen
                 name="AddCoin"

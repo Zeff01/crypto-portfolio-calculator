@@ -9,28 +9,19 @@ import ForgetPasswordScreen from '../screens/ForgetPasswordScreen';
 
 const Stack = createNativeStackNavigator();
 
-
-
 const AuthStackNavigator = () => {
-
-
-
     return (
         <Stack.Navigator
             screenOptions={{
                 headerShown: false,
             }}
         >
-
             <Stack.Screen
                 name="Login"
                 component={LoginScreen}
                 options={{
                     title: '',
-                    headerStyle: {
-                        backgroundColor: 'white',
-                    },
-                    headerShadowVisible: false,
+                    headerShadowVisible: false
                 }}
             />
             <Stack.Screen
@@ -38,19 +29,15 @@ const AuthStackNavigator = () => {
                 component={SignUpScreen}
                 options={{
                     title: '',
-                    headerStyle: {
-                        backgroundColor: 'white',
-                    },
+                    headerBackVisible: false,
                     headerShadowVisible: false,
                 }}
             />
             <Stack.Screen name="Forget" component={ForgetPasswordScreen} />
 
         </Stack.Navigator>
-
     );
 };
-
 
 
 export default AuthStackNavigator;
