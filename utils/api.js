@@ -46,7 +46,6 @@ export const fetchCMCSearchResultsWithDetails = async (query) => {
   // Initial Coin Search
   const searchUrl = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/map?symbol=${query}`;
   const searchResponse = await fetch(searchUrl, { headers });
-  console.log("searchResponse", searchResponse)
   const searchData = await searchResponse.json();
   if (!searchData.data || searchData.data.length === 0) {
     return [];
