@@ -46,6 +46,7 @@ export const fetchCMCSearchResultsWithDetails = async (query) => {
   // Initial Coin Search
   const searchUrl = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/map?symbol=${query}`;
   const searchResponse = await fetch(searchUrl, { headers });
+  console.log("searchResponse", searchResponse)
   const searchData = await searchResponse.json();
   if (!searchData.data || searchData.data.length === 0) {
     return [];
@@ -69,6 +70,7 @@ export const fetchCMCSearchResultsWithDetails = async (query) => {
   const detailsData = await detailsResponse.json();
   const logosData = await logosResponse.json();
   const performanceData = await performanceResponse.json();
+  console.log("performanceData", performanceData)
 
   // Compile Detailed Results including Logos
   const detailedResults = searchData.data.flatMap((coin) => {
@@ -79,7 +81,7 @@ export const fetchCMCSearchResultsWithDetails = async (query) => {
       !coinDetail.periods.all_time ||
       !coinDetail.periods.all_time.quote
     ) {
-      console.error(`Missing all_time period data for coin ${coin.id}`);
+      console.error(`Missing all_time period data for coins ${coin.id}`);
       return []; // Use flatMap with empty array to skip processing this coin
     }
 
@@ -183,7 +185,6 @@ export async function updatePortfolioWithCMC() {
     .select("budget")
     .eq("userId", userData.user.id)
     .single();
-  console.log("zz  subscriptionData", subscriptionData);
 
   if (subscriptionError || !subscriptionData) {
     console.error("Error fetching subscription data:", subscriptionError);

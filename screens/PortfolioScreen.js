@@ -218,11 +218,11 @@ const PortfolioScreen = () => {
                         overflow:'hidden', 
                         alignItems:'center', 
                         justifyContent:'center', 
-                        width:180, 
+                        width:150, 
                         height:35,
                         marginRight:'auto',
                         borderRadius:10,
-                        backgroundColor:"#98CAFF",
+                        backgroundColor:"black",
                         elevation:3
                     }}
                     itemStyle={{
@@ -237,15 +237,15 @@ const PortfolioScreen = () => {
                         setSortBy(item)
                     }}
                     mode='dropdown'
-                    style={{width:180,   color: 'white'}}
+                    style={{width:150,   color: 'white', }}
                     dropdownIconColor={'white'}
                     dropdownIconRippleColor={colors.primary}                                
                     >
-                        <Picker.Item label="default" value={sortOptions.default} style={{backgroundColor:colors.primary, fontSize:15, color: 'white',}} />
-                        <Picker.Item label="percent desc" value={sortOptions.percentDesc} style={{backgroundColor:colors.primary, fontSize:15, color: 'white',}} />
-                        <Picker.Item label="percent asc" value={sortOptions.percentAsc} style={{backgroundColor:colors.primary, fontSize:15, color: 'white',}} />
-                        <Picker.Item label="total desc" value={sortOptions.gainsDesc} style={{backgroundColor:colors.primary, fontSize:15, color: 'white',}} />
-                        <Picker.Item label="total asc" value={sortOptions.gainsAsc} style={{backgroundColor:colors.primary, fontSize:15, color: 'white',}} />
+                        <Picker.Item label="default" value={sortOptions.default} style={{backgroundColor:'black', fontSize:15, color: 'white',}} />
+                        <Picker.Item label="percent desc" value={sortOptions.percentDesc} style={{backgroundColor:'black', fontSize:15, color: 'white',}} />
+                        <Picker.Item label="percent asc" value={sortOptions.percentAsc} style={{backgroundColor:'black', fontSize:15, color: 'white',}} />
+                        <Picker.Item label="total desc" value={sortOptions.gainsDesc} style={{backgroundColor:'black', fontSize:15, color: 'white',}} />
+                        <Picker.Item label="total asc" value={sortOptions.gainsAsc} style={{backgroundColor:'black', fontSize:15, color: 'white',}} />
                     </Picker>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={toggleViewMode} style={styles.toggleViewButton}>
@@ -279,7 +279,7 @@ const PortfolioScreen = () => {
                 colors={[`${colors.background}`,`${colors.background}`,`${colors.background}`]}
                 className='flex flex-1'
             > 
-                <View className={`p-[10px] flex flex-1`}>
+                <View className={`p-[10px] pb-12 flex flex-1`}>
                         <Spinner
                             visible={loading}
                             textContent={'Fetching Portfolio data'}
@@ -314,7 +314,7 @@ const PortfolioScreen = () => {
                                         alignItems:'center',
                                         backgroundColor: theme.colors.primary,
                                         paddingHorizontal:10,
-                                        paddingVertical:4, 
+                                        paddingVertical:10, 
                                         borderRadius:10,
                                         elevation:5
                                     }]}
@@ -332,6 +332,7 @@ const PortfolioScreen = () => {
                                     keyExtractor={(item, index) => `draggable-item-${item.id}`}
                                     numColumns={simplifiedView ? 2 : 1}
                                     ListHeaderComponent={ListHeaderComponent}   
+                                    showsVerticalScrollIndicator={false}
                                     key={simplifiedView ? 'two-columns' : 'one-column'}
                                     refreshControl={
                                         <RefreshControl

@@ -68,6 +68,11 @@ const SignUpScreen = ({ navigation }) => {
         ))
     }, [firstNameValid, lastNameValid, usernameValid, emailValid, passwordValid, repeatPasswordValid])
     
+    useEffect(() => {
+        console.log("Form Valid:", formValid); // Add this line
+        setFormValid(firstNameValid && lastNameValid && usernameValid && emailValid && passwordValid && repeatPasswordValid);
+    }, [firstNameValid, lastNameValid, usernameValid, emailValid, passwordValid, repeatPasswordValid]);
+    
 
     const updatePassword = (pwd) => {
         setPassword(pwd);
@@ -81,6 +86,7 @@ const SignUpScreen = ({ navigation }) => {
 
 
     const handleSignUp = async () => {
+        console.log('press')
         if (!passwordsMatch) {
             Alert.alert('Error', 'Passwords do not match.');
             return;
@@ -122,15 +128,15 @@ const SignUpScreen = ({ navigation }) => {
     }
 
     return (
-        <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingHorizontal: 6, backgroundColor: 'white' }}>
-            <View className='flex h-full w-full justify-top items-center px-6'>
-                <View className='flex flex-row w-full items-end justify-center  text-start mb-[20px] mt-3 relative'>
+        <ScrollView contentContainerStyle={{  justifyContent: 'center', paddingHorizontal: 6, backgroundColor: 'white' }}>
+            <View className=' w-full items-center px-6 mt-8 pb-8'>
+                <View className='flex flex-row w-full items-end justify-center  text-start mb-[20px] relative'>
                     <View className='absolute top-[-50%] left-[0%] translate-x-[-50%] translate-y-[-50%]'>
                         <Logo size={33.47} />
                     </View>
                     <Text className='text-[16px] font-[400] leading-[24px] tracking-[1.5px]'>Crypto Profit</Text>
                 </View>
-                <View className='flex w-full mb-4'>
+                <View className='flex w-full mb-2'>
                     <Text className='text-[24px] w-[500] leading-8'>Register</Text>
                 </View>
                 <View 
@@ -155,7 +161,7 @@ const SignUpScreen = ({ navigation }) => {
                 <View className='w-full  mt-5'>
                     <Button
                     onPress={handleSignUp} 
-                    title={'Signup'} 
+                    title={'Sign Up'} 
                     style={{opacity: (formValid&&!loading)?1:0.5}}
                     disabled={!formValid || loading}
                     loading={loading}
