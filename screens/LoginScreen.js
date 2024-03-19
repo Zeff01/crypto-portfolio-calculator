@@ -40,7 +40,7 @@ const LoginScreen = ({ navigation }) => {
     }
 
     return (
-        <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingHorizontal: 6, backgroundColor: 'white' }}>
+        <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingHorizontal: 6, backgroundColor: 'white', paddingTop: 50, flex: 1, }}>
             <View className='flex h-full w-full justify-top items-center px-6'>
                 <View className='flex flex-row w-full items-center justify-center  text-start mb-[80px] mt-3 relative'>
                     <View className='absolute top-[-50%] left-[0%] translate-x-[-50%] translate-y-[-50%]'>

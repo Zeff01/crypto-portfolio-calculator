@@ -128,7 +128,7 @@ const Forms = ({
                 secureTextEntry
                 onFocus={() => setIsRepeatPasswordFocused(true)}
                 onBlur={() => setIsRepeatPasswordFocused(false)}
-                onChangeText={setPassword}
+                onChangeText={setRepeatPassword}
               />
             </View>
           </>

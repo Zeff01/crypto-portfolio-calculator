@@ -67,12 +67,7 @@ const SignUpScreen = ({ navigation }) => {
             repeatPasswordValid
         ))
     }, [firstNameValid, lastNameValid, usernameValid, emailValid, passwordValid, repeatPasswordValid])
-    
-    useEffect(() => {
-        console.log("Form Valid:", formValid); // Add this line
-        setFormValid(firstNameValid && lastNameValid && usernameValid && emailValid && passwordValid && repeatPasswordValid);
-    }, [firstNameValid, lastNameValid, usernameValid, emailValid, passwordValid, repeatPasswordValid]);
-    
+
 
     const updatePassword = (pwd) => {
         setPassword(pwd);
@@ -91,8 +86,9 @@ const SignUpScreen = ({ navigation }) => {
             Alert.alert('Error', 'Passwords do not match.');
             return;
         }
-
         setLoading(true);
+        console.log('press2')
+      
         const { data, error } = await supabase.auth.signUp({
             email, password, options: {
                 data: {
@@ -102,6 +98,7 @@ const SignUpScreen = ({ navigation }) => {
                 }
             }
         });
+        console.log("data", data)
 
         setLoading(false);
 
@@ -118,6 +115,7 @@ const SignUpScreen = ({ navigation }) => {
             Alert.alert('Signup Failed', error.message);
         } else {
             Alert.alert('Signup Successful', 'Login to continue');
+            console.log('press23')
             // Optionally navigate to Login Screen or Home Screen after signup
             navigation.navigate('Login');
         }
@@ -128,13 +126,14 @@ const SignUpScreen = ({ navigation }) => {
     }
 
     return (
-        <ScrollView contentContainerStyle={{  justifyContent: 'center', paddingHorizontal: 6, backgroundColor: 'white' }}>
-            <View className=' w-full items-center px-6 mt-8 pb-8'>
-                <View className='flex flex-row w-full items-end justify-center  text-start mb-[20px] relative'>
-                    <View className='absolute top-[-50%] left-[0%] translate-x-[-50%] translate-y-[-50%]'>
+        <ScrollView contentContainerStyle={{  justifyContent: 'flex-start', paddingHorizontal: 6, backgroundColor: 'white', paddingTop: 50, flex: 1, }}>
+            <View className=' w-full items-center px-6  pb-8'>
+                <View className='flex flex-row w-full items-end justify-between  text-start  relative mb-8'>
+                    <View className=''>
                         <Logo size={33.47} />
                     </View>
                     <Text className='text-[16px] font-[400] leading-[24px] tracking-[1.5px]'>Crypto Profit</Text>
+                    <View></View>
                 </View>
                 <View className='flex w-full mb-2'>
                     <Text className='text-[24px] w-[500] leading-8'>Register</Text>
