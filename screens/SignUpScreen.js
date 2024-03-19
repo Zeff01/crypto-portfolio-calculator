@@ -159,7 +159,6 @@ const SignUpScreen = ({ navigation }) => {
         paddingHorizontal: 6,
         backgroundColor: "white",
         paddingTop: 50,
-        flex: 1,
       }}
     >
       <View className=" w-full items-center px-6  pb-8">
