@@ -15,6 +15,7 @@ import { Swipeable } from 'react-native-gesture-handler';
 
 
 const CoinCard = ({ data, fetchPortfolioData, onLongPress, isActive, simplifiedView }) => {
+
     
 
     const theme = useTheme()

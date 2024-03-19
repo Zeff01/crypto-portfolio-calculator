@@ -49,8 +49,9 @@ const CryptoMetricsUI = ({ data }) => {
 
     return (
         <View style={styles.container}>
-            {/* Market Cap */}
-            <View style={[styles.metricContainer, styles.marketCap]}>
+            <View style={{flex: 1, marginRight: 5,}}>
+    {/* Market Cap */}
+    <View style={[styles.metricContainer, styles.marketCap]}>
                 <Text style={styles.metricLabel}>Market Cap</Text>
                 <Text style={styles.metricValue}>${formatNumber(total_market_cap)}</Text>
                 <Text style={[styles.percentageChange, marketCapChange.startsWith('-') ? styles.negativeChange : styles.positiveChange]}>
@@ -66,9 +67,10 @@ const CryptoMetricsUI = ({ data }) => {
                     {volumeChange}%
                 </Text>
             </View>
-
-            {/* BTC Dominance */}
-            <View style={styles.metricContainer}>
+            </View>
+        <View style={{flex: 1, marginLeft: 5,}}>
+              {/* BTC Dominance */}
+          <View style={styles.metricContainer}>
                 <Text style={styles.metricLabel}>BTC Dominance</Text>
                 <Text style={styles.metricValue}>{safeToFixed(data.btc_dominance)}%</Text>
                 <Text style={[styles.percentageChange, btcDominanceChange.startsWith('-') ? styles.negativeChange : styles.positiveChange]}>
@@ -82,6 +84,7 @@ const CryptoMetricsUI = ({ data }) => {
                 <FearGreed data={safeToFixed(data.btc_dominance)}/> 
                 <Text style={styles.fearGreedPercent}>{safeToFixed(data.btc_dominance)}%</Text>
             </View>
+        </View>
         </View>
     );
 };
@@ -99,13 +102,12 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         position: 'relative',
         paddingVertical: 10,
-        width : '24%',
+        width : '100%',
         backgroundColor: '#ececec',
-        elevation: 5,
+        elevation: 2,
         justifyContent : 'center',
         borderRadius: 10,
-
-        
+        marginBottom: 10,
     },
     metricLabel: {
         fontSize: 11,
@@ -133,8 +135,8 @@ const styles = StyleSheet.create({
     
     fearGreedPercent: {
         position: 'absolute',
-        top: 55,
-        left: 20,
+        top: 50,
+        left: 55,
         fontSize: 18,
         fontWeight: 'bold',
         color: '#333',

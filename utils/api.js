@@ -162,14 +162,13 @@ export const fetchCMCSearchResultsWithDetails = async (query) => {
     // Fetch Detailed Information and Logos
     const detailsUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest?id=${coinIds}`;
     const logosUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/info?id=${coinIds}`;
-    const performanceUrl = `https://sandbox-api.coinmarketcap.com/v2/cryptocurrency/price-performance-stats/latest?id=${coinIds}&time_period=all_time`;
+    const performanceUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/price-performance-stats/latest?id=${coinIds}&time_period=all_time`;
 
-    // New: Fetch price performance stats
+    // Fetch price performance stats
     const [detailsResponse, logosResponse, performanceResponse] = await Promise.all([
         fetch(detailsUrl, { headers }),
         fetch(logosUrl, { headers }),
         fetch(performanceUrl, { headers }),
-
     ]);
 
     const detailsData = await detailsResponse.json();
@@ -177,33 +176,42 @@ export const fetchCMCSearchResultsWithDetails = async (query) => {
     const performanceData = await performanceResponse.json();
 
     // Compile Detailed Results including Logos
-    const detailedResults = searchData.data.map(coin => {
+    const detailedResults = searchData.data.flatMap(coin => {
+        const coinDetail = performanceData.data[coin.id];
+        if (!coinDetail || !coinDetail.periods || !coinDetail.periods.all_time || !coinDetail.periods.all_time.quote) {
+            console.error(`Missing all_time period data for coin ${coin.id}`);
+            return []; // Use flatMap with empty array to skip processing this coin
+        }
+
+        const allTimePeriodData = coinDetail.periods.all_time;
+        const quoteUSD = allTimePeriodData.quote.USD;
 
         const detail = detailsData.data[coin.id];
+        if (!detail) {
+            console.error(`Detail data missing for coin ${coin.id}`);
+            return [];
+        }
+
         const logoInfo = logosData.data[coin.id];
-        const performanceStats = performanceData.data[coin.id].quote.USD;
-        const quoteUSD = detail.quote.USD;
-        const athPrice = performanceStats.high;
-        const atlPrice = performanceStats.low;
-        const currentPrice = quoteUSD.price;
+        const currentPrice = detail.quote.USD.price;
 
-
-
-        const athRoi = (athPrice / atlPrice)
+        const athPrice = quoteUSD.high;
+        const atlPrice = quoteUSD.low;
+        const athRoi = (athPrice / atlPrice);
         const percentIncreaseFromAtl = ((currentPrice / atlPrice) - 1) * 100;
-        const priceChangeIcon = quoteUSD.percent_change_24h >= 0 ? 'arrow-up' : 'arrow-down';
-        const priceChangeColor = quoteUSD.percent_change_24h >= 0 ? 'green' : 'red';
+        const priceChangeIcon = quoteUSD.percent_change >= 0 ? 'arrow-up' : 'arrow-down';
+        const priceChangeColor = quoteUSD.percent_change >= 0 ? 'green' : 'red';
 
-        return {
+        return [{
             id: coin.id,
             name: coin.name,
             symbol: coin.symbol,
             logo: logoInfo.logo,
             description: logoInfo.description,
             marketCapRank: detail.cmc_rank,
-            currentPrice: currentPrice,
-            tradingVolume: quoteUSD.volume_24h,
-            marketCap: quoteUSD.market_cap,
+            currentPrice,
+            tradingVolume: detail.quote.USD.volume_24h,
+            marketCap: detail.quote.USD.market_cap,
             circulatingSupply: detail.circulating_supply,
             totalSupply: detail.total_supply,
             maxSupply: detail.max_supply === 'null' ? -1 : detail.max_supply,
@@ -213,10 +221,9 @@ export const fetchCMCSearchResultsWithDetails = async (query) => {
             percentIncreaseFromAtl,
             priceChangeIcon,
             priceChangeColor,
-            priceChangePercentage: quoteUSD.percent_change_24h,
-        };
+            priceChangePercentage: detail.quote.USD.percent_change_24h,
+        }];
     });
-
 
     return detailedResults;
 };
@@ -229,7 +236,7 @@ async function fetchLatestCoinData(coinId) {
     try {
         const detailsUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest?id=${coinId}`;
         const logosUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/info?id=${coinId}`;
-        const performanceUrl = `https://sandbox-api.coinmarketcap.com/v2/cryptocurrency/price-performance-stats/latest?id=${coinId}&time_period=all_time`;
+        const performanceUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/price-performance-stats/latest?id=${coinId}&time_period=all_time`;
 
         // New: Fetch price performance stats
         const [detailsResponse, logosResponse, performanceResponse] = await Promise.all([
@@ -255,81 +262,114 @@ async function fetchLatestCoinData(coinId) {
 }
 
 export async function updatePortfolioWithCMC() {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) return;
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+ 
+    if (userError) {
+        console.error('Error fetching user:', userError);
+        return;
+    }
+    if (!userData) {
+        console.log('No user found');
+        return;
+    }
+
+     // Fetch budget from the subscription table
+  const { data: subscriptionData, error: subscriptionError } = await supabase
+  .from('subscription')
+  .select('budget')
+  .eq('userId', userData.user.id)
+  .single();
+
+if (subscriptionError || !subscriptionData) {
+  console.error('Error fetching subscription data:', subscriptionError);
+  return;
+}
+
+const userBudget = subscriptionData.budget || 0;
+
 
     const { data: portfolioEntries, error: portfolioError } = await supabase
         .from('portfolio')
         .select('*')
-        .eq('userId', user.id);
-
-    const { data } = await supabase.from('subscription').select('budget').eq('userId', user.id).single()
+        .eq('userId', userData.user.id)
 
     if (portfolioError) {
         console.error('Error fetching portfolio:', portfolioError);
         return;
     }
 
+
+
     for (const entry of portfolioEntries) {
-
+        // Assume fetchLatestCoinData is adjusted similarly to fetchCMCSearchResultsWithDetails
         const { detailsData, logosData, performanceData } = await fetchLatestCoinData(entry.coinId);
+        if (!detailsData || !logosData || !performanceData) {
+            console.error(`Data fetching error for coin ${entry.coinId}`);
+            continue; // Skip this entry if any data is missing
+        }
+
         const detail = detailsData.data[entry.coinId];
-        const performanceStats = performanceData.data[entry.coinId].quote.USD;
-        const quoteUSD = detail.quote.USD;
-        const athPrice = performanceStats.high;
-        const atlPrice = performanceStats.low;
-        const currentPrice = quoteUSD.price;
+        const logoInfo = logosData.data[entry.coinId];
+        const coinDetail = performanceData.data[entry.coinId];
+        
+        if (!coinDetail || !coinDetail.periods || !coinDetail.periods.all_time || !coinDetail.periods.all_time.quote) {
+            console.error(`Missing all_time period data for coin ${entry.coinId}`);
+            continue; // Skip this entry if performance data is missing
+        }
 
+        const allTimePeriodData = coinDetail.periods.all_time;
+        const quoteUSD = allTimePeriodData.quote.USD;
 
-
-        const athRoi = (athPrice / atlPrice)
+        const currentPrice = detail.quote.USD.price;
+        const athPrice = quoteUSD.high;
+        const atlPrice = quoteUSD.low;
+        const athRoi = athPrice / atlPrice;
         const percentIncreaseFromAtl = ((currentPrice / atlPrice) - 1) * 100;
-        const priceChangeIcon = quoteUSD.percent_change_24h >= 0 ? 'arrow-up' : 'arrow-down';
-        const priceChangeColor = quoteUSD.percent_change_24h >= 0 ? 'green' : 'red';
+        const priceChangeIcon = detail.quote.USD.percent_change_24h >= 0 ? 'arrow-up' : 'arrow-down';
+        const priceChangeColor = detail.quote.USD.percent_change_24h >= 0 ? 'green' : 'red';
 
         const totalHoldings = currentPrice * entry.shares;
-        const trueBudgetPerCoin = totalHoldings / (currentPrice / atlPrice);
+        const trueBudgetPerCoin = totalHoldings / entry.shares; // This line seems to have a logical error in the original snippet.
         const projectedRoi = trueBudgetPerCoin * 70;
-        const additionalBudget = data.budget - trueBudgetPerCoin
+        const additionalBudget = userBudget - trueBudgetPerCoin;
 
-        const { error: updateError } = await supabase
-            .from('portfolio')
-            .update({
-                totalHoldings: totalHoldings,
-                currentPrice: currentPrice,
-                //self caulculation
-                athRoi: athRoi,
-                increaseFromATL: percentIncreaseFromAtl,
-                totalHoldings: totalHoldings,
-                trueBudgetPerCoin: trueBudgetPerCoin,
-                additionalBudget: additionalBudget,
-                projectedRoi: projectedRoi,
-                priceChangeIcon: priceChangeIcon,
-                priceChangeColor: priceChangeColor,
-                allTimeHigh: athPrice,
-                allTimeLow: atlPrice,
-                priceChangePercentage: quoteUSD.percent_change_24h,
-                tradingVolume: quoteUSD.volume_24h,
-                marketCap: quoteUSD.market_cap,
-                maxSupply: detail.max_supply === 'null' ? -1 : detail.max_supply,
-                totalSupply: detail.total_supply,
-                circulatingSupply: detail.circulating_supply,
+        const updateResponse = await supabase.from('portfolio').update({
+            coinImage: logoInfo.logo,
+            coinName: detail.name,
+            currentPrice: currentPrice,
+            //self calculation
+            athRoi: athRoi,
+            increaseFromATL: percentIncreaseFromAtl,
+            totalHoldings: totalHoldings,
+            trueBudgetPerCoin: trueBudgetPerCoin,
+            additionalBudget: additionalBudget,
+            projectedRoi: projectedRoi,
+            priceChangeIcon: priceChangeIcon,
+            priceChangeColor: priceChangeColor,
+            allTimeHigh: athPrice,
+            allTimeLow: atlPrice,
+            priceChangePercentage: detail.quote.USD.percent_change_24h,
+            tradingVolume: detail.quote.USD.volume_24h,
+            marketCap: detail.quote.USD.market_cap,
+            maxSupply: detail.max_supply === 'null' ? -1 : detail.max_supply,
+            totalSupply: detail.total_supply,
+            circulatingSupply: detail.circulating_supply,
+        }).match({ id: entry.id });
 
-            })
-            .match({ id: entry.id });
-
-        if (updateError) {
-            console.error(`Error updating portfolio entry for coin ${entry.coinId}:`, updateError);
+        if (updateResponse.error) {
+            console.error(`Error updating portfolio entry for coin ${entry.coinId}:`, updateResponse.error);
         }
     }
+        
 }
+
 
 export async function fetchCMCGlobalMetrics() {
     const headers = {
         'X-CMC_PRO_API_KEY': process.env.EXPO_PUBLIC_CMCKEY,
         'Accept': 'application/json',
     };
-    const globalMetricsUrl = 'https://sandbox-api.coinmarketcap.com/v1/global-metrics/quotes/latest';
+    const globalMetricsUrl = 'https://pro-api.coinmarketcap.com/v1/global-metrics/quotes/latest';
 
 
     try {
@@ -352,7 +392,7 @@ export async function fetchTrendingTokens() {
         'Accept': 'application/json',
     };
 
-    const trendingTokenUrl = 'https://sandbox-api.coinmarketcap.com/v1/community/trending/token';
+    const trendingTokenUrl = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest';
 
     try {
         const response = await fetch(trendingTokenUrl, { headers });
@@ -361,12 +401,74 @@ export async function fetchTrendingTokens() {
         }
         const data = await response.json();
 
-        return data;
+        // Extract IDs from trending tokens
+        const coinIds = data.data.map(token => token.id).join(',');
+
+        // Fetch icons' URLs
+        const logosUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/info?id=${coinIds}`;
+        const logosResponse = await fetch(logosUrl, { headers });
+        if (!logosResponse.ok) {
+            throw new Error(`HTTP error! status: ${logosResponse.status}`);
+        }
+        const logosData = await logosResponse.json();
+
+        // Add icon URLs to each trending token
+        const tokensWithIcons = data.data.map(token => {
+            const tokenInfo = logosData.data[token.id];
+            const iconUrl = tokenInfo.logo; // Assuming 'logo' is the correct field for the icon URL.
+            return { ...token, iconUrl };
+        });
+    
+        return tokensWithIcons;
     } catch (error) {
-        console.error('Error fetching Trending Token data:', error.message);
+        console.error('Error fetching Trending Token data:', error);
         return null;
     }
 }
+
+export async function fetchGainersAndLosers() {
+    const headers = {
+        'X-CMC_PRO_API_KEY': process.env.EXPO_PUBLIC_CMCKEY,
+        'Accept': 'application/json',
+    };
+
+    const gainersLosersUrl = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/trending/gainers-losers';
+
+    try {
+        const response = await fetch(gainersLosersUrl, { headers });
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+
+        // The structure of the response for gainers and losers might differ from the listings endpoint.
+        // Assuming it has a similar structure where data contains an array of tokens
+        // You might need to adjust the path to tokens based on the actual response structure
+        const coinIds = data.data.map(token => token.id).join(',');
+
+        // Fetch icons' URLs
+        const logosUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/info?id=${coinIds}`;
+        const logosResponse = await fetch(logosUrl, { headers });
+        if (!logosResponse.ok) {
+            throw new Error(`HTTP error! status: ${logosResponse.status}`);
+        }
+        const logosData = await logosResponse.json();
+
+        // Add icon URLs to each trending token
+        const tokensWithIcons = data.data.map(token => {
+            const tokenInfo = logosData.data[token.id];
+            const iconUrl = tokenInfo.logo; // Assuming 'logo' is the correct field for the icon URL.
+            return { ...token, iconUrl };
+        });
+
+        return tokensWithIcons;
+    } catch (error) {
+        console.error('Error fetching Trending Gainers and Losers data:', error);
+        return null;
+    }
+}
+
+
 
 export async function fetchLatestContent() {
     const headers = {
@@ -396,7 +498,7 @@ export async function fetchCryptocurrencyCategory(categoryId) {
         'Accept': 'application/json',
     };
 
-    const categoryUrl = `https://sandbox-api.coinmarketcap.com/v1/cryptocurrency/category?id=${categoryId}`;
+    const categoryUrl = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/category?id=${categoryId}`;
 
     try {
         const response = await fetch(categoryUrl, { headers });
@@ -418,7 +520,7 @@ export async function fetchCryptocurrencyCategories() {
         'Accept': 'application/json',
     };
 
-    const categoriesUrl = 'https://sandbox-api.coinmarketcap.com/v1/cryptocurrency/categories';
+    const categoriesUrl = 'https://pro-api.coinmarketcap.com/v1/cryptocurrency/categories';
 
     try {
         const response = await fetch(categoriesUrl, { headers });

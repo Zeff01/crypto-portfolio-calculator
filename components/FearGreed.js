@@ -25,7 +25,7 @@ const FearGreed = ({data}) => {
     const { x: positionOnPathX, y: positionOnPathY } = findCoordinates(percentage, pos);
 
     return (
-        <Svg width="80" height="50" viewBox="0 0 899 453">
+        <Svg width="80" height="60" viewBox="0 0 899 453">
         
             {/* Render the paths */}
             <Path

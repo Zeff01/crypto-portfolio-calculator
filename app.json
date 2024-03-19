@@ -33,6 +33,47 @@
     ],
     "extra": {
       "eas": {
+        "projectId": "cd63a1d6-4661-4065-929b-539f3ad7231f"
+      }
+    }
+  }
+}
+
+{
+  "expo": {
+    "name": "crypto-portfolio",
+    "slug": "crypto-portfolio",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/android_icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/images/screen.png",
+      "resizeMode": "cover",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.zeff01.cryptoportfolio"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.zeff01.cryptoportfolio"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-font"
+    ],
+    "extra": {
+      "eas": {
         "projectId": "6e436939-4e54-4527-9b59-06bb6d73ec0b"
       }
     }

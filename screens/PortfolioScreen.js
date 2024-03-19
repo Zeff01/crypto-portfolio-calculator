@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useLayoutEffect } from 'react';
-import { View, Text, StyleSheet, Modal, AppState, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Modal, AppState, TouchableOpacity, Dimensions} from 'react-native';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import CoinCard from '../components/CoinCard';
 import { fetchUsdToPhpRate, updatePortfolioWithCMC, updatePortfolioWithCoinGeckoData } from '../utils/api';
@@ -25,7 +25,7 @@ const sortOptions = {
 const PortfolioScreen = () => {
     const theme = useTheme()
     const { setUsdToPhpRate } = useGlobalStore();
-    const [modalVisible, setModalVisible] = useState(false);
+    const [modalVisible, setModalVisible] = useState(true);
     const [portfolioEntries, setPortfolioEntries] = useState([]);
     const [totalHoldings, setTotalHoldings] = useState(0);
     const [loading, setLoading] = useState(false);
@@ -41,16 +41,25 @@ const PortfolioScreen = () => {
 
     //fetch portfolio data
     const fetchPortfolioData = async () => {
-        // setRefreshing(true);
         showLoader()
 
-        const { data: { user } } = await supabase.auth.getUser()
+        const { data: userData, error: userError } = await supabase.auth.getUser();
+        if (userError) {
+            console.error('Error fetching user:', userError);
+            return;
+        }
+        if (!userData) {
+            console.log('No user found');
+            return;
+        }
+    
+        
 
-        if (user) {
+        if (userData) {
             const { data: portfolioData, error } = await supabase
                 .from('portfolio')
                 .select('*')
-                .eq('userId', user.id)
+                .eq('userId', userData.user.id)
                 .order('orderIndex', { ascending: true });
 
             if (error) {
@@ -60,7 +69,6 @@ const PortfolioScreen = () => {
             }
         }
         hideLoader();
-        // setRefreshing(false);
     };
 
 
@@ -68,6 +76,10 @@ const PortfolioScreen = () => {
     //get dollar rate to php
     const getExchangeRate = async () => {
         const rate = await fetchUsdToPhpRate();
+        if (!rate) {
+            console.error('Failed to fetch exchange rate');
+            return;
+        }
         setUsdToPhpRate(rate);
     };
 
@@ -88,8 +100,8 @@ const PortfolioScreen = () => {
                 return;
             }
 
-            if (!data?.isPaid) {
-                setModalVisible(true);
+            if (data?.isPaid) {
+                setModalVisible(false);
             }
         }
     };
@@ -120,7 +132,7 @@ const PortfolioScreen = () => {
     }, []);
 
     const refreshData = async () => {
-        await fetchPortfolioData();
+        // await fetchPortfolioData();
         // await updatePortfolioWithCoinGeckoData();
 
     };
@@ -255,22 +267,7 @@ const PortfolioScreen = () => {
         setRefreshing(false);
     }, []);
 
-
-    const onDragEnd = async ({ data }) => {
-        // Update the database with the new order index for each item
-        
-        for (let i = 0; i < data.length; i++) {
-            const item = data[i];
-            await supabase
-                .from('portfolio')
-                .update({ orderIndex: i })
-                .match({ id: item.id });
-        }
-        
-        // After updating the database, update the state to reflect the new order
-        setPortfolioEntries(data);
-    };
-    
+  
 
 
 
@@ -284,7 +281,7 @@ const PortfolioScreen = () => {
                 overlayColor={'rgba(0,0,0,0.75)'}
             />
 
-            {/* <Modal
+            <Modal
                 animationType="slide"
                 transparent={true}
                 visible={modalVisible}
@@ -299,7 +296,7 @@ const PortfolioScreen = () => {
                         <Text>Please contact the admin to complete your payment.</Text>
                     </View>
                 </View>
-            </Modal> */}
+            </Modal>
             {portfolioEntries.length === 0 && <PortfolioHeader title="My Portfolio" totalHoldings={totalHoldings} fetchPortfolioData={fetchPortfolioData} />}
             {portfolioEntries.length === 0 ? (
                 <View style={[styles.container, styles.placeholderContainer, {rowGap:10}]}>
@@ -326,7 +323,6 @@ const PortfolioScreen = () => {
                         data={sortedPortfolioEntries}
                         renderItem={renderItem}
                         keyExtractor={(item, index) => `draggable-item-${item.id}`}
-                        onDragEnd={onDragEnd}
                         numColumns={simplifiedView ? 2 : 1}
                         ListHeaderComponent={ListHeaderComponent}   
                         key={simplifiedView ? 'two-columns' : 'one-column'}

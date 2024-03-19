@@ -103,7 +103,7 @@ const SignUpScreen = ({ navigation }) => {
             await supabase
                 .from('subscription')
                 .insert([
-                    { isPaid: false, userId: data.user.id, email: email, firstName: firstName, lastName: lastName }
+                    { isPaid: false, userId: data.user.id, email: email, firstName: firstName, lastName: lastName,      username: username,}
                 ]);
 
 
