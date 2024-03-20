@@ -2,14 +2,6 @@ import { supabase } from "../services/supabase";
 
 // utils/api.js
 
-export const fetchSearchResults = async (query) => {
-  const url = `${process.env.EXPO_PUBLIC_COIN_GECKO_URL}/search?query=${query}`;
-
-  const response = await fetch(url);
-  const data = await response.json();
-  return data.coins;
-};
-
 export const fetchUsdToPhpRate = async () => {
   const headers = {
     "X-CMC_PRO_API_KEY": process.env.EXPO_PUBLIC_CMCKEY,
