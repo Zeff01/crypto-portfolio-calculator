@@ -16,8 +16,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingHorizontal: 15,
-        height: 100,
-        backgroundColor: '#ececec',
+        height: 80,
+        backgroundColor: '#232726',
         borderRadius: 10,
         marginRight: 10,
     },
@@ -32,18 +32,21 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     coinName: {
-        fontSize: 15,
-        fontWeight: 'bold',
+        fontSize: 16,
+        fontWeight: '500',
+        color: '#ffffff',
     },
     priceContainer: {
         marginRight: 9,
     },
     price: {
-        fontSize: 13,
+        fontSize: 16,
+        fontWeight: '400',
+        color: '#ffffff',
     },
     growth: {
         // This will be set dynamically based on growth
-        fontSize: 16,
+        fontSize: 12,
     },
     growthContainer: {
         flex: 1,
@@ -53,7 +56,7 @@ const styles = StyleSheet.create({
 
 const Coins = ({ title, data }) => {
     const renderCoin = ({ item }) => {
-        const growthColor = item.quote.USD.percent_change_1h > 0 ? 'green' : 'red';
+        const growthColor = item.quote.USD.percent_change_1h > 0 ? '#02F5C3' : '#FF2E2E';
         return (
             <TouchableOpacity style={styles.item} onPress={() => console.log('Navigate to coin data page')}>
                 <View style={styles.iconContainer}>
@@ -64,10 +67,13 @@ const Coins = ({ title, data }) => {
                 </View>
                 <View style={styles.coinNameContainer}>
                     <Text style={styles.coinName}>{item.name}</Text>
-                    <Text style={styles.price}>${item.quote.USD.price.toFixed(2)}</Text>
-                    <Text style={[styles.growth, { color: growthColor }]}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <Text style={styles.price}>${item.quote.USD.price.toFixed(2)}</Text>
+                        <Text style={[styles.growth, { color: growthColor, marginLeft: 10 }]}>
                         {item.quote.USD.percent_change_1h.toFixed(2)}%
                     </Text>
+                    </View>
+
                 </View>
             </TouchableOpacity>
         );

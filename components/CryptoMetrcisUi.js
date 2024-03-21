@@ -81,8 +81,8 @@ const CryptoMetricsUI = ({ data }) => {
             <View style={[styles.metricContainer, styles.fearGreed]}>
                 <Text style={styles.metricLabel}>Fear & Greed</Text>  
                 {/* need data for fear and greed */}
-                <FearGreed data={safeToFixed(data.btc_dominance)}/> 
-                <Text style={styles.fearGreedPercent}>{safeToFixed(data.btc_dominance)}%</Text>
+                {/* <FearGreed data={safeToFixed(data.btc_dominance)}/>  */}
+                <Text style={styles.metricValue}>{safeToFixed(data.btc_dominance)}%</Text>
             </View>
         </View>
         </View>
@@ -95,59 +95,70 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-around',
         width: '90%',
-        marginTop: 10,
+        
 
     },
     metricContainer: {
-        alignItems: 'center',
+        alignItems: 'left',
+        paddingTop: 20,
+        padding: 20,
         position: 'relative',
         paddingVertical: 10,
         width : '100%',
-        backgroundColor: '#ececec',
-        elevation: 2,
+        backgroundColor: 'rgba(236, 236, 236, 0.08)',
+        // elevation: 2,
         justifyContent : 'center',
         borderRadius: 10,
         marginBottom: 10,
+        borderWidth: 1, 
+        borderColor: 'rgba(255, 255, 255, 0.1)',
     },
     metricLabel: {
         fontSize: 11,
-        fontWeight: '800',
-        color: '#333',
+        fontWeight: '500',
+        color: '#B4B4B4',
+        marginBottom: 10,
     },
+
     metricValue: {
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#333',
+        fontSize: 24,
+        fontWeight: '600',
+        color: '#fff',
     },
     percentageChange: {
-        fontSize: 16,
-        fontWeight: 'bold',
+        fontSize: 14,
+        fontWeight: '600',
         borderRadius: 5,
         padding: 5,
         marginTop: 4,
+        textAlign: 'right'
     },
     positiveChange: {
-        color: 'green',
+        color: '#02F5C3',
     },
     negativeChange: {
-        color: 'red',
+        color: '#FF2E2E',
     },
     
     fearGreedPercent: {
         position: 'absolute',
         top: 50,
         left: 55,
-        fontSize: 18,
-        fontWeight: 'bold',
-        color: '#333',
+        fontSize: 24,
+        fontWeight: '600',
+        color: '#fff',
     },
     marketCap:{
         borderTopLeftRadius : 10,
-        borderBottomLeftRadius : 10
+        borderBottomLeftRadius : 10,
+        paddingTop: 20,
+        color: 'white'
     },
     fearGreed:{
         borderTopRightRadius : 10,
-        borderBottomRightRadius : 10
+        borderBottomRightRadius : 10,
+        paddingBottom: 45,
+       
     }
 });
 

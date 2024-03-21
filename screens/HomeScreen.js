@@ -9,9 +9,14 @@ import Banner from '../components/home/Banner';
 import News from '../components/home/News';
 import Coins from '../components/home/Coins';
 import { supabase } from '../services/supabase';
+import { useHandleTheme } from '../hooks/useTheme';
+
+
+import { LinearGradient } from 'expo-linear-gradient';
 
 const HomeScreen = () => {
-    const { colors } = useTheme();
+    const theme = useTheme()
+    const { colors } = useHandleTheme()
     const navigation = useNavigation();
     const [cryptoData, setCryptoData] = useState([]);
     const [cryptoNews, setCryptoNews] = useState()
@@ -23,6 +28,8 @@ const HomeScreen = () => {
 
     const [category, setCategory] = useState()
     const [categories, setCategories] = useState()
+
+    
 
     const fetchCryptoData = async () => {
         const data = await fetchCMCGlobalMetrics();
@@ -101,14 +108,17 @@ const HomeScreen = () => {
         setRefreshing(false);
     }, []);
 
+    
+
 
     const dynamicStyles = StyleSheet.create({
         container: {
             flex: 1, 
             backgroundColor: colors.background,
             alignItems: 'center',
-            gap: 10,
-            paddingBottom: 10
+            // gap: 10,
+            paddingBottom: 90,
+            
         },
         topBar: {
             flexDirection: 'row',
@@ -165,11 +175,16 @@ const HomeScreen = () => {
         },
     });
 
+    
+
  
 
     return (
+         
         <ScrollView
-            contentContainerStyle={[dynamicStyles.container, { backgroundColor: '#f9f9f9' }]}
+            // contentContainerStyle={[dynamicStyles.container, { backgroundColor: '#f9f9f9' }]}
+            
+            contentContainerStyle={[dynamicStyles.container,]}
             refreshControl={
                 <RefreshControl
                     refreshing={refreshing}
@@ -177,14 +192,47 @@ const HomeScreen = () => {
                 />
             }
         >
+            {/* <LinearGradient
+            
+            colors={['rgba(93, 93, 93, 0.8)', '#034235']}
+        start={{x:1, y:1}}
+        end={{x:0, y:0}}
+            > */}
 
+       
+
+        <Banner  username={username} />
+        
+
+        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
             <CryptoMetricsUI data={cryptoData} />
-            <Banner username={username} />
+            
             {/* <News data={cryptoNews} /> */}
-            <Coins title={'trending coins'} data={cryptoTrending} />
+            <Coins
+            title={
+                <Text style={{ color: 'white', textTransform: 'uppercase',    fontWeight: '500', fontSize: 16 }}>
+                Trending Coins
+                </Text>
+                }
+                data={cryptoTrending}
+            />
+            <Coins
+            title={
+                <Text style={{ color: 'white', textTransform: 'uppercase',    fontWeight: '500', fontSize: 16 }}>
+                New Coins
+                </Text>
+                }
+                data={cryptoTrending}
+            />
+
             
             {/* <Coins title={'Gainers'} data={cryptoGainers} /> */}
+        </View>
+        
+
+            {/* </LinearGradient> */}
         </ScrollView>
+        
     );
 };
 
