@@ -16,8 +16,12 @@ import useThemeStore from './store/useThemeStore';
 import RootNavigation from './navigation/RootNavigation';
 import { supabase } from './services/supabase';
 import * as SplashScreen from 'expo-splash-screen';
-// Keep the splash screen visible while we fetch resources
+import * as Updates from 'expo-updates';
+
 SplashScreen.preventAutoHideAsync();
+
+
+
 
 export default function App() {
 
@@ -34,10 +38,22 @@ export default function App() {
   const scheme = useThemeStore((state) => state.theme) || 'light';
   const theme = scheme === 'dark' ? CustomDarkTheme : CustomLightTheme;
 
-
-
+  async function checkForUpdatesAsync() {
+    try {
+      const updateResult = await Updates.checkForUpdateAsync();
+      if (updateResult.isAvailable) {
+        await Updates.fetchUpdateAsync();
+        // Inform the user that the app will reload to apply the update
+        await Updates.reloadAsync();
+      }
+    } catch (e) {
+      // Handle or log errors
+    }
+  }
+  
   useEffect(() => {
     setAppIsReady(fontsLoaded)
+    checkForUpdatesAsync()
   }, [fontsLoaded])
 
   const onLayoutRootView = useCallback(async () => {
