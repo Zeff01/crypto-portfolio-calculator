@@ -254,7 +254,7 @@ const CoinCard = ({
         onPress={() => navigation.navigate("CoinDetails", { data })}
         style={[simplifiedView && styles.simplifiedCard, { backgroundColor: colors.coin } ]}
       >
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', flex: 1,  marginBottom: 5 }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', flex: 1,  marginBottom: 4 }}>
           <Image source={{ uri: data.coinImage }} style={[styles.icon, { width: 25, height: 25, marginRight: 10 }]} /> 
           <Text style={[styles.cardTitle, { color: theme.colors.text, fontSize: 16, fontWeight: 400 }]}>
           {data.coinName}
