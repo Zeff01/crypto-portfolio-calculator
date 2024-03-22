@@ -27,9 +27,12 @@ const RootNavigation = () => {
         const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
             setSession(session);
         });
+   
 
         return () => {
-            listener.unsubscribe();
+               if (listener && listener.subscription && typeof listener.subscription.unsubscribe === 'function') {
+            listener.subscription.unsubscribe();
+        }
         };
     }, [setSession]);
 
