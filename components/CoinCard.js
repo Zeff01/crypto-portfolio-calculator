@@ -64,6 +64,8 @@ const CoinCard = ({
     data.currentPrice * parseInt(editedShares) * usdToPhpRate
   );
 
+  
+
   const handleDelete = () => {
     Alert.alert(
       "Delete Coin",
@@ -252,22 +254,18 @@ const CoinCard = ({
         onPress={() => navigation.navigate("CoinDetails", { data })}
         style={[simplifiedView && styles.simplifiedCard, { backgroundColor: colors.coin } ]}
       >
-        <View style={{ alignItems: "center", marginBottom: 5 }}>
-          <Image source={{ uri: data.coinImage }} style={styles.icon} />
-          <Text
-            style={[
-              styles.cardTitle,
-              { color: theme.colors.text, fontSize: 16 },
-            ]}
-          >
-            {data.coinName}
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', flex: 1,  marginBottom: 5 }}>
+          <Image source={{ uri: data.coinImage }} style={[styles.icon, { width: 25, height: 25, marginRight: 10 }]} /> 
+          <Text style={[styles.cardTitle, { color: theme.colors.text, fontSize: 16, fontWeight: 400 }]}>
+          {data.coinName}
           </Text>
         </View>
-        <Text style={{ color: theme.colors.text }}>
+
+        <Text style={{ color: theme.colors.text, justifyContent: 'flex-start', flex: 1, fontWeight: 300 }}>
           ${currentPriceNum.toFixed(2)}
         </Text>
 
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
+        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: 'flex-start' }}>
           <PriceChangeIcon />
           <Text style={{ color: data?.priceChangeColor, marginLeft: 2 }}>
             {formattedPriceChangePercentage}%
@@ -334,18 +332,20 @@ const styles = StyleSheet.create({
   },
   simplifiedCard: {
     padding: 10,
-    width: "45%",
-    height: 150,
+    width: "47%",
+    height: 100,
     borderRadius: 10,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 2,
-    margin: 8,
+    margin: 6,
     gap: 5,
-    alignItems: "center", // Center the content horizontally
-    justifyContent: "center", // Center the content vertically
+    // flex: 1,
+    padding: 16,
+    // alignItems: "center", // Center the content horizontally
+    justifyContent: "flex-start", // Center the content vertically
   },
   activeCard: {
     backgroundColor: "#faf5f5",
