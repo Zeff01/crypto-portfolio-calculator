@@ -253,7 +253,7 @@ const AddCoinScreen = () => {
     <ActivityIndicator animating={searchLoading} size={24} style={{ position: 'absolute', right: 10, top: '50%', marginTop: -12 }} />
 </View>
 
-                    <FlatL
+                    <FlatList
                         data={searchResults}
                         keyExtractor={(item) => item.id}
                         renderItem={({ item }) => (

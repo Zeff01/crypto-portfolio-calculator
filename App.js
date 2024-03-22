@@ -43,11 +43,9 @@ export default function App() {
       const updateResult = await Updates.checkForUpdateAsync();
       if (updateResult.isAvailable) {
         await Updates.fetchUpdateAsync();
-        // Inform the user that the app will reload to apply the update
         await Updates.reloadAsync();
       }
     } catch (e) {
-      // Handle or log errors
     }
   }
   
