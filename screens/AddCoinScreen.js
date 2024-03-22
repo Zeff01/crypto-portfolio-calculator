@@ -7,10 +7,14 @@ import { supabase } from '../services/supabase';
 import { Text, Button } from 'react-native-paper';
 import CustomModal from '../components/CustomModal';
 import { useTheme } from 'react-native-paper';
+import { useHandleTheme } from '../hooks/useTheme';
+
 
 
 const AddCoinScreen = () => {
     const theme = useTheme()
+    const { colors } = useHandleTheme();
+
 
     const [searchTerm, setSearchTerm] = useState('');
     const [searchResults, setSearchResults] = useState([]);
@@ -170,9 +174,19 @@ const AddCoinScreen = () => {
         setAddCoinLoading(false)
     };
 
+    const dynamicStyles = StyleSheet.create({
+        textInput: {
+             
+            color: colors.text,
+            
+            
+        },
+
+    })
+
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, {backgroundColor: colors.background}]}>
             <CustomModal
                 isVisible={isModalVisible}
                 onDismiss={() => setIsModalVisible(false)}
@@ -183,46 +197,62 @@ const AddCoinScreen = () => {
             // cancelText="No, Cancel"
             />
             {selectedCoin ? (
-                <View style={styles.selectedCoinContainer}>
+                <View style={[styles.selectedCoinContainer, {backgroundColor: colors.background}]}>
                     <Image source={{ uri: selectedCoin.thumb }} style={styles.icon} />
                     <Text style={styles.coinName}>{selectedCoin.name}</Text>
                     <TextInput
-                        style={[styles.input, {opacity:addCoinLoading?0.5:1}]}
+                        style={[styles.searchInput, dynamicStyles.textInput,  { backgroundColor: colors.input, marginTop: 20, paddingLeft: 35 }, {opacity:addCoinLoading?0.5:1}]}
                         placeholder="Number of Shares"
                         value={numberOfShares}
                         onChangeText={setNumberOfShares}
                         keyboardType="numeric"
                         editable={!addCoinLoading}
-                        width={200}
+                        width={350}
                     />
                     <View style={styles.actionContainer}>
-                        <Button mode="contained" onPress={handleConfirm} style={[styles.actionButton, {backgroundColor:theme.colors.primary}]} labelStyle={[styles.buttonLabel]}
+                    <Button 
+                        mode="contained" 
+                        onPress={handleConfirm} 
+                        style={[styles.actionButton, { backgroundColor: '#02F5C3', marginTop: 20}]} 
+                        labelStyle={styles.buttonLabel} 
                         disabled={addCoinLoading}
-                        >
+>
                             {
                             addCoinLoading? 
                             <ActivityIndicator size={22} animating={addCoinLoading} /> :
                             "Confirm"
                             }
                         </Button>
-                        <Button mode="outlined" onPress={() => setSelectedCoin(null)} style={[styles.actionButton, {opacity:addCoinLoading?0.5:1}]} labelStyle={styles.buttonLabel}
-                        disabled={addCoinLoading}
-                        >
+                        <Button 
+                            onPress={() => setSelectedCoin(null)} 
+                            mode="contained" 
+                            style={[
+                            styles.actionButton,
+                            { backgroundColor: '#292E2D', marginTop: 20 } // Setting the background color
+                            ]} 
+                            labelStyle={{ color: '#fff' }} // Setting the text color
+                            disabled={addCoinLoading}
+>
                             Cancel
                         </Button>
                     </View>
                 </View>
             ) : (
                 <>
-                    <View style={{ position: 'relative', margin: 20, flexDirection: 'row' }}>
-                        <TextInput
-                            style={styles.searchInput}
-                            placeholder="Search for a coin..."
-                            value={searchTerm}
-                            onChangeText={setSearchTerm}
-                        />
-                        <ActivityIndicator animating={searchLoading} size={24} style={{ position: 'relative', right: 40 }} />
-                    </View>
+                    <View style={{ position: 'relative', margin: 20 }}>
+    <TextInput
+        style={[styles.searchInput, dynamicStyles.textInput, { backgroundColor: colors.input, paddingLeft: 30 }]}
+        placeholder="Search for a coin..."
+        value={searchTerm}
+        onChangeText={setSearchTerm}
+    />
+    <Image
+        source={require('../assets/search.png')} 
+        style={{ width: 24, height: 24, position: 'absolute', right: 10, top: '50%', marginTop: -12, marginRight: 10 }} 
+    />
+    {/* <ActivityIndicator animating={searchLoading} size={24} style={{ position: 'absolute', right: 10, top: '50%', marginTop: -12 }} /> */}
+</View>
+
                     <FlatList
                         data={searchResults}
                         keyExtractor={(item) => item.id}
@@ -244,42 +274,44 @@ const AddCoinScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F5F5F5',
+        
     },
     searchInput: {
+        // color: colors.text,
         fontSize: 16,
         paddingVertical: 8,
         paddingHorizontal: 12,
-        backgroundColor: 'white',
+        // backgroundColor: 'rgba(39, 41, 40, 0.4)',
         borderWidth: 1,
-        borderColor: '#E0E0E0',
+        borderColor: 'rgba(255, 255, 255, 0.2)',
         borderRadius: 20,
-        shadowColor: '#000',
+        shadowColor: 'black',
         shadowOffset: {
             width: 0,
             height: 2,
         },
-        shadowOpacity: 0.1,
-        shadowRadius: 3.84,
-        elevation: 5,
-        width: '100%'
+        shadowOpacity: 0.4, // Adjust as needed
+        shadowRadius: 4, // Adjust as needed
+        elevation: 5, // This property applies to Android
+        width: '100%',
+        height: 55,
     },
     resultItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: 'white',
+        // backgroundColor: 'white',
         padding: 12,
         marginHorizontal: 20,
         marginVertical: 5,
         borderRadius: 10,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 1,
-        },
-        shadowOpacity: 0.2,
-        shadowRadius: 1.41,
-        elevation: 2,
+        // shadowColor: '#000',
+        // shadowOffset: {
+        //     width: 0,
+        //     height: 1,
+        // },
+        // shadowOpacity: 0.2,
+        // shadowRadius: 1.41,
+        // elevation: 2,
     },
     icon: {
         width: 30,
@@ -322,6 +354,7 @@ const styles = StyleSheet.create({
     actionButton: {
         flex: 1,
         marginHorizontal: 5,        
+        paddingVertical: 4,        
     },
     buttonLabel: {
         fontSize: 12,
