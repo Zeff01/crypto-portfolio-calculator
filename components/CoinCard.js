@@ -250,7 +250,7 @@ const CoinCard = ({
       <TouchableOpacity
         onLongPress={() => handleDelete()}
         onPress={() => navigation.navigate("CoinDetails", { data })}
-        style={[simplifiedView && styles.simplifiedCard]}
+        style={[simplifiedView && styles.simplifiedCard, { backgroundColor: colors.coin } ]}
       >
         <View style={{ alignItems: "center", marginBottom: 5 }}>
           <Image source={{ uri: data.coinImage }} style={styles.icon} />

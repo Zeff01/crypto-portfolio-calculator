@@ -246,14 +246,14 @@ const AddCoinScreen = () => {
         value={searchTerm}
         onChangeText={setSearchTerm}
     />
-    <Image
+    {/* <Image
         source={require('../assets/search.png')} 
         style={{ width: 24, height: 24, position: 'absolute', right: 10, top: '50%', marginTop: -12, marginRight: 10 }} 
-    />
-    {/* <ActivityIndicator animating={searchLoading} size={24} style={{ position: 'absolute', right: 10, top: '50%', marginTop: -12 }} /> */}
+    /> */}
+    <ActivityIndicator animating={searchLoading} size={24} style={{ position: 'absolute', right: 10, top: '50%', marginTop: -12 }} />
 </View>
 
-                    <FlatList
+                    <FlatL
                         data={searchResults}
                         keyExtractor={(item) => item.id}
                         renderItem={({ item }) => (

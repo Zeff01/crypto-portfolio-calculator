@@ -35,7 +35,7 @@ const PortfolioScreen = () => {
     const [loading, setLoading] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [simplifiedView, setSimplifiedView] = useState(false);
-    const [sortBy, setSortBy] = useState('default')
+    const [sortBy, setSortBy] = useState('gainsDesc')
     const [sortedPortfolioEntries, setSortedPortfolioEntries] = useState(portfolioEntries)
     const navigation = useNavigation()
     const showLoader = () => setLoading(true);
@@ -211,6 +211,7 @@ const PortfolioScreen = () => {
 
         return (
             <View className={`flex flex-col bg-[${colors.card}]`}>
+                
                 <PortfolioHeader title="Balance" totalHoldings={totalHoldings} fetchPortfolioData={fetchPortfolioData} />
                 <View style={styles.iconsContainer}>
                     <TouchableOpacity // need to encapsulate to picker component to style it
@@ -351,6 +352,7 @@ const PortfolioScreen = () => {
 };
 
 const styles = StyleSheet.create({
+    
     
     rateAndBudgetContainer: {
         flexDirection: 'column',

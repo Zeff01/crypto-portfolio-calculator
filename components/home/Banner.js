@@ -59,8 +59,8 @@ const Banner = ({ username }) => {
     
     <TouchableOpacity onPress={() => {}}>
     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <Text style={{ color: "#02F5C3", fontWeight: '600', fontSize: 16 }}>Portal</Text>
-        <Image source={require('./assets/arrow.png')} style={{ width: 16, height: 16, marginLeft: 5 }} />
+        {/* <Text style={{ color: "#02F5C3", fontWeight: '600', fontSize: 16 }}>Portal</Text> */}
+        {/* <Image source={require('./assets/arrow.png')} style={{ width: 16, height: 16, marginLeft: 5 }} /> */}
     </View>
     </TouchableOpacity>
 

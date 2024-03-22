@@ -43,9 +43,9 @@ export const CustomDarkTheme = {
         notification: '#ff80ab',
         button: '#FFFFFF',
         icon: '#02F5C3',
-        card: 'rgba(195, 195, 195, 0.1)',
+        card: '#213833',
         input: '#24302e',
         coincard: '#232726',
-        coin : 'rgba(30, 30, 30, 0.5)',
+        coin : '#232928',
     },
 };

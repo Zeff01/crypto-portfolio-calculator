@@ -113,7 +113,8 @@ const PortfolioHeader = ({ title, totalHoldings, fetchPortfolioData }) => {
     const phpBudget = (numericBudget * usdToPhpRate).toFixed(2);
 
     return (
-        <View className={`mb-[20px] p-[30] rounded-[8px]`} style={{ backgroundColor: colors.card }}>
+        <View style={{ marginBottom: 20, padding: 30, borderRadius: 8, backgroundColor: colors.card, shadowColor: "#000", shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 }}>
+    {/* Your View content */}
             <View style={styles.content}>
                 <Text className={`text-[16px] font-[500] mb-[20px] leading-[24px] text-[${colors.text}]`}>{title}</Text>
                 <View style={styles.buttonContainer}>
