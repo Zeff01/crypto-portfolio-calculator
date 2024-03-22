@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: 15,
         height: 80,
-        backgroundColor: '#232726',
+        // backgroundColor: '#232726',
         borderRadius: 10,
         marginRight: 10,
     },
@@ -62,7 +62,7 @@ const Coins = ({ title, data }) => {
     const renderCoin = ({ item }) => {
         const growthColor = item.quote.USD.percent_change_1h > 0 ? '#02F5C3' : '#FF2E2E';
         return (
-            <TouchableOpacity style={[styles.item, {backgroundColor: colors.card}]} onPress={() => console.log('Navigate to coin data page')}>
+            <TouchableOpacity style={[styles.item, {backgroundColor: colors.coincard}]} onPress={() => console.log('Navigate to coin data page')}>
                 <View style={styles.iconContainer}>
                     <Image
                         source={{ uri: item.iconUrl }}

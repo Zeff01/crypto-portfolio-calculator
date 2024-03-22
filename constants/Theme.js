@@ -19,6 +19,7 @@ export const CustomLightTheme = {
         button: '#1E1E1E',
         icon: '#1E1E1E',
         card: '#ffffff',
+        coincard: '#ffffff',
         coin : '#ffffff'
     },
 };
@@ -42,6 +43,7 @@ export const CustomDarkTheme = {
         button: '#FFFFFF',
         icon: '#02F5C3',
         card: 'rgba(195, 195, 195, 0.1)',
+        coincard: '#232726',
         coin : 'rgba(30, 30, 30, 0.5)',
     },
 };
