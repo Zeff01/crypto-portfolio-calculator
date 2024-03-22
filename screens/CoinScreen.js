@@ -11,8 +11,10 @@ import { TextInput, useTheme } from "react-native-paper";
 import useGlobalStore from "../store/useGlobalStore";
 import { dataToParse, generateTableData } from "../utils/formatter";
 import { supabase } from "../services/supabase";
+import { useNavigation } from "@react-navigation/native";
 
 export default function CoinScreen({ route }) {
+  const navigation = useNavigation();
   const { usdToPhpRate } = useGlobalStore();
   const theme = useTheme();
 
@@ -116,6 +118,34 @@ export default function CoinScreen({ route }) {
         style={{ flex: 1, backgroundColor: theme.colors.background }}
         keyboardShouldPersistTaps="handled"
       >
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={{
+          position: "absolute",
+          top: 50,
+          left: 20,
+          zIndex: 1,
+          }}
+          >
+      <View
+          style={{
+          backgroundColor: theme.colors.surface,
+          width: 40,
+          height: 40,
+          borderRadius: 20,
+          alignItems: 'center',
+          justifyContent: 'center'
+          }}
+      >
+      <Image
+          source={require('../assets/images/back-arrow.png')}
+          style={{ width: 17, height: 17 }}
+      />
+      </View>
+    </TouchableOpacity>
+
+
+       
         <View style={{ alignItems: "center", paddingVertical: 20 }}>
           <Image
             source={{ uri: data.coinImage }}
