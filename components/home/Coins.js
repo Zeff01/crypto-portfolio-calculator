@@ -1,5 +1,7 @@
 import React from 'react';
 import { SafeAreaView, View, Text, StyleSheet, Image, FlatList, TouchableOpacity } from 'react-native';
+import { useHandleTheme } from '../../hooks/useTheme';
+
 
 const styles = StyleSheet.create({
     container: {
@@ -55,10 +57,12 @@ const styles = StyleSheet.create({
 });
 
 const Coins = ({ title, data }) => {
+    const { colors, theme } = useHandleTheme();
+
     const renderCoin = ({ item }) => {
         const growthColor = item.quote.USD.percent_change_1h > 0 ? '#02F5C3' : '#FF2E2E';
         return (
-            <TouchableOpacity style={styles.item} onPress={() => console.log('Navigate to coin data page')}>
+            <TouchableOpacity style={[styles.item, {backgroundColor: colors.card}]} onPress={() => console.log('Navigate to coin data page')}>
                 <View style={styles.iconContainer}>
                     <Image
                         source={{ uri: item.iconUrl }}
@@ -66,9 +70,11 @@ const Coins = ({ title, data }) => {
                     />
                 </View>
                 <View style={styles.coinNameContainer}>
-                    <Text style={styles.coinName}>{item.name}</Text>
+                <Text style={[styles.coinName, { color: colors.text }]}>{item.name}</Text>
+
                     <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                        <Text style={styles.price}>${item.quote.USD.price.toFixed(2)}</Text>
+                    <Text style={[styles.price, { color: colors.text }]}>${item.quote.USD.price.toFixed(2)}</Text>
+
                         <Text style={[styles.growth, { color: growthColor, marginLeft: 10 }]}>
                         {item.quote.USD.percent_change_1h.toFixed(2)}%
                     </Text>

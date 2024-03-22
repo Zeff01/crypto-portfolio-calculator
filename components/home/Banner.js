@@ -1,5 +1,7 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import React, { useState } from 'react';
+import { useHandleTheme } from '../../hooks/useTheme';
+
 
 const styles = StyleSheet.create({
     container: {
@@ -48,11 +50,12 @@ const styles = StyleSheet.create({
 });
 
 const Banner = ({ username }) => {
+    const { colors, theme } = useHandleTheme();
 
   return (
     <View style={ styles.container }>
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-    <Text style={[styles.text, styles.title]}>welcome {username}</Text>
+    <Text style={[styles.text, styles.title, { color: colors.text }]}>welcome {username}</Text>
     
     <TouchableOpacity onPress={() => {}}>
     <View style={{ flexDirection: 'row', alignItems: 'center' }}>

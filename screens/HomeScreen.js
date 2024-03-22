@@ -192,12 +192,7 @@ const HomeScreen = () => {
                 />
             }
         >
-            {/* <LinearGradient
             
-            colors={['rgba(93, 93, 93, 0.8)', '#034235']}
-        start={{x:1, y:1}}
-        end={{x:0, y:0}}
-            > */}
 
        
 
@@ -210,7 +205,7 @@ const HomeScreen = () => {
             {/* <News data={cryptoNews} /> */}
             <Coins
             title={
-                <Text style={{ color: 'white', textTransform: 'uppercase',    fontWeight: '500', fontSize: 16 }}>
+                <Text style={{ color: 'white', textTransform: 'uppercase',    fontWeight: '500', fontSize: 16, color: colors.text  }}>
                 Trending Coins
                 </Text>
                 }
@@ -218,7 +213,7 @@ const HomeScreen = () => {
             />
             <Coins
             title={
-                <Text style={{ color: 'white', textTransform: 'uppercase',    fontWeight: '500', fontSize: 16 }}>
+                <Text style={{ color: 'white', textTransform: 'uppercase',    fontWeight: '500', fontSize: 16, color: colors.text }}>
                 New Coins
                 </Text>
                 }
@@ -230,7 +225,7 @@ const HomeScreen = () => {
         </View>
         
 
-            {/* </LinearGradient> */}
+          
         </ScrollView>
         
     );

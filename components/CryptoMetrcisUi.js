@@ -3,11 +3,14 @@ import { View, Text, StyleSheet, Image } from 'react-native';
 import { safeToFixed } from '../utils/safeToFixed';
 import { Svg, Circle, Path } from 'react-native-svg';
 import FearGreed from './FearGreed';
+import { useHandleTheme } from '../hooks/useTheme';
+
 
 
 
 
 const CryptoMetricsUI = ({ data }) => {
+    const { colors, theme } = useHandleTheme();
 
     if (!data || !data.quote || !data.quote.USD) {
 
@@ -51,18 +54,19 @@ const CryptoMetricsUI = ({ data }) => {
         <View style={styles.container}>
             <View style={{flex: 1, marginRight: 5,}}>
     {/* Market Cap */}
-    <View style={[styles.metricContainer, styles.marketCap]}>
-                <Text style={styles.metricLabel}>Market Cap</Text>
-                <Text style={styles.metricValue}>${formatNumber(total_market_cap)}</Text>
+            <View style={[styles.metricContainer, styles.marketCap, { backgroundColor: colors.card }]}>
+
+            <Text style={[styles.metricLabel]}>Market Cap</Text>
+                <Text style={[styles.metricValue, { color: colors.text }]}>${formatNumber(total_market_cap)}</Text>
                 <Text style={[styles.percentageChange, marketCapChange.startsWith('-') ? styles.negativeChange : styles.positiveChange]}>
                     {marketCapChange}%
                 </Text>
             </View>
 
             {/* Volume */}
-            <View style={styles.metricContainer}>
+            <View style={[styles.metricContainer, { backgroundColor: colors.card }]}>
                 <Text style={styles.metricLabel}>Volume</Text>
-                <Text style={styles.metricValue}>${formatNumber(total_volume_24h)}</Text>
+                <Text style={[styles.metricValue, { color: colors.text }]}>${formatNumber(total_volume_24h)}</Text>
                 <Text style={[styles.percentageChange, volumeChange.startsWith('-') ? styles.negativeChange : styles.positiveChange]}>
                     {volumeChange}%
                 </Text>
@@ -70,19 +74,19 @@ const CryptoMetricsUI = ({ data }) => {
             </View>
         <View style={{flex: 1, marginLeft: 5,}}>
               {/* BTC Dominance */}
-          <View style={styles.metricContainer}>
+          <View style={[styles.metricContainer, { backgroundColor: colors.card }]}>
                 <Text style={styles.metricLabel}>BTC Dominance</Text>
-                <Text style={styles.metricValue}>{safeToFixed(data.btc_dominance)}%</Text>
+                <Text style={[styles.metricValue, { color: colors.text }]}>{safeToFixed(data.btc_dominance)}%</Text>
                 <Text style={[styles.percentageChange, btcDominanceChange.startsWith('-') ? styles.negativeChange : styles.positiveChange]}>
                     {btcDominanceChange}%
                 </Text>
             </View>
               {/* Fear and Greed */}
-            <View style={[styles.metricContainer, styles.fearGreed]}>
+            <View style={[styles.metricContainer, styles.fearGreed, { backgroundColor: colors.card }]}>
                 <Text style={styles.metricLabel}>Fear & Greed</Text>  
                 {/* need data for fear and greed */}
                 {/* <FearGreed data={safeToFixed(data.btc_dominance)}/>  */}
-                <Text style={styles.metricValue}>{safeToFixed(data.btc_dominance)}%</Text>
+                <Text style={[styles.metricValue, { color: colors.text }]}>{safeToFixed(data.btc_dominance)}%</Text>
             </View>
         </View>
         </View>
