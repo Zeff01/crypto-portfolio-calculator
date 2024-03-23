@@ -63,28 +63,43 @@ const PortfolioScreen = () => {
   const fetchPortfolioData = async () => {
     showLoader();
 
-    const { data: userData, error: userError } = await supabase.auth.getUser();
-    if (userError) {
-      console.error("Error fetching user:", userError);
-      return;
-    }
-    if (!userData) {
-      console.log("No user found");
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+
+    if (sessionError) {
+      console.error("Error fetching session:", sessionError.message);
+      hideLoader();
       return;
     }
 
-    if (userData) {
-      const { data: portfolioData, error } = await supabase
-        .from("portfolio")
-        .select("*")
-        .eq("userId", userData.user.id)
-        .order("orderIndex", { ascending: true });
-
-      if (error) {
-        console.error("Error fetching portfolio data:", error);
-      } else {
-        setPortfolioEntries(portfolioData);
+    if (sessionData && sessionData.session) {
+      const { data: userData, error: userError } =
+        await supabase.auth.getUser();
+      if (userError) {
+        console.error("Error fetching user:", userError);
+        return;
       }
+      if (!userData) {
+        console.log("No user found");
+        return;
+      }
+
+      if (userData) {
+        const { data: portfolioData, error } = await supabase
+          .from("portfolio")
+          .select("*")
+          .eq("userId", userData.user.id)
+          .order("orderIndex", { ascending: true });
+
+        if (error) {
+          console.error("Error fetching portfolio data:", error);
+        } else {
+          setPortfolioEntries(portfolioData);
+        }
+      }
+    } else {
+      console.log(
+        "No active session. User must be logged in to fetch portfolio data."
+      );
     }
     hideLoader();
   };
@@ -217,8 +232,8 @@ const PortfolioScreen = () => {
 
   const [totalTrueBudgetPerCoin, SetTotalTrueBudgetPerCoin] = useState(0);
   useEffect(() => {
-    fetchTotalBudgetPerCoin()
-  }, []); 
+    fetchTotalBudgetPerCoin();
+  }, []);
 
   //fetch total budget per coin
   const fetchTotalBudgetPerCoin = async (userID) => {
@@ -226,22 +241,27 @@ const PortfolioScreen = () => {
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      let { data, error, status } = await supabase
-        .from("portfolio")
-        .select("trueBudgetPerCoin")
-        .eq("userId", user.id);
 
-      if (error && status !== 406) {
-        throw error;
-      }
+      if (user) {
+        let { data, error, status } = await supabase
+          .from("portfolio")
+          .select("trueBudgetPerCoin")
+          .eq("userId", user.id);
 
-      if (data) {
-        // Sum the trueBudgetPerCoin values
-        const total = data.reduce(
-          (acc, { trueBudgetPerCoin }) => acc + Number(trueBudgetPerCoin),
-          0
-        );
-        SetTotalTrueBudgetPerCoin(total * 70) 
+        if (error && status !== 406) {
+          throw error;
+        }
+
+        if (data) {
+          // Sum the trueBudgetPerCoin values
+          const total = data.reduce(
+            (acc, { trueBudgetPerCoin }) => acc + Number(trueBudgetPerCoin),
+            0
+          );
+          SetTotalTrueBudgetPerCoin(total * 70);
+        }
+      } else {
+        console.log("No session found. User is not logged in.");
       }
     } catch (error) {
       console.error("Error fetching total budget per coin:", error);

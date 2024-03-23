@@ -38,7 +38,7 @@ const RootNavigation = () => {
 
     return (
         <NavigationContainer ref={navigationRef}>
-            {session ? <DrawerNavigator /> : <AuthStackNavigator />}
+            {!session ?  <AuthStackNavigator />: <DrawerNavigator /> }
         </NavigationContainer>
     );
 };
