@@ -9,7 +9,6 @@ export const dataToParse = {
     trueBudgetPerCoin: 'True Budget on this Coin',
     additionalBudget: 'Additional Budget Catch Up Bottom',
     projectedRoi: 'Projected ROI (70x)',
-    projectedRoi: 'Projected ROI (70x)',
     marketCap: 'Market Cap',
     totalSupply: 'Total Supply',
     circulatingSupply: 'Circulating Supply',
