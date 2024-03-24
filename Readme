@@ -1,3 +1,3 @@
 eas build -p android --profile production
 eas build -p ios --profile production
-eas update --branch preview --message 'version 5'
+eas update --branch production --message 'fix styling '

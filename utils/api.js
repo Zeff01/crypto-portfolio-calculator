@@ -61,7 +61,7 @@ export const fetchCMCSearchResultsWithDetails = async (query) => {
   const detailsData = await detailsResponse.json();
   const logosData = await logosResponse.json();
   const performanceData = await performanceResponse.json();
-  console.log("performanceData", performanceData)
+  console.log("performanceData", performanceData);
 
   // Compile Detailed Results including Logos
   const detailedResults = searchData.data.flatMap((coin) => {
@@ -240,7 +240,7 @@ export async function updatePortfolioWithCMC() {
       const trueBudgetPerCoin = totalHoldings / (currentPrice / atlPrice);
       const projectedRoi = trueBudgetPerCoin * 70;
       const additionalBudget = userBudget - trueBudgetPerCoin;
-    
+
       const updateResponse = await supabase
         .from("portfolio")
         .update({
@@ -267,11 +267,11 @@ export async function updatePortfolioWithCMC() {
         })
         .match({ id: entry.id });
 
-        if (updateResponse.error) {
-            console.error("Supabase update error:", updateResponse.error);
-            console.log("Failed updateResponse:", updateResponse);
-            continue;
-        }
+      if (updateResponse.error) {
+        console.error("Supabase update error:", updateResponse.error);
+        console.log("Failed updateResponse:", updateResponse);
+        continue;
+      }
     }
   } catch (error) {
     console.error("An error occurred during the update process:", error);

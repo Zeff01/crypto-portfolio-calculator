@@ -2,15 +2,11 @@ import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
-  FlatList,
   StyleSheet,
   RefreshControl,
-  Button,
-  Image,
-  TouchableOpacity,
   ScrollView,
 } from "react-native";
-import { TextInput, useTheme } from "react-native-paper";
+import { useTheme } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import {
   fetchCMCGlobalMetrics,
@@ -19,14 +15,11 @@ import {
   fetchGainersAndLosers,
 } from "../utils/api";
 import CryptoMetricsUI from "../components/CryptoMetrcisUi";
-import { CategoriesList } from "../components/CategoryList";
 import Banner from "../components/home/Banner";
 import News from "../components/home/News";
 import Coins from "../components/home/Coins";
 import { supabase } from "../services/supabase";
 import { useHandleTheme } from "../hooks/useTheme";
-
-import { LinearGradient } from "expo-linear-gradient";
 
 const HomeScreen = () => {
   const theme = useTheme();
