@@ -72,10 +72,7 @@ const PortfolioHeader = ({
         return;
       }
       portfolioData.forEach(async (entry) => {
-        const additionalBudget = Math.max(
-          newBudget - entry.trueBudgetPerCoin,
-          0
-        );
+        const additionalBudget = newBudget - entry.trueBudgetPerCoin;
         const { error: updateError } = await supabase
           .from("portfolio")
           .update({ additionalBudget: additionalBudget })

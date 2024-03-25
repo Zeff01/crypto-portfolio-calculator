@@ -73,12 +73,10 @@ export default function CoinScreen({ route }) {
                 ((newSharesFloat * data.currentPrice) /
                   (data.currentPrice / data.allTimeLow)) *
                 70,
-              additionalBudget: Math.max(
+              additionalBudget:
                 userBudget -
-                  (newSharesFloat * data.currentPrice) /
-                    (data.currentPrice / data.allTimeLow),
-                0
-              ),
+                (newSharesFloat * data.currentPrice) /
+                  (data.currentPrice / data.allTimeLow),
             })
             .eq("coinId", data.coinId)
             .eq("userId", data.userId);
