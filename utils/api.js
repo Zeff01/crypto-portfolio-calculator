@@ -90,7 +90,7 @@ export const fetchCMCSearchResultsWithDetails = async (query) => {
 
     const athPrice = quoteUSD.high;
     const atlPrice = quoteUSD.low;
-    const athRoi = athPrice / atlPrice;
+    const athRoi = currentPrice / atlPrice;
     const percentIncreaseFromAtl = (currentPrice / atlPrice - 1) * 100;
     const priceChangeIcon =
       quoteUSD.percent_change >= 0 ? "arrow-up" : "arrow-down";
@@ -228,7 +228,7 @@ export async function updatePortfolioWithCMC() {
       const currentPrice = detail?.quote?.USD?.price ?? 0;
       const athPrice = quoteUSD.high;
       const atlPrice = quoteUSD.low;
-      const athRoi = athPrice / atlPrice;
+      const athRoi = currentPrice / atlPrice;
       const percentIncreaseFromAtl = (currentPrice / atlPrice - 1) * 100;
       const priceChangeIcon =
         detail.quote.USD.percent_change_24h >= 0 ? "arrow-up" : "arrow-down";
