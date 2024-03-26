@@ -61,6 +61,10 @@ export default function CoinScreen({ route }) {
 
           const userBudget = subscriptionData.budget || 0;
 
+          const mustOwnShares = userBudget / data.allTimeLow;
+          const sharesMissing = mustOwnShares - data.shares;
+          const additionalBudget = sharesMissing * data.currentPrice;
+
           const { data: updateData, error } = await supabase
             .from("portfolio")
             .update({
@@ -73,10 +77,10 @@ export default function CoinScreen({ route }) {
                 ((newSharesFloat * data.currentPrice) /
                   (data.currentPrice / data.allTimeLow)) *
                 70,
-              additionalBudget:
-                userBudget -
-                (newSharesFloat * data.currentPrice) /
-                  (data.currentPrice / data.allTimeLow),
+
+              additionalBudget: additionalBudget,
+              sharesMissing: sharesMissing,
+              mustOwnShares: mustOwnShares,
             })
             .eq("coinId", data.coinId)
             .eq("userId", data.userId);
@@ -101,6 +105,7 @@ export default function CoinScreen({ route }) {
           setTableData(generateTableData(newData, dataToParse, usdToPhpRate));
         } catch (error) {
           console.error("Error updating shares:", error.message);
+          (currentPrice / atlPrice - 1) * 100;
         }
       }
     }

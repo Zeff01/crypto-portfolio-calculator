@@ -239,7 +239,10 @@ export async function updatePortfolioWithCMC() {
 
       const trueBudgetPerCoin = totalHoldings / (currentPrice / atlPrice);
       const projectedRoi = trueBudgetPerCoin * 70;
-      const additionalBudget = userBudget - trueBudgetPerCoin;
+
+      const mustOwnShares = userBudget / atlPrice;
+      const sharesMissing = mustOwnShares - entry.shares;
+      const additionalBudget = sharesMissing * currentPrice;
 
       const updateResponse = await supabase
         .from("portfolio")
@@ -253,6 +256,8 @@ export async function updatePortfolioWithCMC() {
           totalHoldings: totalHoldings,
           trueBudgetPerCoin: trueBudgetPerCoin,
           additionalBudget: additionalBudget,
+          sharesMissing: sharesMissing,
+          mustOwnShares: mustOwnShares,
           projectedRoi: projectedRoi,
           priceChangeIcon: priceChangeIcon,
           priceChangeColor: priceChangeColor,

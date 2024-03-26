@@ -8,6 +8,8 @@ export const dataToParse = {
   totalHoldings: "Total Holdings",
   trueBudgetPerCoin: "True Budget on this Coin",
   additionalBudget: "Additional Budget Catch Up Bottom",
+  mustOwnShares: "Must Own Shares",
+  sharesMissing: "Shares Missing",
   projectedRoi: "Projected ROI (70x)",
   marketCap: "Market Cap",
   totalSupply: "Total Supply",
@@ -25,7 +27,13 @@ const formats = {
     "projectedRoi",
   ],
   isMoney: ["marketCap", "tradingVolume"],
-  isBigNums: ["totalSupply", "circulatingSupply", "maxSupply"],
+  isBigNums: [
+    "totalSupply",
+    "circulatingSupply",
+    "maxSupply",
+    "mustOwnShares",
+    "sharesMissing",
+  ],
 };
 export function generateTableData(data, dataToParse, exchangeRate) {
   const truncateDescription = (description, maxLength) => {

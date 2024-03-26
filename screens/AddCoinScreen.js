@@ -99,7 +99,10 @@ const AddCoinScreen = () => {
       const trueBudgetPerCoin =
         totalHoldings / (selectedCoin.currentPrice / selectedCoin.allTimeLow);
       const projectedRoi = trueBudgetPerCoin * 70;
-      const additionalBudget = budgetPerCoin - trueBudgetPerCoin;
+
+      const mustOwnShares = budgetPerCoin / selectedCoin.atlPrice;
+      const sharesMissing = mustOwnShares - numberOfShares;
+      const additionalBudget = sharesMissing * selectedCoin.currentPrice;
 
       const {
         data: { user },
@@ -140,6 +143,8 @@ const AddCoinScreen = () => {
           totalHoldings: totalHoldings,
           trueBudgetPerCoin: trueBudgetPerCoin,
           additionalBudget: additionalBudget,
+          mustOwnShares: mustOwnShares,
+          sharesMissing: sharesMissing,
           projectedRoi: projectedRoi,
           priceChangeIcon: selectedCoin.priceChangeIcon,
           priceChangeColor: selectedCoin.priceChangeColor,

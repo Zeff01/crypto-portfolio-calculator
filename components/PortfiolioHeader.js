@@ -72,10 +72,16 @@ const PortfolioHeader = ({
         return;
       }
       portfolioData.forEach(async (entry) => {
-        const additionalBudget = newBudget - entry.trueBudgetPerCoin;
+        const mustOwnShares = newBudget / atlPrice;
+        const sharesMissing = mustOwnShares - entry.shares;
+        const additionalBudget = sharesMissing * currentPrice;
         const { error: updateError } = await supabase
           .from("portfolio")
-          .update({ additionalBudget: additionalBudget })
+          .update({
+            additionalBudget: additionalBudget,
+            sharesMissing: sharesMissing,
+            mustOwnShares: mustOwnShares,
+          })
           .match({ id: entry.id });
 
         if (updateError) {
