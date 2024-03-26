@@ -135,7 +135,7 @@ const PortfolioHeader = ({
         marginBottom: 20,
         padding: 20,
         borderRadius: 8,
-        backgroundColor: colors.card,
+        backgroundColor: colors.coin,
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
