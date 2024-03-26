@@ -72,9 +72,9 @@ const PortfolioHeader = ({
         return;
       }
       portfolioData.forEach(async (entry) => {
-        const mustOwnShares = newBudget / atlPrice;
+        const mustOwnShares = newBudget / entry.atlPrice;
         const sharesMissing = mustOwnShares - entry.shares;
-        const additionalBudget = sharesMissing * currentPrice;
+        const additionalBudget = sharesMissing * entry.currentPrice;
         const { error: updateError } = await supabase
           .from("portfolio")
           .update({

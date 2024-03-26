@@ -23,7 +23,6 @@ import { safeToFixed } from "../utils/safeToFixed";
 import { supabase } from "../services/supabase";
 import { useNavigation } from "@react-navigation/core";
 import { List } from "react-native-paper";
-import { dataToParse, generateTableData } from "../utils/formatter";
 import { useTheme } from "react-native-paper";
 import { Swipeable } from "react-native-gesture-handler";
 import { useHandleTheme } from "../hooks/useTheme";
@@ -59,12 +58,11 @@ const CoinCard = ({
     !isNaN(editedSharesNum) && !isNaN(currentPriceNum)
       ? currentPriceNum * editedSharesNum
       : 0;
-  const formattedTotalHoldingsUSD = totalHoldingsUSD.toFixed(2).toString();
-  const formattedTotalHoldingsPHP = safeToFixed(
-    data.currentPrice * parseInt(editedShares) * usdToPhpRate
-  );
 
-  
+  const formattedTotalHoldingsUSD = totalHoldingsUSD.toFixed(2).toString();
+  const formattedTotalHoldingsPHP = (
+    totalHoldingsUSD.toFixed(2) * usdToPhpRate
+  ).toString();
 
   const handleDelete = () => {
     Alert.alert(
@@ -102,33 +100,30 @@ const CoinCard = ({
       inputRange: [0, 50, 100, 101],
       outputRange: [0, 0, 0, 1], // Keep the box static but you can adjust this based on your needs
     });
-  
+
     return (
-      <Animated.View style={{ 
-        transform: [{ translateX: trans }],
-        backgroundColor: 'tomato', 
-        justifyContent: 'center', 
-        padding: 5, 
-        borderRadius: 5,
-        margin: 5,
-        flexDirection: 'row',
-        height: 70,
-        marginTop: 12
-      }}>
-        <TouchableOpacity onPress={handleDelete} style={{ flexDirection: 'row', alignItems: 'center', }}>
+      <Animated.View
+        style={{
+          transform: [{ translateX: trans }],
+          backgroundColor: "tomato",
+          justifyContent: "center",
+          padding: 5,
+          borderRadius: 5,
+          margin: 5,
+          flexDirection: "row",
+          height: 70,
+          marginTop: 12,
+        }}
+      >
+        <TouchableOpacity
+          onPress={handleDelete}
+          style={{ flexDirection: "row", alignItems: "center" }}
+        >
           <AntDesign name="closecircleo" size={20} color="white" />
-          <Text style={{ color: 'white', marginLeft: 5,}}>Delete</Text>
+          <Text style={{ color: "white", marginLeft: 5 }}>Delete</Text>
         </TouchableOpacity>
       </Animated.View>
     );
-  };
-  
-
-  const handleEdit = () => {
-    setIsEditing(true);
-  };
-  const handleCancelEdit = () => {
-    setIsEditing(false);
   };
 
   useEffect(() => {
@@ -210,7 +205,7 @@ const CoinCard = ({
                 marginBottom: 6,
                 marginTop: 4,
                 fontWeight: "bold",
-                color: theme.colors.text
+                color: theme.colors.text,
               }}
             >
               $ {currentPrice}
@@ -252,20 +247,52 @@ const CoinCard = ({
       <TouchableOpacity
         onLongPress={() => handleDelete()}
         onPress={() => navigation.navigate("CoinDetails", { data })}
-        style={[simplifiedView && styles.simplifiedCard, { backgroundColor: colors.coin } ]}
+        style={[
+          simplifiedView && styles.simplifiedCard,
+          { backgroundColor: colors.coin },
+        ]}
       >
-        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start', flex: 1,  marginBottom: 2}}>
-          <Image source={{ uri: data.coinImage }} style={[styles.icon, { width: 25, height: 25, marginRight: 4 }]} /> 
-          <Text style={[styles.cardTitle, { color: theme.colors.text, fontSize: 14, fontWeight: 400 }]}>
-          {data.coinName}
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "flex-start",
+            flex: 1,
+            marginBottom: 2,
+          }}
+        >
+          <Image
+            source={{ uri: data.coinImage }}
+            style={[styles.icon, { width: 25, height: 25, marginRight: 4 }]}
+          />
+          <Text
+            style={[
+              styles.cardTitle,
+              { color: theme.colors.text, fontSize: 14, fontWeight: 400 },
+            ]}
+          >
+            {data.coinName}
           </Text>
         </View>
 
-        <Text style={{ color: theme.colors.text, justifyContent: 'flex-start', flex: 1, fontWeight: 300 }}>
+        <Text
+          style={{
+            color: theme.colors.text,
+            justifyContent: "flex-start",
+            flex: 1,
+            fontWeight: 300,
+          }}
+        >
           ${currentPriceNum.toFixed(2)}
         </Text>
 
-        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: 'flex-start' }}>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "flex-start",
+          }}
+        >
           <PriceChangeIcon />
           <Text style={{ color: data?.priceChangeColor, marginLeft: 2 }}>
             {formattedPriceChangePercentage}%

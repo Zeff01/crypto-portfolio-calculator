@@ -36,16 +36,6 @@ const formats = {
   ],
 };
 export function generateTableData(data, dataToParse, exchangeRate) {
-  const truncateDescription = (description, maxLength) => {
-    if (description) {
-      const words = description.split(" ");
-      if (words.length > maxLength) {
-        return words.slice(0, maxLength).join(" ") + "...";
-      }
-    }
-    return description;
-  };
-
   const result = [
     // ['', ''],
     // ['Coin Name', data.coinName ?? 'N/A'],
