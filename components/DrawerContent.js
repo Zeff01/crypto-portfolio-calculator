@@ -338,8 +338,7 @@ export default function DrawerContent(props) {
           marginTop: 110,
         }}
       />
-      <View
-      >
+      <View>
         <Text
           style={{
             color: "#02F5C3",
@@ -358,7 +357,7 @@ export default function DrawerContent(props) {
             paddingLeft: 20,
           }}
         >
-          Version 5.0
+          Version 5.2
         </Text>
       </View>
 

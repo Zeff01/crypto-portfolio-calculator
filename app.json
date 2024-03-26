@@ -40,6 +40,8 @@
       "policy": "appVersion"
     },
     "updates": {
+      "enabled": true,
+      "checkAutomatically": "ON_LOAD",
       "url": "https://u.expo.dev/cd63a1d6-4661-4065-929b-539f3ad7231f"
     }
   }
