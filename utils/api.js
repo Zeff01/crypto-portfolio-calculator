@@ -126,15 +126,18 @@ export const fetchCMCSearchResultsWithDetails = async (query) => {
   return detailedResults;
 };
 
-async function fetchLatestCoinData(coinId) {
+async function fetchLatestCoinDataBatch(coinIds) {
+  console.log("coinIds:", coinIds);
+
   const headers = {
     "X-CMC_PRO_API_KEY": process.env.EXPO_PUBLIC_CMCKEY,
     Accept: "application/json",
   };
   try {
-    const detailsUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest?id=${coinId}`;
-    const logosUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/info?id=${coinId}`;
-    const performanceUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/price-performance-stats/latest?id=${coinId}&time_period=all_time`;
+    const idsQueryParam = coinIds.join(",");
+    const detailsUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/quotes/latest?id=${idsQueryParam}`;
+    const logosUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/info?id=${idsQueryParam}`;
+    const performanceUrl = `https://pro-api.coinmarketcap.com/v2/cryptocurrency/price-performance-stats/latest?id=${idsQueryParam}&time_period=all_time`;
 
     // New: Fetch price performance stats
     const [detailsResponse, logosResponse, performanceResponse] =
@@ -149,9 +152,9 @@ async function fetchLatestCoinData(coinId) {
     const performanceData = await performanceResponse.json();
 
     return {
-      detailsData,
-      logosData,
-      performanceData,
+      detailsData: detailsData.data,
+      logosData: logosData.data,
+      performanceData: performanceData.data,
     };
   } catch (error) {
     console.error("Error fetching data for coin:", error);
@@ -197,91 +200,95 @@ export async function updatePortfolioWithCMC() {
   }
 
   try {
-    for (const entry of portfolioEntries) {
-      // Assume fetchLatestCoinData is adjusted similarly to fetchCMCSearchResultsWithDetails
-      const { detailsData, logosData, performanceData } =
-        await fetchLatestCoinData(entry.coinId);
-      if (!detailsData || !logosData || !performanceData) {
-        console.error(`Data fetching error for coin ${entry.coinId}`);
-        continue;
-      }
+    const BATCH_SIZE = 10;
+    for (let i = 0; i < portfolioEntries.length; i += BATCH_SIZE) {
+      const batchEntries = portfolioEntries.slice(i, i + BATCH_SIZE);
+      const batchIds = batchEntries.map((entry) => entry.coinId);
 
-      const detail = detailsData.data[entry.coinId];
-      const logoInfo = logosData.data[entry.coinId];
-      const coinDetail = performanceData.data[entry.coinId];
+      const batchData = await fetchLatestCoinDataBatch(batchIds);
+      if (!batchData) continue;
 
-      if (
-        !coinDetail ||
-        !coinDetail.periods ||
-        !coinDetail.periods.all_time ||
-        !coinDetail.periods.all_time.quote
-      ) {
-        console.error(`Missing all_time period data for coin ${entry.coinId}`);
-        continue;
-      }
-      if (!detail || !detail.quote || !detail.quote.USD) {
-        console.error("Quote data is missing for coin:", entry.coinId);
-        continue; // Skip this iteration
-      }
+      await Promise.all(
+        batchEntries.map(async (entry) => {
+          const detail = batchData.detailsData[entry.coinId];
+          const logoInfo = batchData.logosData[entry.coinId];
+          const coinDetail = batchData.performanceData[entry.coinId];
 
-      const allTimePeriodData = coinDetail.periods.all_time;
-      const quoteUSD = allTimePeriodData.quote.USD;
+          if (
+            !coinDetail ||
+            !coinDetail.periods ||
+            !coinDetail.periods.all_time ||
+            !coinDetail.periods.all_time.quote
+          ) {
+            console.error(
+              `Missing all_time period data for coin ${entry.coinId}`
+            );
+            return;
+          }
+          if (!detail || !detail.quote || !detail.quote.USD) {
+            console.error("Quote data is missing for coin:", entry.coinId);
+            return; // Skip this iteration
+          }
 
-      const currentPrice = detail?.quote?.USD?.price ?? 0;
-      const athPrice = quoteUSD.high;
-      const atlPrice = quoteUSD.low;
-      const athRoi = currentPrice / atlPrice;
-      const percentIncreaseFromAtl = (currentPrice / atlPrice - 1) * 100;
-      const priceChangeIcon =
-        detail.quote.USD.percent_change_24h >= 0 ? "arrow-up" : "arrow-down";
-      const priceChangeColor =
-        detail.quote.USD.percent_change_24h >= 0 ? "green" : "red";
+          const allTimePeriodData = coinDetail.periods.all_time;
+          const quoteUSD = allTimePeriodData.quote.USD;
 
-      const totalHoldings = currentPrice * entry.shares;
+          const currentPrice = detail?.quote?.USD?.price ?? 0;
+          const athPrice = quoteUSD.high;
+          const atlPrice = quoteUSD.low;
+          const athRoi = currentPrice / atlPrice;
+          const percentIncreaseFromAtl = (currentPrice / atlPrice - 1) * 100;
+          const priceChangeIcon =
+            detail.quote.USD.percent_change_24h >= 0
+              ? "arrow-up"
+              : "arrow-down";
+          const priceChangeColor =
+            detail.quote.USD.percent_change_24h >= 0 ? "green" : "red";
 
-      const trueBudgetPerCoin = totalHoldings / (currentPrice / atlPrice);
-      const projectedRoi = trueBudgetPerCoin * 70;
+          const totalHoldings = currentPrice * entry.shares;
 
-      const mustOwnShares = userBudget / atlPrice;
-      console.log("atlPrice:", atlPrice);
-      console.log("userBudget:", userBudget);
-      console.log("mustOwnShares:", mustOwnShares);
-      const sharesMissing = mustOwnShares - entry.shares;
-      const additionalBudget = sharesMissing * currentPrice;
+          const trueBudgetPerCoin = totalHoldings / (currentPrice / atlPrice);
+          const projectedRoi = trueBudgetPerCoin * 70;
 
-      const updateResponse = await supabase
-        .from("portfolio")
-        .update({
-          coinImage: logoInfo.logo,
-          coinName: detail.name,
-          currentPrice: currentPrice,
-          //self calculation
-          athRoi: athRoi,
-          increaseFromATL: percentIncreaseFromAtl,
-          totalHoldings: totalHoldings,
-          trueBudgetPerCoin: trueBudgetPerCoin,
-          additionalBudget: additionalBudget,
-          sharesMissing: sharesMissing,
-          mustOwnShares: mustOwnShares,
-          projectedRoi: projectedRoi,
-          priceChangeIcon: priceChangeIcon,
-          priceChangeColor: priceChangeColor,
-          allTimeHigh: athPrice,
-          allTimeLow: atlPrice,
-          priceChangePercentage: detail.quote.USD.percent_change_24h,
-          tradingVolume: detail.quote.USD.volume_24h,
-          marketCap: detail.quote.USD.market_cap,
-          maxSupply: detail.max_supply === "null" ? -1 : detail.max_supply,
-          totalSupply: detail.total_supply,
-          circulatingSupply: detail.circulating_supply,
+          const mustOwnShares = userBudget / atlPrice;
+          const sharesMissing = mustOwnShares - entry.shares;
+          const additionalBudget = sharesMissing * currentPrice;
+
+          const updateResponse = await supabase
+            .from("portfolio")
+            .update({
+              coinImage: logoInfo.logo,
+              coinName: detail.name,
+              currentPrice: currentPrice,
+              //self calculation
+              athRoi: athRoi,
+              increaseFromATL: percentIncreaseFromAtl,
+              totalHoldings: totalHoldings,
+              trueBudgetPerCoin: trueBudgetPerCoin,
+              additionalBudget: additionalBudget,
+              sharesMissing: sharesMissing,
+              mustOwnShares: mustOwnShares,
+              projectedRoi: projectedRoi,
+              priceChangeIcon: priceChangeIcon,
+              priceChangeColor: priceChangeColor,
+              allTimeHigh: athPrice,
+              allTimeLow: atlPrice,
+              priceChangePercentage: detail.quote.USD.percent_change_24h,
+              tradingVolume: detail.quote.USD.volume_24h,
+              marketCap: detail.quote.USD.market_cap,
+              maxSupply: detail.max_supply === "null" ? -1 : detail.max_supply,
+              totalSupply: detail.total_supply,
+              circulatingSupply: detail.circulating_supply,
+            })
+            .match({ id: entry.id });
+
+          if (updateResponse.error) {
+            console.error("Supabase update error:", updateResponse.error);
+            console.log("Failed updateResponse:", updateResponse);
+            return;
+          }
         })
-        .match({ id: entry.id });
-
-      if (updateResponse.error) {
-        console.error("Supabase update error:", updateResponse.error);
-        console.log("Failed updateResponse:", updateResponse);
-        continue;
-      }
+      );
     }
   } catch (error) {
     console.error("An error occurred during the update process:", error);
