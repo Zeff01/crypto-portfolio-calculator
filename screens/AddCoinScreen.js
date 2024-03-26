@@ -93,6 +93,7 @@ const AddCoinScreen = () => {
   const handleConfirm = async () => {
     setAddCoinLoading(true);
     if (selectedCoin && numberOfShares) {
+      console.log("selectedCoin:", selectedCoin);
       //MY  Calculations
       const totalHoldings =
         selectedCoin.currentPrice * parseFloat(numberOfShares);
@@ -100,7 +101,7 @@ const AddCoinScreen = () => {
         totalHoldings / (selectedCoin.currentPrice / selectedCoin.allTimeLow);
       const projectedRoi = trueBudgetPerCoin * 70;
 
-      const mustOwnShares = budgetPerCoin / selectedCoin.atlPrice;
+      const mustOwnShares = budgetPerCoin / selectedCoin.allTimeLow;
       const sharesMissing = mustOwnShares - numberOfShares;
       const additionalBudget = sharesMissing * selectedCoin.currentPrice;
 
@@ -288,7 +289,7 @@ const AddCoinScreen = () => {
 
           <FlatList
             data={searchResults}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => item.id.toString()}
             renderItem={({ item }) => (
               <TouchableOpacity
                 onPress={() => handleSelectCoin(item)}

@@ -38,7 +38,9 @@ export const fetchCMCSearchResultsWithDetails = async (query) => {
   // Initial Coin Search
   const searchUrl = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/map?symbol=${query}`;
   const searchResponse = await fetch(searchUrl, { headers });
+
   const searchData = await searchResponse.json();
+  console.log("searchData:", searchData);
   if (!searchData.data || searchData.data.length === 0) {
     return [];
   }
@@ -241,6 +243,9 @@ export async function updatePortfolioWithCMC() {
       const projectedRoi = trueBudgetPerCoin * 70;
 
       const mustOwnShares = userBudget / atlPrice;
+      console.log("atlPrice:", atlPrice);
+      console.log("userBudget:", userBudget);
+      console.log("mustOwnShares:", mustOwnShares);
       const sharesMissing = mustOwnShares - entry.shares;
       const additionalBudget = sharesMissing * currentPrice;
 
