@@ -61,7 +61,7 @@ export const fetchCMCSearchResultsWithDetails = async (query) => {
   const detailsData = await detailsResponse.json();
   const logosData = await logosResponse.json();
   const performanceData = await performanceResponse.json();
-  console.log("performanceData", performanceData)
+  console.log("performanceData", performanceData);
 
   // Compile Detailed Results including Logos
   const detailedResults = searchData.data.flatMap((coin) => {
@@ -90,7 +90,7 @@ export const fetchCMCSearchResultsWithDetails = async (query) => {
 
     const athPrice = quoteUSD.high;
     const atlPrice = quoteUSD.low;
-    const athRoi = athPrice / atlPrice;
+    const athRoi = currentPrice / atlPrice;
     const percentIncreaseFromAtl = (currentPrice / atlPrice - 1) * 100;
     const priceChangeIcon =
       quoteUSD.percent_change >= 0 ? "arrow-up" : "arrow-down";
@@ -228,7 +228,7 @@ export async function updatePortfolioWithCMC() {
       const currentPrice = detail?.quote?.USD?.price ?? 0;
       const athPrice = quoteUSD.high;
       const atlPrice = quoteUSD.low;
-      const athRoi = athPrice / atlPrice;
+      const athRoi = currentPrice / atlPrice;
       const percentIncreaseFromAtl = (currentPrice / atlPrice - 1) * 100;
       const priceChangeIcon =
         detail.quote.USD.percent_change_24h >= 0 ? "arrow-up" : "arrow-down";
@@ -239,8 +239,11 @@ export async function updatePortfolioWithCMC() {
 
       const trueBudgetPerCoin = totalHoldings / (currentPrice / atlPrice);
       const projectedRoi = trueBudgetPerCoin * 70;
-      const additionalBudget = userBudget - trueBudgetPerCoin;
-    
+
+      const mustOwnShares = userBudget / atlPrice;
+      const sharesMissing = mustOwnShares - entry.shares;
+      const additionalBudget = sharesMissing * currentPrice;
+
       const updateResponse = await supabase
         .from("portfolio")
         .update({
@@ -253,6 +256,8 @@ export async function updatePortfolioWithCMC() {
           totalHoldings: totalHoldings,
           trueBudgetPerCoin: trueBudgetPerCoin,
           additionalBudget: additionalBudget,
+          sharesMissing: sharesMissing,
+          mustOwnShares: mustOwnShares,
           projectedRoi: projectedRoi,
           priceChangeIcon: priceChangeIcon,
           priceChangeColor: priceChangeColor,
@@ -267,11 +272,11 @@ export async function updatePortfolioWithCMC() {
         })
         .match({ id: entry.id });
 
-        if (updateResponse.error) {
-            console.error("Supabase update error:", updateResponse.error);
-            console.log("Failed updateResponse:", updateResponse);
-            continue;
-        }
+      if (updateResponse.error) {
+        console.error("Supabase update error:", updateResponse.error);
+        console.log("Failed updateResponse:", updateResponse);
+        continue;
+      }
     }
   } catch (error) {
     console.error("An error occurred during the update process:", error);

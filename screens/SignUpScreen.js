@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { View, ScrollView, Text, StyleSheet, Alert } from "react-native";
 import { supabase } from "../services/supabase";
-import { AntDesign } from "@expo/vector-icons";
-
 import Logo from "../components/Logo";
 import Forms from "../components/Forms";
-import ButtonArrow from "../components/ButtonArrow";
 
 import {
   firstNameSchema,
@@ -83,7 +80,6 @@ const SignUpScreen = ({ navigation }) => {
     passwordValid,
     repeatPasswordValid,
   ]);
- 
 
   const updatePassword = (pwd) => {
     setPassword(pwd);
@@ -95,18 +91,15 @@ const SignUpScreen = ({ navigation }) => {
     setPasswordsMatch(pwd === password);
   };
 
-
-
   const handleSignUp = async () => {
-  
     if (!passwordsMatch) {
       Alert.alert("Error", "Passwords do not match.");
       return;
     }
     setLoading(true);
     if (!firstNameSchema.safeParse(firstName).success) {
-        Alert.alert("Validation Error", "First Name is invalid.");
-        return;
+      Alert.alert("Validation Error", "First Name is invalid.");
+      return;
     }
 
     try {

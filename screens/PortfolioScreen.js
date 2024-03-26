@@ -1,9 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useCallback,
-  useLayoutEffect,
-} from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   View,
   Text,
@@ -29,7 +24,6 @@ import Spinner from "react-native-loading-spinner-overlay";
 import { RefreshControl } from "react-native-gesture-handler";
 import { useTheme } from "react-native-paper";
 import { Picker } from "@react-native-picker/picker";
-import { cloneDeep } from "lodash";
 import { useHandleTheme } from "../hooks/useTheme";
 import { LinearGradient } from "expo-linear-gradient";
 
@@ -63,7 +57,8 @@ const PortfolioScreen = () => {
   const fetchPortfolioData = async () => {
     showLoader();
 
-    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    const { data: sessionData, error: sessionError } =
+      await supabase.auth.getSession();
 
     if (sessionError) {
       console.error("Error fetching session:", sessionError.message);

@@ -2,7 +2,7 @@
   "expo": {
     "name": "crypto-portfolio",
     "slug": "crypto-portfolio",
-    "version": "1.0.0",
+    "version": "3.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/android_icon.png",
     "userInterfaceStyle": "light",

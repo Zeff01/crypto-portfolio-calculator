@@ -357,27 +357,9 @@ export default function DrawerContent(props) {
             paddingLeft: 20,
           }}
         >
-          Version 5.2
+          Version 6.0
         </Text>
       </View>
-
-      {/* Logout Button */}
-      {/* <TouchableOpacity
-        onPress={handleLogout}
-        style={{
-          marginTop: 'auto',
-          backgroundColor: theme.colors.primary,
-          padding: 10,
-          borderRadius: 5,
-        }}
-      >
-        <Text style={{ textAlign: 'center', color: 'white' }}>Logout</Text>
-      </TouchableOpacity> */}
-
-      {/* App Version */}
-      {/* <Text style={{ textAlign: 'center', marginTop: 10, color: theme.colors.onSurface, opacity: 0.6 }}>
-        App Version 0.0.1
-      </Text> */}
     </SafeAreaView>
   );
 }
