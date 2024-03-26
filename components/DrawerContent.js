@@ -357,7 +357,7 @@ export default function DrawerContent(props) {
             paddingLeft: 20,
           }}
         >
-          Version 6.0
+          Version 6.1
         </Text>
       </View>
     </SafeAreaView>
