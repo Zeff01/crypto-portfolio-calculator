@@ -335,7 +335,7 @@ export default function DrawerContent(props) {
           height: 1,
           backgroundColor: "rgba(255, 255, 255, 0.06)",
           width: "100%",
-          marginTop: 110,
+          marginTop: 50,
         }}
       />
       <View>
@@ -343,17 +343,7 @@ export default function DrawerContent(props) {
           style={{
             color: "#02F5C3",
             marginTop: 10,
-            marginBottom: 15,
-            paddingLeft: 20,
-          }}
-        >
-          Terms and Conditions
-        </Text>
-        <Text
-          style={{
-            color: "#02F5C3",
-            marginTop: 10,
-            marginBottom: 15,
+            marginBottom: 10,
             paddingLeft: 20,
           }}
         >
