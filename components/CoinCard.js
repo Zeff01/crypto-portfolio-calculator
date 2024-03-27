@@ -59,7 +59,7 @@ const CoinCard = ({
     !isNaN(editedSharesNum) && !isNaN(currentPriceNum)
       ? currentPriceNum * editedSharesNum
       : 0;
-  const formattedTotalHoldingsUSD = totalHoldingsUSD.toFixed(2).toString();
+  const formattedTotalHoldingsUSD = totalHoldingsUSD.toString();
   const formattedTotalHoldingsPHP = safeToFixed(
     data.currentPrice * parseInt(editedShares) * usdToPhpRate
   );
@@ -178,8 +178,9 @@ const CoinCard = ({
     typeof data?.currentPrice !== "number"
       ? 0
       : data.currentPrice < 1
-      ? data.currentPrice.toFixed(2)
-      : data.currentPrice.toFixed(2);
+      ? data.currentPrice.toFixed(5)
+      : data.currentPrice.toFixed(5);
+      
   const AccordionTitle = () => {
     return (
       <View style={{ flexDirection: "column", rowGap: 10, paddingVertical: 5 }}>
@@ -187,13 +188,12 @@ const CoinCard = ({
 
         <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
           <View style={{ flexDirection: "column" }}>
-          <Text style={{ fontSize: 10, color: theme.colors.text, marginBottom: 8 }}>
-
-              $ {Number(formattedTotalHoldingsUSD).toLocaleString()}
-            </Text>
-            <Text style={{ fontSize: 10, color: theme.colors.text }}>
+          <Text style={{ fontSize: 12, color: theme.colors.text,   marginBottom: 8 }}>
+            $ {Number(formattedTotalHoldingsUSD).toLocaleString()}
+          </Text>
+          <Text style={{ fontSize: 10, color: theme.colors.text }}>
               ₱ {Number(formattedTotalHoldingsPHP).toLocaleString()}
-            </Text>
+          </Text>
           </View>
         </View>
       </View>
@@ -236,26 +236,20 @@ const CoinCard = ({
   };
 
   const LeftIcon = () => {
-    // Truncate coinSymbol if it exceeds 3 characters
-    const truncatedSymbol = data.coinSymbol.length > 5 ? data.coinSymbol.substring(0, 5) + '...' : data.coinSymbol;
-  
     return (
-      <View style={{ maxWidth: 100, marginRight: 35 }}> 
-        <View style={{ alignItems: "center", flexDirection: "row", columnGap: 12 }}>
-          <View style={{ backgroundColor: "#EFEFEF", borderRadius: 8, padding: 8 }}>
+      <View style={{ position: 'relative', width:80,  marginLeft: 8 }}> 
+        <View >
+          <View style={{ position: 'absolute' }}>
             <Image source={{ uri: data.coinImage }} style={styles.icon} />
           </View>
-    
-          <Text
-            style={[styles.cardTitle, { color: theme.colors.text }]}
-          >
-            {truncatedSymbol}
+          <Text style={[styles.cardTitle, { color: theme.colors.text, marginTop: 35, marginLeft: 4}]}>
+            {data.coinSymbol}
           </Text>
-          <View style={{ flexDirection: "row", alignItems: "flex-end" }}></View>
         </View>
       </View>
     );
   };
+  
   
   
 
@@ -298,6 +292,7 @@ const CoinCard = ({
                 height: 80,
                 justifyContent: "center",
                 marginTop: 5,
+                paddingLeft:15,
                 backgroundColor: colors.coin,
               },
             ]}
@@ -321,7 +316,7 @@ const styles = StyleSheet.create({
     // backgroundColor: 'gray',
     position: "relative",
     paddingVertical: 3,
-    marginHorizontal: 2,
+    marginHorizontal: 1.5,
      
   },
   deleteButton: {
@@ -381,12 +376,13 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
   icon: {
-    width: 40,
-    height: 40,
+    width: 30,
+    height: 30,
     borderRadius: 20,
+    marginBottom: 5
   },
   cardTitle: {
-    fontSize: 16,
+    fontSize: 12,
     fontWeight: "bold",
   },
   actions: {

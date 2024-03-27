@@ -33,17 +33,30 @@ const AddCoinScreen = () => {
   const [addCoinLoading, setAddCoinLoading] = useState(false);
 
   const debouncedSearch = debounce(async (query) => {
-    if (!query) return setSearchResults([]);
-    setSearchLoading(true);
-    try {
-      const results = await fetchCMCSearchResultsWithDetails(query);
-      setSearchResults(results);
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setSearchLoading(false);
+    // If the query is empty, clear the search results and exit early
+    if (!query) {
+        setSearchResults([]);
+        return;
     }
-  }, 500);
+
+    // Set search loading state to indicate that search is in progress
+    setSearchLoading(true);
+
+    try {
+        // Attempt to fetch search results using the provided query
+        const results = await fetchCMCSearchResultsWithDetails(query);
+
+        // Update the search results state with the fetched results
+        setSearchResults(results);
+
+        // Set search loading state to false as search is successful
+        setSearchLoading(false);
+    } catch (error) {
+        // Log any errors that occur during the search
+        console.error(error);
+    }
+}, 500);
+
 
   useEffect(() => {
     const fetchBudget = async () => {
@@ -297,7 +310,9 @@ const AddCoinScreen = () => {
               >
                 <Image source={{ uri: item.logo }} style={styles.icon} />
                 <Text style={styles.coinName}>{item.symbol}</Text>
-                <Text style={styles.coinName}>{item.name}</Text>
+                <Text style={[styles.coinName, { fontSize: 12 }]}>{item.name}</Text>
+
+
               </TouchableOpacity>
             )}
           />
