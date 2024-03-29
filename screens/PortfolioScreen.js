@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   Dimensions,
 } from "react-native";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons, MaterialIcons, AntDesign } from "@expo/vector-icons";
 import CoinCard from "../components/CoinCard";
 import {
   fetchUsdToPhpRate,
@@ -26,6 +26,10 @@ import { useTheme } from "react-native-paper";
 import { Picker } from "@react-native-picker/picker";
 import { useHandleTheme } from "../hooks/useTheme";
 import { LinearGradient } from "expo-linear-gradient";
+import { CoinFetch } from "../queries";
+import useAuthStore from "../store/useAuthStore";
+
+
 
 const sortOptions = {
   default: "default",
@@ -52,6 +56,7 @@ const PortfolioScreen = () => {
   const showLoader = () => setLoading(true);
   const hideLoader = () => setLoading(false);
   const toggleViewMode = () => setSimplifiedView(!simplifiedView);
+  const logout = useAuthStore(s => s.logout)
 
   //fetch portfolio data
   const fetchPortfolioData = async () => {
@@ -101,12 +106,14 @@ const PortfolioScreen = () => {
 
   //get dollar rate to php
   const getExchangeRate = async () => {
-    const rate = await fetchUsdToPhpRate();
-    if (!rate) {
-      console.error("Failed to fetch exchange rate");
-      return;
-    }
-    setUsdToPhpRate(rate);
+    try {
+      const res = await CoinFetch.getExchangeRate()
+      const rates = res.data.rates      
+      console.log({rates})
+      setUsdToPhpRate(rates);
+    } catch (error) {
+      console.error(error)
+    }  
   };
 
   //check if paid already
@@ -416,6 +423,9 @@ const PortfolioScreen = () => {
                 <Ionicons name="warning" size={30} color="red" />
                 <Text style={styles.modalText}>Access Denied</Text>
                 <Text>Please contact the admin to complete your payment.</Text>
+                <TouchableOpacity onPress={logout} style={{position: "absolute", top: "15%", right:"5%"}} >
+                  <AntDesign name="logout" size={16} color="red"/>
+                </TouchableOpacity>                
               </View>
             </View>
           </Modal>

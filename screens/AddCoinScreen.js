@@ -16,6 +16,7 @@ import { Text, Button } from "react-native-paper";
 import CustomModal from "../components/CustomModal";
 import { useTheme } from "react-native-paper";
 import { useHandleTheme } from "../hooks/useTheme";
+import { CoinFetch } from "../queries";
 
 const AddCoinScreen = () => {
   const theme = useTheme();
@@ -44,8 +45,7 @@ const AddCoinScreen = () => {
 
     try {
         // Attempt to fetch search results using the provided query
-        const results = await fetchCMCSearchResultsWithDetails(query);
-
+        const results = await fetchCMCSearchResultsWithDetails(query);        
         // Update the search results state with the fetched results
         setSearchResults(results);
 
