@@ -33,7 +33,7 @@ const AddCoinScreen = () => {
   const [budgetPerCoin, setBudgetPerCoin] = useState(0);
   const [addCoinLoading, setAddCoinLoading] = useState(false);
 
-  const debouncedSearch = debounce(async (query) => {
+  const debouncedSearch = debounce(async (query, abort) => {
     // If the query is empty, clear the search results and exit early
     if (!query) {
         setSearchResults([]);
@@ -44,8 +44,11 @@ const AddCoinScreen = () => {
     setSearchLoading(true);
 
     try {
+        const res = await CoinFetch.searchWithDetails(query, abort)
+        const results = res.data
         // Attempt to fetch search results using the provided query
-        const results = await fetchCMCSearchResultsWithDetails(query);        
+        // const results = await fetchCMCSearchResultsWithDetails(query);
+
         // Update the search results state with the fetched results
         setSearchResults(results);
 
@@ -92,8 +95,10 @@ const AddCoinScreen = () => {
   }, []);
 
   useEffect(() => {
-    debouncedSearch(searchTerm);
+    const abort = new AbortController()
+    debouncedSearch(searchTerm, abort);
     return () => {
+      abort.abort()
       setSearchLoading(false);
       return debouncedSearch.cancel();
     };
