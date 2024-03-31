@@ -8,14 +8,18 @@ import useAuthStore from "../store/useAuthStore";
 import { supabase } from "../services/supabase";
 
 const RootNavigation = () => {
-  const { session, setSession } = useAuthStore();
+  const { session, setSession, setUser } = useAuthStore();
 
   useEffect(() => {
     const checkCurrentSession = async () => {
-      const { data: currentSession, error } = await supabase.auth.getSession();
+      const { data: {session}, error } = await supabase.auth.getSession();
 
-      if (currentSession) {
-        setSession(currentSession);
+      if (session) {
+        const {data: {user}} = await supabase.auth.getUser()
+        if (user) {
+          setSession(session);
+          setUser(user)
+        }    
       } else if (error) {
         console.error("Error getting current session:", error.message);
       }
@@ -24,8 +28,12 @@ const RootNavigation = () => {
     checkCurrentSession();
 
     const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        setSession(session);
+      async (_event, session) => {
+        const {data:{user}} = await supabase.auth.getUser(session.access_token)
+        if (user) {          
+          setSession(session);
+          setUser(user)
+        }
       }
     );
 
