@@ -21,7 +21,7 @@ const PortfolioHeader = ({
   const { colors, theme } = useHandleTheme();
   const [holdingsVisible, setHoldingsVisible] = useState(true);
   const [isEditingBudget, setIsEditingBudget] = useState(false);
-  const [budget, setBudget] = useState(0);
+  const [budget, setBudget] = useState(0);  
   const { usdToPhpRate } = useGlobalStore();
   const session  = useAuthStore(s => s.session)
   const user  = useAuthStore(s => s.user)
@@ -29,6 +29,8 @@ const PortfolioHeader = ({
   useEffect(() => {
     fetchBudget();
   }, []);
+
+  const phpBudget = (budget * usdToPhpRate).toFixed(2)
 
   const fetchBudget = async () => {
     try {
@@ -163,7 +165,7 @@ const PortfolioHeader = ({
     numericBudget = 0; // Default or error handling
   }
 
-  const phpBudget = (numericBudget * usdToPhpRate).toFixed(2);
+  // const phpBudget = (numericBudget * usdToPhpRate).toFixed(2);
 
   return (
     <View

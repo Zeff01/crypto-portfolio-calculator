@@ -12,6 +12,10 @@ import useGlobalStore from "../store/useGlobalStore";
 import { dataToParse, generateTableData } from "../utils/formatter";
 import { supabase } from "../services/supabase";
 import { useNavigation } from "@react-navigation/native";
+import useAuthStore from "../store/useAuthStore";
+import { ProfileFetch } from "../queries";
+import { Feather } from '@expo/vector-icons';
+import { ActivityIndicator } from "react-native";
 
 export default function CoinScreen({ route }) {
   const navigation = useNavigation();
@@ -22,6 +26,11 @@ export default function CoinScreen({ route }) {
   const [tableData, setTableData] = useState([]);
   const [shares, setShares] = useState(data ? data.shares.toString() : "0");
   const [showFullDescription, setShowFullDescription] = useState(false);
+  const [loading, setLoading] = useState(false)
+  const initialShares = data ? data.shares.toString() : "0"
+  const user = useAuthStore(s => s.user)
+  const session = useAuthStore(s => s.session)
+
 
   useEffect(() => {
     if (data) {
@@ -38,77 +47,33 @@ export default function CoinScreen({ route }) {
     : "";
   const fullDescription = data.coinDescription;
 
+  async function updateCoin() {
+    if (Number(shares) <= 0) return;
+    if (loading) return
+    try {
+      setLoading(true)
+      const id = user.id;
+      const jwt = session.access_token
+      if (!id || !jwt) return;
+      await ProfileFetch.updateSingleCoin(id, jwt, Number(shares), data)      
+      const res = await ProfileFetch.getPortfolioCoinData(id,jwt,data.coinId)
+      const newData = res.data.data
+      setTableData(generateTableData(newData, dataToParse, usdToPhpRate))
+      console.log('coin share updated!')
+    } catch (error) {
+      console.error('failed to update coin', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const handleSharesChange = async (text) => {
     const inputText = text.trim();
     setShares(inputText);
 
     if (inputText === "") {
       setShares("0");
-    } else {
-      const newSharesFloat = parseFloat(inputText);
-      if (!isNaN(newSharesFloat)) {
-        try {
-          const { data: subscriptionData, error: subscriptionError } =
-            await supabase
-              .from("subscription")
-              .select("budget")
-              .eq("userId", data.userId)
-              .single();
-
-          if (subscriptionError || !subscriptionData) {
-            throw subscriptionError || new Error("No subscription data found");
-          }
-
-          const userBudget = subscriptionData.budget || 0;
-
-          const mustOwnShares = userBudget / data.allTimeLow;
-          const sharesMissing = mustOwnShares - data.shares;
-          const additionalBudget = sharesMissing * data.currentPrice;
-
-          const { data: updateData, error } = await supabase
-            .from("portfolio")
-            .update({
-              shares: newSharesFloat,
-              totalHoldings: newSharesFloat * data.currentPrice,
-              trueBudgetPerCoin:
-                (newSharesFloat * data.currentPrice) /
-                (data.currentPrice / data.allTimeLow),
-              projectedRoi:
-                ((newSharesFloat * data.currentPrice) /
-                  (data.currentPrice / data.allTimeLow)) *
-                70,
-
-              additionalBudget: additionalBudget,
-              sharesMissing: sharesMissing,
-              mustOwnShares: mustOwnShares,
-            })
-            .eq("coinId", data.coinId)
-            .eq("userId", data.userId);
-
-          if (error) {
-            throw error;
-          }
-
-          // Fetch updated data after successful update
-          const { data: newData, error: fetchError } = await supabase
-            .from("portfolio")
-            .select("*")
-            .eq("coinId", data.coinId)
-            .eq("userId", data.userId)
-            .single();
-
-          if (fetchError) {
-            throw fetchError;
-          }
-
-          // Update tableData state with the new data
-          setTableData(generateTableData(newData, dataToParse, usdToPhpRate));
-        } catch (error) {
-          console.error("Error updating shares:", error.message);
-          (currentPrice / atlPrice - 1) * 100;
-        }
-      }
-    }
+    } 
   };
 
   function toggleDescription() {
@@ -238,7 +203,7 @@ export default function CoinScreen({ route }) {
                     {key}
                   </Text>
                 </View>
-                <View style={{ flex: 1, alignItems: "flex-end" }}>
+                <View style={{ flex: 1, alignItems: "center", display:'flex', flexDirection:'row' , justifyContent:'flex-end' }}>
                   <TextInput
                     style={{
                       fontWeight: "500",
@@ -249,6 +214,19 @@ export default function CoinScreen({ route }) {
                     onChangeText={handleSharesChange}
                     keyboardType="numeric"
                   />
+                    {
+                      Number(initialShares) !== Number(shares) ?
+                      <TouchableOpacity onPress={updateCoin}>
+                        {
+                          loading ?
+                          <ActivityIndicator size={18} color={"black"} /> :
+                          <Feather name="check-circle" size={18} color="black" />
+                        }
+                      </TouchableOpacity> :
+                      <Feather name="edit" size={18} color="transparent" />
+                    }
+
+
                 </View>
               </View>
             );

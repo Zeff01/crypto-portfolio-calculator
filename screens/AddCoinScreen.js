@@ -16,7 +16,8 @@ import { Text, Button } from "react-native-paper";
 import CustomModal from "../components/CustomModal";
 import { useTheme } from "react-native-paper";
 import { useHandleTheme } from "../hooks/useTheme";
-import { CoinFetch } from "../queries";
+import { CoinFetch, ProfileFetch } from "../queries";
+import useAuthStore from "../store/useAuthStore";
 
 const AddCoinScreen = () => {
   const theme = useTheme();
@@ -32,6 +33,9 @@ const AddCoinScreen = () => {
   const [modalMessage, setModalMessage] = useState("");
   const [budgetPerCoin, setBudgetPerCoin] = useState(0);
   const [addCoinLoading, setAddCoinLoading] = useState(false);
+
+  const user = useAuthStore(s => s.user)
+  const session = useAuthStore(s => s.session)
 
   const debouncedSearch = debounce(async (query, abort) => {
     // If the query is empty, clear the search results and exit early
@@ -58,7 +62,7 @@ const AddCoinScreen = () => {
         // Log any errors that occur during the search
         console.error(error);
     }
-}, 500);
+}, 800);
 
 
   useEffect(() => {
@@ -109,104 +113,136 @@ const AddCoinScreen = () => {
   };
 
   const handleConfirm = async () => {
-    setAddCoinLoading(true);
-    if (selectedCoin && numberOfShares) {
-      console.log("selectedCoin:", selectedCoin);
-      //MY  Calculations
-      const totalHoldings =
-        selectedCoin.currentPrice * parseFloat(numberOfShares);
-      const trueBudgetPerCoin =
-        totalHoldings / (selectedCoin.currentPrice / selectedCoin.allTimeLow);
-      const projectedRoi = trueBudgetPerCoin * 70;
-
-      const mustOwnShares = budgetPerCoin / selectedCoin.allTimeLow;
-      const sharesMissing = mustOwnShares - numberOfShares;
-      const additionalBudget = sharesMissing * selectedCoin.currentPrice;
-
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (user) {
-        const { data: existingEntries, error: existingEntriesError } =
-          await supabase
-            .from("portfolio")
-            .select("*")
-            .eq("userId", user.id)
-            .eq("coinId", selectedCoin.id);
-
-        if (existingEntriesError) {
-          console.error(
-            "Error checking for existing portfolio entry:",
-            existingEntriesError
-          );
-          setAddCoinLoading(false);
-          return;
-        }
-
-        if (existingEntries.length > 0) {
+    if (!selectedCoin || !numberOfShares) return;
+    try {
+      const id = user.id;
+      const jwt = session.access_token
+      if (!id || !jwt) return;
+      setAddCoinLoading(true)
+      const budgetRes = await ProfileFetch.getBudget(id,jwt)
+      const budget = budgetRes.data.budget
+      await ProfileFetch.addCoin(id,jwt,{
+        selectedCoin,
+        numberOfShares,
+        userId: id,
+        budgetPerCoin: budget
+      })
+      setSelectedCoin(null);
+      setNumberOfShares("");
+      navigation.goBack();
+    } catch (error) {
+      console.error(error)
+        const errMsg = error?.response?.data?.error;
+        if (errMsg.includes("You already have")) {
           setModalMessage(
             `You already have ${selectedCoin.name} in your portfolio.`
           );
           setIsModalVisible(true);
-          setAddCoinLoading(false);
-          return;
         }
-
-        const portfolioData = {
-          userId: user.id,
-          shares: parseFloat(numberOfShares, 10),
-          //self caulculation
-          athRoi: selectedCoin.athRoi,
-          increaseFromATL: selectedCoin.percentIncreaseFromAtl,
-          totalHoldings: totalHoldings,
-          trueBudgetPerCoin: trueBudgetPerCoin,
-          additionalBudget: additionalBudget,
-          mustOwnShares: mustOwnShares,
-          sharesMissing: sharesMissing,
-          projectedRoi: projectedRoi,
-          priceChangeIcon: selectedCoin.priceChangeIcon,
-          priceChangeColor: selectedCoin.priceChangeColor,
-
-          //from api
-          coinId: selectedCoin.id,
-          coinImage: selectedCoin.logo,
-          coinName: selectedCoin.name,
-          coinSymbol: selectedCoin.symbol,
-          coinDescription: selectedCoin.description,
-          marketCapRank: selectedCoin.marketCapRank,
-          allTimeHigh: selectedCoin.allTimeHigh,
-          allTimeLow: selectedCoin.allTimeLow,
-          priceChangePercentage: selectedCoin.priceChangePercentage,
-          tradingVolume: selectedCoin.tradingVolume,
-          marketCap: selectedCoin.marketCap,
-          maxSupply: selectedCoin.maxSupply,
-          totalSupply: selectedCoin.totalSupply,
-          circulatingSupply: selectedCoin.circulatingSupply,
-          currentPrice: selectedCoin.currentPrice,
-        };
-
-        const { data, error } = await supabase
-          .from("portfolio")
-          .insert([portfolioData]);
-
-        if (error) {
-          console.error("Error saving portfolio data:", error);
-          setAddCoinLoading(false);
-        } else {
-          console.log("Portfolio data saved successfully:", data);
-          setSelectedCoin(null);
-          setNumberOfShares("");
-          setAddCoinLoading(false);
-          navigation.goBack();
-        }
-      } else {
-        console.error("User not logged in");
-        setAddCoinLoading(false);
-      }
-      setAddCoinLoading(false);
+    } finally {
+      setAddCoinLoading(false)
     }
-    setAddCoinLoading(false);
+    return
+
+    // setAddCoinLoading(true);
+    // if (selectedCoin && numberOfShares) {
+    //   console.log("selectedCoin:", selectedCoin);
+    //   //MY  Calculations
+    //   const totalHoldings =
+    //     selectedCoin.currentPrice * parseFloat(numberOfShares);
+    //   const trueBudgetPerCoin =
+    //     totalHoldings / (selectedCoin.currentPrice / selectedCoin.allTimeLow);
+    //   const projectedRoi = trueBudgetPerCoin * 70;
+
+    //   const mustOwnShares = budgetPerCoin / selectedCoin.allTimeLow;
+    //   const sharesMissing = mustOwnShares - numberOfShares;
+    //   const additionalBudget = sharesMissing * selectedCoin.currentPrice;
+
+    //   const {
+    //     data: { user },
+    //   } = await supabase.auth.getUser();
+
+    //   if (user) {
+    //     const { data: existingEntries, error: existingEntriesError } =
+    //       await supabase
+    //         .from("portfolio")
+    //         .select("*")
+    //         .eq("userId", user.id)
+    //         .eq("coinId", selectedCoin.id);
+
+    //     if (existingEntriesError) {
+    //       console.error(
+    //         "Error checking for existing portfolio entry:",
+    //         existingEntriesError
+    //       );
+    //       setAddCoinLoading(false);
+    //       return;
+    //     }
+
+    //     if (existingEntries.length > 0) {
+    //       setModalMessage(
+    //         `You already have ${selectedCoin.name} in your portfolio.`
+    //       );
+    //       setIsModalVisible(true);
+    //       setAddCoinLoading(false);
+          
+    //       return;
+    //     }
+
+    //     const portfolioData = {
+    //       userId: user.id,
+    //       shares: parseFloat(numberOfShares, 10),
+    //       //self caulculation
+    //       athRoi: selectedCoin.athRoi,
+    //       increaseFromATL: selectedCoin.percentIncreaseFromAtl,
+    //       totalHoldings: totalHoldings,
+    //       trueBudgetPerCoin: trueBudgetPerCoin,
+    //       additionalBudget: additionalBudget,
+    //       mustOwnShares: mustOwnShares,
+    //       sharesMissing: sharesMissing,
+    //       projectedRoi: projectedRoi,
+    //       priceChangeIcon: selectedCoin.priceChangeIcon,
+    //       priceChangeColor: selectedCoin.priceChangeColor,
+
+    //       //from api
+    //       coinId: selectedCoin.id,
+    //       coinImage: selectedCoin.logo,
+    //       coinName: selectedCoin.name,
+    //       coinSymbol: selectedCoin.symbol,
+    //       coinDescription: selectedCoin.description,
+    //       marketCapRank: selectedCoin.marketCapRank,
+    //       allTimeHigh: selectedCoin.allTimeHigh,
+    //       allTimeLow: selectedCoin.allTimeLow,
+    //       priceChangePercentage: selectedCoin.priceChangePercentage,
+    //       tradingVolume: selectedCoin.tradingVolume,
+    //       marketCap: selectedCoin.marketCap,
+    //       maxSupply: selectedCoin.maxSupply,
+    //       totalSupply: selectedCoin.totalSupply,
+    //       circulatingSupply: selectedCoin.circulatingSupply,
+    //       currentPrice: selectedCoin.currentPrice,
+    //     };
+
+    //     const { data, error } = await supabase
+    //       .from("portfolio")
+    //       .insert([portfolioData]);
+
+    //     if (error) {
+    //       console.error("Error saving portfolio data:", error);
+    //       setAddCoinLoading(false);
+    //     } else {
+    //       console.log("Portfolio data saved successfully:", data);
+    //       setSelectedCoin(null);
+    //       setNumberOfShares("");
+    //       setAddCoinLoading(false);
+    //       navigation.goBack();
+    //     }
+    //   } else {
+    //     console.error("User not logged in");
+    //     setAddCoinLoading(false);
+    //   }
+    //   setAddCoinLoading(false);
+    // }
+    // setAddCoinLoading(false);
   };
 
   const dynamicStyles = StyleSheet.create({
