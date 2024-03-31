@@ -149,40 +149,40 @@ const CoinCard = ({
 
   useEffect(() => {
     // Fetch when the component mounts
-    fetchBudgetAndTrueBudgetPerCoin();
+    // fetchBudgetAndTrueBudgetPerCoin();
   }, []);
 
-  const fetchBudgetAndTrueBudgetPerCoin = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return;
+  // const fetchBudgetAndTrueBudgetPerCoin = async () => { // this function seems unused?
+  //   const {
+  //     data: { user },
+  //   } = await supabase.auth.getUser();
+  //   if (!user) return;
 
-    try {
-      const { data: subscriptionData, error: subscriptionError } =
-        await supabase
-          .from("subscription")
-          .select("budget")
-          .eq("userId", user.id)
-          .single();
+  //   try {
+  //     const { data: subscriptionData, error: subscriptionError } =
+  //       await supabase
+  //         .from("subscription")
+  //         .select("budget")
+  //         .eq("userId", user.id)
+  //         .single();
 
-      if (subscriptionError) throw subscriptionError;
-      setBudgetPerCoin(subscriptionData?.budget ?? 0);
+  //     if (subscriptionError) throw subscriptionError;
+  //     setBudgetPerCoin(subscriptionData?.budget ?? 0);
 
-      const { data: portfolioData, error: portfolioError } = await supabase
-        .from("portfolio")
-        .select("trueBudgetPerCoin")
-        .eq("userId", user.id)
-        .eq("coinId", data.coinId);
+  //     const { data: portfolioData, error: portfolioError } = await supabase
+  //       .from("portfolio")
+  //       .select("trueBudgetPerCoin")
+  //       .eq("userId", user.id)
+  //       .eq("coinId", data.coinId);
 
-      if (portfolioError) throw portfolioError;
-      if (portfolioData && portfolioData.length > 0) {
-        setTrueBudgetPerCoin(portfolioData[0].trueBudgetPerCoin);
-      }
-    } catch (error) {
-      console.error("Error fetching data:", error.message);
-    }
-  };
+  //     if (portfolioError) throw portfolioError;
+  //     if (portfolioData && portfolioData.length > 0) {
+  //       setTrueBudgetPerCoin(portfolioData[0].trueBudgetPerCoin);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching data:", error.message);
+  //   }
+  // };
 
   const PriceChangeIcon =
     data.priceChangeIcon === "arrow-up"

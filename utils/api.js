@@ -163,7 +163,7 @@ async function fetchLatestCoinDataBatch(coinIds) {
   }
 }
 
-export async function updatePortfolioWithCMC() {
+export async function updatePortfolioWithCMC() { //
   const { data: userData, error: userError } = await supabase.auth.getUser();
 
   if (userError) {

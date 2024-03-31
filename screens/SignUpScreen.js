@@ -3,6 +3,7 @@ import { View, ScrollView, Text, StyleSheet, Alert } from "react-native";
 import { supabase } from "../services/supabase";
 import Logo from "../components/Logo";
 import Forms from "../components/Forms";
+import { AuthFetch } from "../queries";
 
 import {
   firstNameSchema,
@@ -30,6 +31,7 @@ const SignUpScreen = ({ navigation }) => {
   const [passwordValid, setPasswordValid] = useState(false);
   const [repeatPasswordValid, setRepeatPasswordValid] = useState(false);
   const [formValid, setFormValid] = useState(false);
+  
 
   function validator(schema, item, setter) {
     try {
@@ -103,42 +105,67 @@ const SignUpScreen = ({ navigation }) => {
     }
 
     try {
-      const { data, error } = await supabase.auth.signUp({
+      setLoading(true)
+      const res = await AuthFetch.signup({
         email,
         password,
-        data: {
-          username: username,
-          firstName: firstName,
-          lastName: lastName,
-        },
-      });
-      if (error) throw error;
-
-      setLoading(false);
-
-      if (data?.user) {
-        const { error: insertError } = await supabase
-          .from("subscription")
-          .insert([
-            {
-              isPaid: false,
-              userId: data.user.id,
-              email: email,
-              firstName: firstName,
-              lastName: lastName,
-              username: username,
-            },
-          ]);
-
-        if (insertError) throw insertError;
+        username,
+        firstName,
+        lastName
+      })
+      if (res.status === 201) {
+        console.log('user created')
+        Alert.alert("Signup Successful", "Login to continue");
+        navigation.navigate("Login");
+        return;
       }
-      Alert.alert("Signup Successful", "Login to continue");
-      navigation.navigate("Login");
+      throw new Error('somethin went wrong on signup step')
     } catch (error) {
-      console.error("Signup Error:", error.message);
-      Alert.alert("Signup Failed", error.message);
-      setLoading(false);
+      console.error('failed to create user', error)
+    } finally {
+      setLoading(false)
+      return
     }
+
+    // try {
+    //   const { data, error } = await supabase.auth.signUp({
+    //     email,
+    //     password,
+    //     options: {
+    //       data: {
+    //         username: username,
+    //         firstName: firstName,
+    //         lastName: lastName,
+    //       },
+    //     }        
+    //   });
+    //   if (error) throw error;
+
+    //   setLoading(false);
+
+    //   if (data?.user) {
+    //     const { error: insertError } = await supabase
+    //       .from("subscription")
+    //       .insert([
+    //         {
+    //           isPaid: false,
+    //           userId: data.user.id,
+    //           email: email,
+    //           firstName: firstName,
+    //           lastName: lastName,
+    //           username: username,
+    //         },
+    //       ]);
+
+    //     if (insertError) throw insertError;
+    //   }
+    //   Alert.alert("Signup Successful", "Login to continue");
+    //   navigation.navigate("Login");
+    // } catch (error) {
+    //   console.error("Signup Error:", error.message);
+    //   Alert.alert("Signup Failed", error.message);
+    //   setLoading(false);
+    // }
   };
 
   const handleLogin = () => {
