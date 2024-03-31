@@ -6,49 +6,70 @@ import { Feather, FontAwesome5 } from "@expo/vector-icons";
 import { supabase } from "../services/supabase";
 import { useNavigation, DrawerActions } from "@react-navigation/native";
 import useAuthStore from "../store/useAuthStore";
+import { ProfileFetch } from "../queries";
 
 export default function DrawerContent(props) {
   const theme = useTheme();
   const navigation = useNavigation();
-  const [userInfo, setUserInfo] = useState({});
+  const [userInfo, setUserInfo] = useState({
+    firstName: "Guest",
+    lastName: "",
+    email: "No email",
+    username: "guest_user"
+  });
+
+  const user = useAuthStore(s => s.user)
+  const session = useAuthStore(s => s.session)
 
   useEffect(() => {
     const fetchUserInfo = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (user) {
-        let { data, error } = await supabase
-          .from("subscription")
-          .select("firstName, lastName, email, username")
-          .eq("userId", user.id)
-          .single();
-
-        if (error) {
-          console.error("Error fetching user info:", error);
-          setUserInfo({
-            firstName: "Guest",
-            lastName: "",
-            email: "No email",
-            username: "guest_user",
-          });
-        } else if (!data) {
-          console.log("No user information found");
-          setUserInfo({
-            firstName: "Guest",
-            lastName: "",
-            email: "No email",
-            username: "guest_user",
-          });
-        } else {
-          setUserInfo(data);
-        }
+      const id = user.id;
+      const jwt = session.access_token;
+      if (!id || !jwt) return;
+      try {
+        const res = await ProfileFetch.getUserInfo(id,jwt)
+        const info = res.data
+        setUserInfo(info)
+      } catch (error) {
+        console.error('failed to fetch user info')
       }
-    };
 
-    fetchUserInfo();
-  }, []);
+      // const {
+      //   data: { user },
+      // } = await supabase.auth.getUser();
+
+      // if (user) {
+      //   let { data, error } = await supabase
+      //     .from("subscription")
+      //     .select("firstName, lastName, email, username")
+      //     .eq("userId", user.id)
+      //     .single();
+
+      //   if (error) {
+      //     console.error("Error fetching user info:", error);
+      //     setUserInfo({
+      //       firstName: "Guest",
+      //       lastName: "",
+      //       email: "No email",
+      //       username: "guest_user",
+      //     });
+      //   } else if (!data) {
+      //     console.log("No user information found");
+      //     setUserInfo({
+      //       firstName: "Guest",
+      //       lastName: "",
+      //       email: "No email",
+      //       username: "guest_user",
+      //     });
+      //   } else {
+      //     setUserInfo(data);
+      //   }
+      // }
+    };
+    if (user) {
+      fetchUserInfo();
+    }
+  }, [user]);
 
   const handleLogout = async () => {
     try {

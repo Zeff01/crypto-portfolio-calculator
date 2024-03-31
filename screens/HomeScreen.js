@@ -114,7 +114,7 @@ const HomeScreen = () => {
 
   const dynamicStyles = StyleSheet.create({
     container: {
-      flex: 1,
+      // flex: 1,
       backgroundColor: colors.background,
       alignItems: "center",
       // gap: 10,
@@ -220,7 +220,7 @@ const HomeScreen = () => {
               New Coins
             </Text>
           }
-          data={cryptoTrending}
+          data={cryptoTrending.map((x) => x).reverse()}
         />
 
         {/* <Coins title={'Gainers'} data={cryptoGainers} /> */}
