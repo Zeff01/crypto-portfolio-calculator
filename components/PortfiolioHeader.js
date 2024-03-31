@@ -12,6 +12,7 @@ import { supabase } from "../services/supabase";
 import { useHandleTheme } from "../hooks/useTheme";
 import { ProfileFetch } from "../queries";
 import useAuthStore from "../store/useAuthStore";
+import { ActivityIndicator } from "react-native";
 const PortfolioHeader = ({
   title,
   totalHoldings,
@@ -25,6 +26,7 @@ const PortfolioHeader = ({
   const { usdToPhpRate } = useGlobalStore();
   const session  = useAuthStore(s => s.session)
   const user  = useAuthStore(s => s.user)
+  const [loading ,setLoading] = useState(false)
 
   useEffect(() => {
     fetchBudget();
@@ -67,10 +69,12 @@ const PortfolioHeader = ({
 
 
   const updateBudget = async (newBudget) => {
+    if (loading) return
     try {
       const id = user.id;
       const jwt = session.access_token
       if (id && jwt) {
+        setLoading(true)
         const res = await ProfileFetch.updateBudget(id, jwt, {newBudget})
         console.log(`status for updating budget is ${res.status}`)
         if (res.status === 200) {
@@ -82,6 +86,7 @@ const PortfolioHeader = ({
     } catch (error) {
       console.error('error updating budget', error)      
     } finally {
+      setLoading(false)
       setIsEditingBudget(false);
     }
     return
@@ -290,8 +295,12 @@ const PortfolioHeader = ({
             <TouchableOpacity
               onPress={handleBudgetUpdate}
               style={styles.iconButton}
-            >
-              <FontAwesome name="check-circle" size={30} color="green" />
+            >      
+              {
+                loading ?
+                <ActivityIndicator size={30} color="green" /> :
+                <FontAwesome name="check-circle" size={30} color="green" />
+              }        
             </TouchableOpacity>
           </View>
         </>

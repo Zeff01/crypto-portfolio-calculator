@@ -67,7 +67,7 @@ class ProfileQuery {
     async updateBudget(id, jwt, {newBudget}) {
         console.log('updating budget...')
         const res = await axios.patch(`${API_URL}/api/profile/updatebudget/${id}`, 
-        {newBudget},
+        {newBudget:Number(newBudget)},
         {
             headers: {Authorization: `Bearer ${jwt}`}
         })
