@@ -26,7 +26,7 @@ import { useTheme } from "react-native-paper";
 import { Picker } from "@react-native-picker/picker";
 import { useHandleTheme } from "../hooks/useTheme";
 import { LinearGradient } from "expo-linear-gradient";
-import { CoinFetch } from "../queries";
+import { CoinFetch, ProfileFetch } from "../queries";
 import useAuthStore from "../store/useAuthStore";
 
 
@@ -57,51 +57,83 @@ const PortfolioScreen = () => {
   const hideLoader = () => setLoading(false);
   const toggleViewMode = () => setSimplifiedView(!simplifiedView);
   const logout = useAuthStore(s => s.logout)
+  const user = useAuthStore(s => s.user)
+  const session = useAuthStore(s => s.session)
+
+  async function updatePortfolio() {
+    const id = user.id;
+    const jwt = session.access_token
+    console.log({id:Boolean(id), jwt:Boolean(jwt)})
+    if (!id || !jwt) return;
+    try {
+      await ProfileFetch.updatePortfolio(id, jwt)
+      console.log('portfolio updated')
+    } catch (error) {
+      console.error('error updating portfolio', error)
+    }
+  }
 
   //fetch portfolio data
   const fetchPortfolioData = async () => {
     showLoader();
-
-    const { data: sessionData, error: sessionError } =
-      await supabase.auth.getSession();
-
-    if (sessionError) {
-      console.error("Error fetching session:", sessionError.message);
-      hideLoader();
-      return;
+    const id = user.id;
+    const jwt = session.access_token
+    if (!id ||!jwt) {
+      console.log('No active session. User must be logged in to fetch portfolio data.')      
+      hideLoader()
+      return
+    }
+    try {
+      const res = await ProfileFetch.getPortfolioData(id,jwt)
+      const data = res.data.data
+      setPortfolioEntries(data)
+      console.log('portfolio data fetched')
+    } catch (error) {
+      console.error('error updating portfolio data', error)
+    } finally {
+      hideLoader()
     }
 
-    if (sessionData && sessionData.session) {
-      const { data: userData, error: userError } =
-        await supabase.auth.getUser();
-      if (userError) {
-        console.error("Error fetching user:", userError);
-        return;
-      }
-      if (!userData) {
-        console.log("No user found");
-        return;
-      }
+    // const { data: sessionData, error: sessionError } =
+    //   await supabase.auth.getSession();
 
-      if (userData) {
-        const { data: portfolioData, error } = await supabase
-          .from("portfolio")
-          .select("*")
-          .eq("userId", userData.user.id)
-          .order("orderIndex", { ascending: true });
+    // if (sessionError) {
+    //   console.error("Error fetching session:", sessionError.message);
+    //   hideLoader();
+    //   return;
+    // }
 
-        if (error) {
-          console.error("Error fetching portfolio data:", error);
-        } else {
-          setPortfolioEntries(portfolioData);
-        }
-      }
-    } else {
-      console.log(
-        "No active session. User must be logged in to fetch portfolio data."
-      );
-    }
-    hideLoader();
+    // if (sessionData && sessionData.session) {
+    //   const { data: userData, error: userError } =
+    //     await supabase.auth.getUser();
+    //   if (userError) {
+    //     console.error("Error fetching user:", userError);
+    //     return;
+    //   }
+    //   if (!userData) {
+    //     console.log("No user found");
+    //     return;
+    //   }
+
+    //   if (userData) {
+    //     const { data: portfolioData, error } = await supabase
+    //       .from("portfolio")
+    //       .select("*")
+    //       .eq("userId", userData.user.id)
+    //       .order("orderIndex", { ascending: true });
+
+    //     if (error) {
+    //       console.error("Error fetching portfolio data:", error);
+    //     } else {
+    //       setPortfolioEntries(portfolioData);
+    //     }
+    //   }
+    // } else {
+    //   console.log(
+    //     "No active session. User must be logged in to fetch portfolio data."
+    //   );
+    // }
+    // hideLoader();
   };
 
   //get dollar rate to php
@@ -118,33 +150,47 @@ const PortfolioScreen = () => {
 
   //check if paid already
   const checkUserPaymentStatus = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) {
-      const { data, error } = await supabase
-        .from("subscription")
-        .select("isPaid")
-        .eq("userId", user.id)
-        .single();
-
-      if (error) {
-        console.error("Error fetching user data:", error);
-        return;
+    const id = user.id;
+    const jwt = session.access_token
+    if (!id || !jwt) return;
+    try {
+      const res = await ProfileFetch.getPaymentStatus(id,jwt)
+      if (!res?.data.isPaid) {
+        setModalVisible(true)
       }
-
-      if (!data?.isPaid) {
-        setModalVisible(true);
-      }
+    } catch (error) {
+      console.error('error fetching user data')
     }
+
+    // const {
+    //   data: { user },
+    // } = await supabase.auth.getUser();
+    // if (user) {
+    //   const { data, error } = await supabase
+    //     .from("subscription")
+    //     .select("isPaid")
+    //     .eq("userId", user.id)
+    //     .single();
+
+    //   if (error) {
+    //     console.error("Error fetching user data:", error);
+    //     return;
+    //   }
+
+    //   if (!data?.isPaid) {
+    //     setModalVisible(true);
+    //   }
+    // }
   };
 
   //to fetch portfolio data
   useFocusEffect(
     React.useCallback(() => {
       // Fetch or refresh your portfolio data here
-      fetchPortfolioData();
-    }, [])
+      if (user) {
+        fetchPortfolioData();
+      }
+    }, [user])
   );
 
   //get total holdings based on portfolio entries
@@ -158,9 +204,11 @@ const PortfolioScreen = () => {
 
   //initial fetch
   useEffect(() => {
-    checkUserPaymentStatus();
-    getExchangeRate();
-  }, []);
+    if (user) {
+      checkUserPaymentStatus();
+      getExchangeRate();
+    }
+  }, [user]);
 
   const refreshData = async () => {
     // await fetchPortfolioData();
@@ -169,16 +217,24 @@ const PortfolioScreen = () => {
 
   useFocusEffect(
     useCallback(() => {
+      if (user)
       refreshData();
-    }, [])
+    }, [user])
   );
 
   useEffect(() => {
-    const interval = setInterval(updatePortfolioWithCMC, 1800000); // Fetch every 30 mins
+    const interval = setInterval(
+      // updatePortfolioWithCMC, 
+      updatePortfolio,
+      1800000
+    ); // Fetch every 30 mins
 
     const subscription = AppState.addEventListener("change", (nextAppState) => {
       if (nextAppState === "active") {
-        updatePortfolioWithCMC();
+        if (user) {
+          updatePortfolio()
+        }
+        // updatePortfolioWithCMC();
       }
     });
 
@@ -234,8 +290,10 @@ const PortfolioScreen = () => {
 
   const [totalTrueBudgetPerCoin, SetTotalTrueBudgetPerCoin] = useState(0);
   useEffect(() => {
-    fetchTotalBudgetPerCoin();
-  }, []);
+    if (user) {
+      fetchTotalBudgetPerCoin();
+    }
+  }, [user]);
 
   //fetch total budget per coin
   const fetchTotalBudgetPerCoin = async (userID) => {
@@ -386,8 +444,9 @@ const PortfolioScreen = () => {
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
     try {
+      // await updatePortfolioWithCMC();
+      await updatePortfolio()
       await fetchPortfolioData();
-      await updatePortfolioWithCMC();
     } catch (error) {
       console.error("Refreshing failed:", error);
     }
