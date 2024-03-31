@@ -21,10 +21,15 @@ const LoginScreen = ({ navigation }) => {
     console.log({ email, password, error });
     if (error) {
       Alert.alert("Login Failed", error.message);
-    } else {
-      console.log('login session',{session})
-      useAuthStore.getState().login(session);
+      return
     }
+    const {data:{user}, error:err} = await supabase.auth.getUser()    
+    if (err || !user) {
+      Alert.alert("encountered error when trying to get user data", err.message)
+      return 
+    }
+    // TODO: add this when the changing the onAuthStateChange useEffect
+    // useAuthStore.getState().login(session, user);
   };
 
   const handleForget = () => {

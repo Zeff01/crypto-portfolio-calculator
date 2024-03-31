@@ -6,6 +6,7 @@ class ProfileQuery {
     constructor(){}
 
     async getBudget(id, jwt) {
+        console.log('fetching budget...')
         const res = await axios.get(`${API_URL}/api/profile/budget/${id}`, {
             headers: {Authorization: `Bearer ${jwt}`}
         })
@@ -13,6 +14,7 @@ class ProfileQuery {
     }
 
     async getTrueBudget(id, jwt, coinId) {
+        console.log('fetching true...')
         const res = await axios.get(`${API_URL}/api/profile/truebudget/${id}/${coinId}`, {
             headers: {Authorization: `Bearer ${jwt}`}
         })
@@ -20,6 +22,7 @@ class ProfileQuery {
     }
 
     async getPortfolioData(id, jwt,) {
+        console.log('fetching portfolio data...')
         const res = await axios.get(`${API_URL}/api/profile/data/${id}`, {
             headers: {Authorization: `Bearer ${jwt}`}
         })
@@ -27,6 +30,7 @@ class ProfileQuery {
     }
     //                                                the coinId becomes a string because it will be retrieved from the params
     async getPortfolioCoinData(id, jwt, coinId) {
+        console.log('fetching portfolio coin data...')
         const res = await axios.get(`${API_URL}/api/profile/data/${id}/${coinId}`, {
             headers: {Authorization: `Bearer ${jwt}`}
         })        
@@ -34,6 +38,7 @@ class ProfileQuery {
     }
 
     async getUserInfo(id, jwt,) {
+        console.log('fetching user info...')
         const res = await axios.get(`${API_URL}/api/profile/userinfo/${id}`, {
             headers: {Authorization: `Bearer ${jwt}`}
         })
@@ -41,6 +46,7 @@ class ProfileQuery {
     }
 
     async getPaymentStatus(id, jwt,) {
+        console.log('fetching payment status...')
         const res = await axios.get(`${API_URL}/api/profile/paymentstatus/${id}`, {
             headers: {Authorization: `Bearer ${jwt}`}
         })
@@ -48,7 +54,8 @@ class ProfileQuery {
     }
 
     // TODO: update the  type of body
-    async addCoin(id, jwt, body) {
+    async addCoin(id, jwt, body) {        
+        console.log('adding coin...')
         const res = await axios.post(`${API_URL}/api/profile/addCoin/${id}`, 
         body,
         {
@@ -58,6 +65,7 @@ class ProfileQuery {
     }
 
     async updateBudget(id, jwt, {newBudget}) {
+        console.log('updating budget...')
         const res = await axios.patch(`${API_URL}/api/profile/updatebudget/${id}`, 
         {newBudget},
         {
@@ -67,6 +75,7 @@ class ProfileQuery {
     }
 
     async updatePortfolio(id, jwt) {
+        console.log('updating portfolio...')
         const res = await axios.patch(`${API_URL}/api/profile/portfolio/${id}`, 
         {},
         {
@@ -76,6 +85,7 @@ class ProfileQuery {
     }
 
     async deleteCoin(id, jwt, itemId) {
+        console.log('deleting coin...')
         const res = await axios.delete(`${API_URL}/api/profile/delete/${id}/${itemId}`, {
             headers: {Authorization: `Bearer ${jwt}`}
         })
@@ -83,6 +93,7 @@ class ProfileQuery {
     }
 
     async updateSingleCoin(id, jwt, shares, data) {
+        console.log('updating single coin...')
         const res = await axios.put(`${API_URL}/api/profile/portfolio/${id}`, 
         {
             shares,

@@ -10,6 +10,8 @@ import { FontAwesome, Foundation, Ionicons } from "@expo/vector-icons";
 import useGlobalStore from "../store/useGlobalStore";
 import { supabase } from "../services/supabase";
 import { useHandleTheme } from "../hooks/useTheme";
+import { ProfileFetch } from "../queries";
+import useAuthStore from "../store/useAuthStore";
 const PortfolioHeader = ({
   title,
   totalHoldings,
@@ -21,78 +23,112 @@ const PortfolioHeader = ({
   const [isEditingBudget, setIsEditingBudget] = useState(false);
   const [budget, setBudget] = useState(0);
   const { usdToPhpRate } = useGlobalStore();
+  const session  = useAuthStore(s => s.session)
+  const user  = useAuthStore(s => s.user)
 
   useEffect(() => {
     fetchBudget();
   }, []);
 
   const fetchBudget = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) {
-      const { data, error } = await supabase
-        .from("subscription")
-        .select("budget")
-        .eq("userId", user.id)
-        .single();
-
-      if (error) {
-        console.error("Error fetching budget:", error);
-        return;
+    try {
+      const id = user.id;
+      const jwt = session.access_token
+      if (id && jwt) {        
+        const res = await ProfileFetch.getBudget(id, jwt)
+        const budget = res.data.budget ?? 0
+        console.log(`the current budget is ${budget}`)
+        setBudget(budget)
       }
-
-      // Set budget to fetched value or fallback to 0 if null/undefined
-      setBudget(data?.budget ?? 0);
+    } catch (error) {
+      console.error('error fetching budget', error)
     }
+    // const {
+    //   data: { user },
+    // } = await supabase.auth.getUser();
+    // if (user) {
+    //   const { data, error } = await supabase
+    //     .from("subscription")
+    //     .select("budget")
+    //     .eq("userId", user.id)
+    //     .single();
+
+    //   if (error) {
+    //     console.error("Error fetching budget:", error);
+    //     return;
+    //   }
+
+    //   // Set budget to fetched value or fallback to 0 if null/undefined
+    //   setBudget(data?.budget ?? 0);
+    // }
   };
 
+
   const updateBudget = async (newBudget) => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) {
-      const { error } = await supabase
-        .from("subscription")
-        .update({ budget: newBudget })
-        .eq("userId", user.id);
-
-      const { data: portfolioData, error: fetchError } = await supabase
-        .from("portfolio")
-        .select("*")
-        .eq("userId", user.id);
-
-      if (fetchError || !portfolioData) {
-        console.error("Error fetching portfolio data:", fetchError);
-        return;
-      }
-
-      if (error) {
-        console.error("Error updating budget:", error);
-        return;
-      }
-      portfolioData.forEach(async (entry) => {
-        const mustOwnShares = newBudget / entry.atlPrice;
-        const sharesMissing = mustOwnShares - entry.shares;
-        const additionalBudget = sharesMissing * entry.currentPrice;
-        const { error: updateError } = await supabase
-          .from("portfolio")
-          .update({
-            additionalBudget: additionalBudget,
-            sharesMissing: sharesMissing,
-            mustOwnShares: mustOwnShares,
-          })
-          .match({ id: entry.id });
-
-        if (updateError) {
-          console.error("Error updating portfolio entry:", updateError);
+    try {
+      const id = user.id;
+      const jwt = session.access_token
+      if (id && jwt) {
+        const res = await ProfileFetch.updateBudget(id, jwt, {newBudget})
+        console.log(`status for updating budget is ${res.status}`)
+        if (res.status === 200) {
+          console.log('success updating budget')
+          fetchPortfolioData?.();
+          setBudget(newBudget);
         }
-      });
-
-      fetchPortfolioData?.();
-      setBudget(newBudget);
+      }
+    } catch (error) {
+      console.error('error updating budget', error)      
+    } finally {
       setIsEditingBudget(false);
     }
+    return
+
+    // const {
+    //   data: { user },
+    // } = await supabase.auth.getUser();
+    // if (user) {
+    //   const { error } = await supabase
+    //     .from("subscription")
+    //     .update({ budget: newBudget })
+    //     .eq("userId", user.id);
+
+    //   const { data: portfolioData, error: fetchError } = await supabase
+    //     .from("portfolio")
+    //     .select("*")
+    //     .eq("userId", user.id);
+
+    //   if (fetchError || !portfolioData) {
+    //     console.error("Error fetching portfolio data:", fetchError);
+    //     return;
+    //   }
+
+    //   if (error) {
+    //     console.error("Error updating budget:", error);
+    //     return;
+    //   }
+    //   portfolioData.forEach(async (entry) => {
+    //     const mustOwnShares = newBudget / entry.atlPrice;
+    //     const sharesMissing = mustOwnShares - entry.shares;
+    //     const additionalBudget = sharesMissing * entry.currentPrice;
+    //     const { error: updateError } = await supabase
+    //       .from("portfolio")
+    //       .update({
+    //         additionalBudget: additionalBudget,
+    //         sharesMissing: sharesMissing,
+    //         mustOwnShares: mustOwnShares,
+    //       })
+    //       .match({ id: entry.id });
+
+    //     if (updateError) {
+    //       console.error("Error updating portfolio entry:", updateError);
+    //     }
+    //   });
+
+    //   fetchPortfolioData?.();
+    //   setBudget(newBudget);
+    //   setIsEditingBudget(false);
+    // }
   };
 
   const handleBudgetChange = (value) => {

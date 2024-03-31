@@ -112,7 +112,7 @@ const PortfolioScreen = () => {
       console.log({rates})
       setUsdToPhpRate(rates);
     } catch (error) {
-      console.error(error)
+      console.error('error fetching exchange rate', error)
     }  
   };
 

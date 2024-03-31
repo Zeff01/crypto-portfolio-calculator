@@ -8,31 +8,44 @@ import useAuthStore from "../store/useAuthStore";
 import { supabase } from "../services/supabase";
 
 const RootNavigation = () => {
-  const { session, setSession, setUser } = useAuthStore();
+  const sessionData = useAuthStore(s => s.session)
+  const userData  = useAuthStore(s => s.user)
+  const setSession = useAuthStore(s => s.setSession)
+  const setUser = useAuthStore(s => s.setUser)
 
   useEffect(() => {
-    const checkCurrentSession = async () => {
-      const { data: {session}, error } = await supabase.auth.getSession();
+    console.log('session checker useEffect running')
+    // const checkCurrentSession = async () => {
+    //   const { data: {session}, error } = await supabase.auth.getSession();
 
-      if (session) {
-        const {data: {user}} = await supabase.auth.getUser()
-        if (user) {
-          setSession(session);
-          setUser(user)
-        }    
-      } else if (error) {
-        console.error("Error getting current session:", error.message);
-      }
-    };
+    //   if (session) {
+    //     const {data: {user}} = await supabase.auth.getUser(session.access_token)
+    //     if (user) {
+    //       setSession(session);
+    //       setUser(user)
+    //     }
+    //   } else if (error) {
+    //     console.error("Error getting current session:", error.message);
+    //   }
+    // };
 
-    checkCurrentSession();
+    // checkCurrentSession();
 
     const { data: listener } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
+        if (!session) {
+          console.log('no session found')
+          setSession(null)
+          setUser(null)
+          return
+        }
+        console.log('session found, checking user...')
         const {data:{user}} = await supabase.auth.getUser(session.access_token)
         if (user) {          
+          console.log('session and user data recorded')
           setSession(session);
           setUser(user)
+          return
         }
       }
     );
@@ -46,11 +59,20 @@ const RootNavigation = () => {
         listener.subscription.unsubscribe();
       }
     };
-  }, [setSession]);
+  }, []);
+
+  useEffect(() => {
+    if (userData) {
+      console.log(userData.id, 'userid')
+    }
+    if (sessionData) {
+      console.log(sessionData.refresh_token, 'refreshtoken')
+    }
+  }, [sessionData, userData])
 
   return (
     <NavigationContainer ref={navigationRef}>
-      {!session ? <AuthStackNavigator /> : <DrawerNavigator />}
+      {!sessionData ? <AuthStackNavigator /> : <DrawerNavigator />}
     </NavigationContainer>
   );
 };
