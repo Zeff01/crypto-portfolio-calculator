@@ -27,6 +27,8 @@ import { dataToParse, generateTableData } from "../utils/formatter";
 import { useTheme } from "react-native-paper";
 import { Swipeable } from "react-native-gesture-handler";
 import { useHandleTheme } from "../hooks/useTheme";
+import useAuthStore from "../store/useAuthStore";
+import { ProfileFetch } from "../queries";
 
 const CoinCard = ({
   data,
@@ -49,6 +51,8 @@ const CoinCard = ({
   const [expanded, setExpanded] = useState(false);
   const navigation = useNavigation();
   const { colors } = useHandleTheme();
+  const session = useAuthStore(s => s.session)
+  const user = useAuthStore(s => s.user)
 
   const editedSharesNum = Number(editedShares);
   const currentPriceNum = Number(data.currentPrice);
@@ -79,18 +83,30 @@ const CoinCard = ({
         {
           text: "OK",
           onPress: async () => {
-            const { data: deleteResponse, error } = await supabase
-              .from("portfolio")
-              .delete()
-              .match({ id: data.id });
-
-            if (error) {
-              console.error("Error deleting portfolio entry:", error);
-            } else {
-              console.log("Portfolio entry deleted:", deleteResponse);
-              deleteCoin(data.id);
-              fetchPortfolioData();
+            try {
+              const userId = user.id;
+              const jwt = session.access_token
+              if (userId && jwt) {
+                await ProfileFetch.deleteCoin(userId,jwt, data.id)
+                deleteCoin(data.id) // this is a zustand store function
+                console.log(`${data.coinName} deleted.`)
+                fetchPortfolioData()
+              }
+            } catch (error) {
+              console.error("Error deleting portfolio entry:", error);            
             }
+            // const { data: deleteResponse, error } = await supabase
+            //   .from("portfolio")
+            //   .delete()
+            //   .match({ id: data.id });
+
+            // if (error) {
+            //   console.error("Error deleting portfolio entry:", error);
+            // } else {
+            //   console.log("Portfolio entry deleted:", deleteResponse);
+            //   deleteCoin(data.id);
+            //   fetchPortfolioData();
+            // }
           },
         },
       ],
