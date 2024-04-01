@@ -15,6 +15,7 @@ const RootNavigation = () => {
   const userData  = useAuthStore(s => s.user)
   const setSession = useAuthStore(s => s.setSession)
   const setUser = useAuthStore(s => s.setUser)  
+  const login = useAuthStore(s => s.login)
   const [sessionChecked, setSessionChecked] = useState(false)
 
   async function checkSavedSession() {
@@ -26,8 +27,9 @@ const RootNavigation = () => {
         const res = await AuthFetch.refresh(s)
         if (res.status === 201) {
           const { user, session } = res.data
-          setSession(session)
-          setUser(user)
+          // setSession(session)
+          // setUser(user)
+          login(session, user)
           console.log('saved session found, logging in')
         }
         else {

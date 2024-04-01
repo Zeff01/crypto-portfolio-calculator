@@ -105,6 +105,15 @@ class ProfileQuery {
         return res
     }
 
+    async getTotalTrueBudget(id, jwt) {
+        console.log('getting total true budget...')
+        const res = await axios.get(`${API_URL}/api/profile/totaltruebudget/${id}`,
+        {
+            headers: {Authorization: `Bearer ${jwt}`}
+        })
+        return res;
+    }
+
 
 
 

@@ -50,8 +50,9 @@ const PortfolioScreen = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [simplifiedView, setSimplifiedView] = useState(false);
   const [sortBy, setSortBy] = useState("gainsDesc");
-  const [sortedPortfolioEntries, setSortedPortfolioEntries] =
-    useState(portfolioEntries);
+  const [sortedPortfolioEntries, setSortedPortfolioEntries] = useState(portfolioEntries);
+  const [totalTrueBudgetPerCoin, setTotalTrueBudgetPerCoin] = useState(0);
+
   const navigation = useNavigation();
   const showLoader = () => setLoading(true);
   const hideLoader = () => setLoading(false);
@@ -288,7 +289,6 @@ const PortfolioScreen = () => {
     );
   };
 
-  const [totalTrueBudgetPerCoin, SetTotalTrueBudgetPerCoin] = useState(0);
   useEffect(() => {
     if (user) {
       fetchTotalBudgetPerCoin();
@@ -297,36 +297,50 @@ const PortfolioScreen = () => {
 
   //fetch total budget per coin
   const fetchTotalBudgetPerCoin = async (userID) => {
-    try {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (user) {
-        let { data, error, status } = await supabase
-          .from("portfolio")
-          .select("trueBudgetPerCoin")
-          .eq("userId", user.id);
-
-        if (error && status !== 406) {
-          throw error;
-        }
-
-        if (data) {
-          // Sum the trueBudgetPerCoin values
-          const total = data.reduce(
-            (acc, { trueBudgetPerCoin }) => acc + Number(trueBudgetPerCoin),
-            0
-          );
-          SetTotalTrueBudgetPerCoin(total * 70);
-        }
-      } else {
-        console.log("No session found. User is not logged in.");
-      }
-    } catch (error) {
-      console.error("Error fetching total budget per coin:", error);
-      return 0; // or handle the error as needed
+    const id = user.id;
+    const jwt = session.access_token;
+    if (!id || !jwt) {
+      return
     }
+    try {
+      const res = await ProfileFetch.getTotalTrueBudget(id, jwt)
+      const total = res.data.total;
+      setTotalTrueBudgetPerCoin(total)
+      console.log('total true budget fetch sucess!!!')
+    } catch (error) {
+      console.error('error fetching total true budget', error)
+    }
+
+    // try {
+    //   const {
+    //     data: { user },
+    //   } = await supabase.auth.getUser();
+
+    //   if (user) {
+    //     let { data, error, status } = await supabase
+    //       .from("portfolio")
+    //       .select("trueBudgetPerCoin")
+    //       .eq("userId", user.id);
+
+    //     if (error && status !== 406) {
+    //       throw error;
+    //     }
+
+    //     if (data) {
+    //       // Sum the trueBudgetPerCoin values
+    //       const total = data.reduce(
+    //         (acc, { trueBudgetPerCoin }) => acc + Number(trueBudgetPerCoin),
+    //         0
+    //       );
+    //       SetTotalTrueBudgetPerCoin(total * 70);
+    //     }
+    //   } else {
+    //     console.log("No session found. User is not logged in.");
+    //   }
+    // } catch (error) {
+    //   console.error("Error fetching total budget per coin:", error);
+    //   return 0; // or handle the error as needed
+    // }
   };
 
   const ListHeaderComponent = () => {

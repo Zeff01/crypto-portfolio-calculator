@@ -127,9 +127,6 @@ const HomeScreen = () => {
     }
   }, [user])
 
-  useEffect(() => {
-
-  }, [])
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
