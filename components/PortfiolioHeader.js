@@ -170,6 +170,7 @@ const PortfolioHeader = ({
   // const phpBudget = (numericBudget * usdToPhpRate).toFixed(2);
 
   useEffect(() => {
+    console.log('fetch budget useEffect')
     if (user) {
       fetchBudget();
     }

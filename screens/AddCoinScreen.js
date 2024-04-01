@@ -80,7 +80,7 @@ const AddCoinScreen = () => {
 
 
   useEffect(() => {
-    
+      console.log('fetch budget effect')
     // const fetchBudget = async () => {
     //   try {
     //     const {
@@ -115,6 +115,7 @@ const AddCoinScreen = () => {
   }, [user]);
 
   useEffect(() => {
+    console.log('search coin useEffect')
     const abort = new AbortController()
     debouncedSearch(searchTerm, abort);
     return () => {

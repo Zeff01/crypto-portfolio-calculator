@@ -23,6 +23,7 @@ export default function DrawerContent(props) {
   const session = useAuthStore(s => s.session)
 
   useEffect(() => {
+    console.log('user info useEffect')
     const fetchUserInfo = async () => {
       const id = user.id;
       const jwt = session.access_token;

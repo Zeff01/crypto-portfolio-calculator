@@ -187,6 +187,7 @@ const PortfolioScreen = () => {
   //to fetch portfolio data
   useFocusEffect(
     React.useCallback(() => {
+      console.log('fetch portfolio data focus effect')
       // Fetch or refresh your portfolio data here
       if (user) {
         fetchPortfolioData();
@@ -196,6 +197,7 @@ const PortfolioScreen = () => {
 
   //get total holdings based on portfolio entries
   useEffect(() => {
+    console.log('portfolio entries effect')
     const total = portfolioEntries.reduce(
       (acc, entry) => acc + entry.totalHoldings,
       0
@@ -205,6 +207,7 @@ const PortfolioScreen = () => {
 
   //initial fetch
   useEffect(() => {
+    console.log('payment status effect')
     if (user) {
       checkUserPaymentStatus();
       getExchangeRate();
@@ -218,12 +221,14 @@ const PortfolioScreen = () => {
 
   useFocusEffect(
     useCallback(() => {
+      console.log('refresh data focus effect')
       if (user)
       refreshData();
     }, [user])
   );
 
   useEffect(() => {
+    console.log('update portfolio interval effect')
     const interval = setInterval(
       // updatePortfolioWithCMC, 
       updatePortfolio,
@@ -246,6 +251,7 @@ const PortfolioScreen = () => {
   }, []);
 
   useEffect(() => {
+    console.log('sort entries effect')
     const sortedEntries = [...portfolioEntries]; // Shallow copy the array
 
     switch (sortBy) {
@@ -290,6 +296,7 @@ const PortfolioScreen = () => {
   };
 
   useEffect(() => {
+    console.log('total budget per coin effect')
     if (user) {
       fetchTotalBudgetPerCoin();
     }

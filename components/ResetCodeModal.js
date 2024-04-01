@@ -46,6 +46,7 @@ export default function ResetCodeModal({showModal, setShowModal, email, setShowN
     }
 
     useEffect(() => {
+        console.log('reset code useEffect')
         if (!showModal) {
             return
         }

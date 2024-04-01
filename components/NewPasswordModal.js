@@ -65,9 +65,11 @@ export default function NewPasswordModal({email, showModal, setShowModal}) {
     }
 
     useEffect(() => {
+        console.log('password form useEffect')
         validator(passwordSchema, password, setPasswordValid)
     }, [password])
     useEffect(() => {
+        console.log('repeat password form useEffect')
         setRepeatPasswordValid(password === repeatPassword && repeatPassword.length > 0)
     }, [password, repeatPassword])
 

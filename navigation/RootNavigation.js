@@ -48,7 +48,7 @@ const RootNavigation = () => {
     }
   }
 
-  useEffect(() => {
+  useEffect(() => {    
     console.log('session checker useEffect running')
       checkSavedSession()
   }, [])
@@ -101,14 +101,6 @@ const RootNavigation = () => {
   //   };
   // }, []);
 
-  useEffect(() => {
-    if (userData) {
-      console.log(userData.id, 'userid')
-    }
-    if (sessionData) {
-      console.log(sessionData.refresh_token, 'refreshtoken')
-    }
-  }, [sessionData, userData])
 
   return (
     <NavigationContainer ref={navigationRef}>

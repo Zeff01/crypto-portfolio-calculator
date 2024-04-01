@@ -122,6 +122,7 @@ const HomeScreen = () => {
   }, []);
   
   useEffect(() => {
+    console.log('get user name useEffect')
     if (user) {
       getUserName();    
     }

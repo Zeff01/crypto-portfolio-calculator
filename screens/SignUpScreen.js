@@ -43,27 +43,34 @@ const SignUpScreen = ({ navigation }) => {
   }
 
   useEffect(() => {
+    console.log('first form validator effect')
     validator(firstNameSchema, firstName, setFirstNameValid);
   }, [firstName]);
   useEffect(() => {
+    console.log('last form validator effect')
     validator(lastNameSchema, lastName, setLastNameValid);
   }, [lastName]);
   useEffect(() => {
+    console.log('username form validator effect')
     validator(usernameSchema, username, setUsernameValid);
   }, [username]);
   useEffect(() => {
+    console.log('email form validator effect')
     validator(emailSchema, email, setEmailValid);
   }, [email]);
   useEffect(() => {
+    console.log('pass form validator effect')
     validator(passwordSchema, password, setPasswordValid);
   }, [password]);
   useEffect(() => {
+    console.log('confirm form validator effect')
     setRepeatPasswordValid(
       password === repeatPassword && repeatPassword.length !== 0
     );
   }, [repeatPassword, password]);
 
   useEffect(() => {
+    console.log('valid form validator effect')
     setFormValid(
       Boolean(
         firstNameValid &&

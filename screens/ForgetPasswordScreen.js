@@ -33,6 +33,7 @@ const ForgetPasswordScreen = () => {
   }
 
   useEffect(() => {
+    console.log('email validator useEffect')
     validator(emailSchema, email, setEmailValid);
   }, [email]);
 

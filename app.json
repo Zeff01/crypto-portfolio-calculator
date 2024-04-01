@@ -31,11 +31,6 @@
     "plugins": [
       "expo-font"
     ],
-    "extra": {
-      "eas": {
-        "projectId": "cd63a1d6-4661-4065-929b-539f3ad7231f"
-      }
-    },
     "runtimeVersion": {
       "policy": "appVersion"
     },
@@ -43,6 +38,11 @@
       "enabled": true,
       "checkAutomatically": "ON_LOAD",
       "url": "https://u.expo.dev/cd63a1d6-4661-4065-929b-539f3ad7231f"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "6e436939-4e54-4527-9b59-06bb6d73ec0b"
+      }
     }
   }
 }

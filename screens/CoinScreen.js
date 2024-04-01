@@ -33,6 +33,7 @@ export default function CoinScreen({ route }) {
 
 
   useEffect(() => {
+    console.log('table data useEffect')
     if (data) {
       setTableData(generateTableData(data, dataToParse, usdToPhpRate));
     }
