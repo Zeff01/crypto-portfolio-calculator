@@ -28,9 +28,7 @@ const PortfolioHeader = ({
   const user  = useAuthStore(s => s.user)
   const [loading ,setLoading] = useState(false)
 
-  useEffect(() => {
-    fetchBudget();
-  }, []);
+
 
   const phpBudget = (budget * usdToPhpRate).toFixed(2)
 
@@ -38,12 +36,11 @@ const PortfolioHeader = ({
     try {
       const id = user.id;
       const jwt = session.access_token
-      if (id && jwt) {        
-        const res = await ProfileFetch.getBudget(id, jwt)
-        const budget = res.data.budget ?? 0
-        console.log(`the current budget is ${budget}`)
-        setBudget(budget)
-      }
+      if (!id || !jwt) return
+      const res = await ProfileFetch.getBudget(id, jwt)
+      const budget = res.data.budget ?? 0
+      console.log(`the current budget is ${budget}`)
+      setBudget(budget)
     } catch (error) {
       console.error('error fetching budget', error)
     }
@@ -171,6 +168,12 @@ const PortfolioHeader = ({
   }
 
   // const phpBudget = (numericBudget * usdToPhpRate).toFixed(2);
+
+  useEffect(() => {
+    if (user) {
+      fetchBudget();
+    }
+  }, [user]);
 
   return (
     <View

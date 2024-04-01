@@ -20,14 +20,16 @@ import News from "../components/home/News";
 import Coins from "../components/home/Coins";
 import { supabase } from "../services/supabase";
 import { useHandleTheme } from "../hooks/useTheme";
+import { ProfileFetch } from "../queries";
+import useAuthStore from "../store/useAuthStore";
 
 const HomeScreen = () => {
   const theme = useTheme();
   const { colors } = useHandleTheme();
   const navigation = useNavigation();
   const [cryptoData, setCryptoData] = useState([]);
-  const [cryptoNews, setCryptoNews] = useState();
-  const [cryptoTrending, setCryptoTrending] = useState();
+  // const [cryptoNews, setCryptoNews] = useState();
+  const [cryptoTrending, setCryptoTrending] = useState([]);
   // const [cryptoGainers, setCryptoGainers] = useState()
   // console.log("zz  HomeScreen  cryptoGainers:", cryptoGainers)
   const [refreshing, setRefreshing] = useState(false);
@@ -35,6 +37,8 @@ const HomeScreen = () => {
 
   const [category, setCategory] = useState();
   const [categories, setCategories] = useState();
+  const user = useAuthStore(s => s.user)
+  const session = useAuthStore(s => s.session)
 
   const fetchCryptoData = async () => {
     const data = await fetchCMCGlobalMetrics();
@@ -77,23 +81,35 @@ const HomeScreen = () => {
   // };
 
   //check if paid already
-  const checkUserPaymentStatus = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) {
-      const { data, error } = await supabase
-        .from("subscription")
-        .select("username")
-        .eq("userId", user.id)
-        .single();
-      setUserName(data.username);
-
-      if (error) {
-        console.error("Error fetching user data:", error);
-        return;
+  const getUserName = async () => {    
+    const id = user.id;
+    const jwt = session.access_token;
+    if (!id||!jwt) return;
+    try {
+      const res = await ProfileFetch.getUserInfo(id,jwt)
+      if (res.status === 200 && res.data.username) {
+        setUserName(res.data.username)
       }
+      console.log('payment status checked')      
+    } catch (error) {
+      console.error('error fetching username')
     }
+    // const {
+    //   data: { user },
+    // } = await supabase.auth.getUser();
+    // if (user) {
+    //   const { data, error } = await supabase
+    //     .from("subscription")
+    //     .select("username")
+    //     .eq("userId", user.id)
+    //     .single();
+    //   setUserName(data.username);
+
+    //   if (error) {
+    //     console.error("Error fetching user data:", error);
+    //     return;
+    //   }
+    // }
   };
 
   useEffect(() => {
@@ -103,8 +119,17 @@ const HomeScreen = () => {
     // fetchGainersLosers()
     fetchTrendingToken();
     fetchCryptoData();
-    checkUserPaymentStatus();
   }, []);
+  
+  useEffect(() => {
+    if (user) {
+      getUserName();    
+    }
+  }, [user])
+
+  useEffect(() => {
+
+  }, [])
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);

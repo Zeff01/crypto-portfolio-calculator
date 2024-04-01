@@ -1,6 +1,6 @@
 // useAuthStore.js
 import { create } from 'zustand';
-import { supabase } from '../services/supabase';
+// import { supabase } from '../services/supabase';
 
 const useAuthStore = create((set) => ({
     session: null,
@@ -12,7 +12,7 @@ const useAuthStore = create((set) => ({
     logout: () => {
         set({ session: null });
         set({ user: null });
-        supabase.auth.signOut();
+        // supabase.auth.signOut();
     },
 }));
 

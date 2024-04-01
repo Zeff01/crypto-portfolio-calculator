@@ -7,6 +7,7 @@ import { supabase } from "../services/supabase";
 import { useNavigation, DrawerActions } from "@react-navigation/native";
 import useAuthStore from "../store/useAuthStore";
 import { ProfileFetch } from "../queries";
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export default function DrawerContent(props) {
   const theme = useTheme();
@@ -73,9 +74,10 @@ export default function DrawerContent(props) {
 
   const handleLogout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
+      // const { error } = await supabase.auth.signOut();
+      await AsyncStorage.removeItem('session')
       useAuthStore.getState().logout();
-      if (error) throw error;
+      // if (error) throw error;
     } catch (error) {
       console.error("Logout error:", error.message);
     }

@@ -65,38 +65,54 @@ const AddCoinScreen = () => {
 }, 800);
 
 
+  async function fetchBudget() {
+    const id = user.id;
+    const jwt = session.access_token;
+    if (!id || !jwt) return;
+    try {
+      const res = await ProfileFetch.getBudget(id, jwt)
+      const budget = res.data.budget
+      setBudgetPerCoin(budget)
+    } catch (error) {
+      console.error('error fetching budget', error)
+    }
+  }
+
+
   useEffect(() => {
-    const fetchBudget = async () => {
-      try {
-        const {
-          data: { user },
-        } = await supabase.auth.getUser();
+    
+    // const fetchBudget = async () => {
+    //   try {
+    //     const {
+    //       data: { user },
+    //     } = await supabase.auth.getUser();
 
-        if (!user) {
-          console.error("User not logged in");
-          return;
-        }
+    //     if (!user) {
+    //       console.error("User not logged in");
+    //       return;
+    //     }
 
-        const { data, error } = await supabase
-          .from("subscription")
-          .select("budget")
-          .eq("userId", user.id)
-          .single();
+    //     const { data, error } = await supabase
+    //       .from("subscription")
+    //       .select("budget")
+    //       .eq("userId", user.id)
+    //       .single();
 
-        if (error) {
-          throw error;
-        }
+    //     if (error) {
+    //       throw error;
+    //     }
 
-        if (data) {
-          setBudgetPerCoin(data.budget);
-        }
-      } catch (error) {
-        console.error("Error fetching budget:", error.message);
-      }
-    };
-
-    fetchBudget();
-  }, []);
+    //     if (data) {
+    //       setBudgetPerCoin(data.budget);
+    //     }
+    //   } catch (error) {
+    //     console.error("Error fetching budget:", error.message);
+    //   }
+    // };
+    if (user) {
+      fetchBudget();
+    }
+  }, [user]);
 
   useEffect(() => {
     const abort = new AbortController()
@@ -119,13 +135,11 @@ const AddCoinScreen = () => {
       const jwt = session.access_token
       if (!id || !jwt) return;
       setAddCoinLoading(true)
-      const budgetRes = await ProfileFetch.getBudget(id,jwt)
-      const budget = budgetRes.data.budget
       await ProfileFetch.addCoin(id,jwt,{
         selectedCoin,
         numberOfShares,
         userId: id,
-        budgetPerCoin: budget
+        budgetPerCoin
       })
       setSelectedCoin(null);
       setNumberOfShares("");
